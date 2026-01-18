@@ -9,6 +9,4 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
 
 
 
-    Product findFirstById(UUID ID);
-
 }

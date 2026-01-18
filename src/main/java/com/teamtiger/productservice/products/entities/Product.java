@@ -24,6 +24,6 @@ public class Product {
     private String name;
     private BigDecimal retail_price;
     private int weight;
-
+    private UUID vendor_id;
 
 }

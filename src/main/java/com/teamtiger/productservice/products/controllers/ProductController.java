@@ -25,18 +25,13 @@ public class ProductController {
 
 
 
-        }catch(){
-
-
-        }catch (){
-
-
         }catch (Exception ex){
-
+            //Returns a 500 error
+            return ResponseEntity.internalServerError().build();
         }
 
+        
 
-        return productService.createProduct(dto);
     }
 
 
