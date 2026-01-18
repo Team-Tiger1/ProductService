@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
@@ -20,6 +21,9 @@ public class Product {
     @UuidGenerator
     @Column(name = "product_id", updatable = false, nullable = false)
     private UUID id;
-
+    private String name;
+    private BigDecimal retail_price;
+    private int weight;
+    private UUID vendor_id;
 
 }
