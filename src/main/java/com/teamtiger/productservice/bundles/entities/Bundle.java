@@ -30,7 +30,7 @@ public class Bundle {
             joinColumns = @JoinColumn(name = "bundle_id"),
             inverseJoinColumns = @JoinColumn(name = "product_id")
     )
-    private Set<Product> productId;
+    private Set<Product> products;
 
     @Column(updatable = false)
     private UUID vendorId;
@@ -39,6 +39,7 @@ public class Bundle {
     private String name;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, columnDefinition = "varchar") //REMOVE THIS WHEN MIGRATING TO POSTGRESQL
     private BundleCategory category;
 
     private LocalDateTime collectionStart;

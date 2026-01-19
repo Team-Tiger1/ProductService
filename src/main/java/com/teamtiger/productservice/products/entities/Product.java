@@ -23,8 +23,8 @@ public class Product {
     @Column(name = "product_id", updatable = false, nullable = false)
     private UUID id;
 
-    @ManyToMany
-    private Set<Bundle> bundleId;
+    @ManyToMany(mappedBy = "products")
+    private Set<Bundle> bundles;
 
     private String name;
     private double retailPrice;
