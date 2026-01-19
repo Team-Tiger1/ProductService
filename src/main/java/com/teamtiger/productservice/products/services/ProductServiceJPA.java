@@ -2,7 +2,7 @@ package com.teamtiger.productservice.products.services;
 
 import com.teamtiger.productservice.JwtTokenUtil;
 import com.teamtiger.productservice.products.entities.Product;
-import com.teamtiger.productservice.products.models.CreateProductDTO;
+import com.teamtiger.productservice.products.models.ProductDTO;
 import com.teamtiger.productservice.products.repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,15 +17,15 @@ public class ProductServiceJPA implements ProductService{
     private final JwtTokenUtil jwtTokenUtil;
 
     @Override
-    public CreateProductDTO createProduct(String accessToken, CreateProductDTO dto) {
+    public ProductDTO createProduct(String accessToken, ProductDTO dto) {
 
 
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
         Product product = Product.builder()
                 .name(dto.name())
-                .retail_price(dto.retail_price())
+                .retailPrice(dto.retailPrice())
                 .weight(dto.weight())
-                .vendor_id(vendorId)
+                .vendorId(vendorId)
                 .build();
 
         Product createdProduct = productRepository.save(product);

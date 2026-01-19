@@ -1,9 +1,8 @@
 package com.teamtiger.productservice.products.services;
 
-import com.teamtiger.productservice.products.entities.Product;
-import com.teamtiger.productservice.products.models.CreateProductDTO;
+import com.teamtiger.productservice.products.models.ProductDTO;
 
 public interface ProductService {
 
-    CreateProductDTO createProduct(String accessToken, CreateProductDTO dto);
+    ProductDTO createProduct(String accessToken, ProductDTO dto);
 }

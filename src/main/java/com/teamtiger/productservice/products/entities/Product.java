@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
-import java.math.BigDecimal;
 import java.util.Set;
 import java.util.UUID;
 
@@ -28,8 +27,8 @@ public class Product {
     private Set<Bundle> bundleId;
 
     private String name;
-    private BigDecimal retail_price;
+    private double retailPrice;
     private int weight;
-    private UUID vendor_id;
+    private UUID vendorId;
 
 }

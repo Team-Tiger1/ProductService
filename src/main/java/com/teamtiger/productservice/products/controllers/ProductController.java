@@ -1,7 +1,6 @@
 package com.teamtiger.productservice.products.controllers;
 
-import com.teamtiger.productservice.products.entities.Product;
-import com.teamtiger.productservice.products.models.CreateProductDTO;
+import com.teamtiger.productservice.products.models.ProductDTO;
 import com.teamtiger.productservice.products.services.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,11 +15,11 @@ public class ProductController {
 
 
     @PostMapping
-    public ResponseEntity<?> createProduct(@RequestHeader("Authorization") String authHeader, @RequestBody CreateProductDTO dto) {
+    public ResponseEntity<?> createProduct(@RequestHeader("Authorization") String authHeader, @RequestBody ProductDTO dto) {
 
         try{
             String accessToken = authHeader.replace("Bearer ", "");
-            CreateProductDTO createdProductDTO = productService.createProduct(accessToken,dto);
+            ProductDTO createdProductDTO = productService.createProduct(accessToken,dto);
             return ResponseEntity.ok(createdProductDTO);
 
 
