@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/bundles")
 @RequiredArgsConstructor
@@ -24,6 +26,21 @@ public class BundleController {
             String accessToken = authHeader.replace("Bearer ", "");
             BundleDTO bundleDTO = bundleService.createBundle(createBundleDTO, accessToken);
             return ResponseEntity.ok(bundleDTO);
+        }
+
+        catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @Operation(summary = "Allows a Vendor to delete a bundle")
+    @DeleteMapping("/{bundleId}")
+    public ResponseEntity<?> deleteBundle(@RequestHeader("Authorization") String authHeader,
+                                          @PathVariable UUID bundleId) {
+        try {
+            String accessToken = authHeader.replace("Bearer ", "");
+            bundleService.deleteBundle(bundleId, accessToken);
+            return ResponseEntity.noContent().build();
         }
 
         catch (Exception e) {

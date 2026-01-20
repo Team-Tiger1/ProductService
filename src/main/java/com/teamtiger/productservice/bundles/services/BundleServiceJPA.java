@@ -2,6 +2,8 @@ package com.teamtiger.productservice.bundles.services;
 
 import com.teamtiger.productservice.JwtTokenUtil;
 import com.teamtiger.productservice.bundles.entities.Bundle;
+import com.teamtiger.productservice.bundles.exceptions.BundleNotFoundException;
+import com.teamtiger.productservice.bundles.exceptions.VendorAuthorizationException;
 import com.teamtiger.productservice.bundles.models.BundleDTO;
 import com.teamtiger.productservice.bundles.models.CreateBundleDTO;
 import com.teamtiger.productservice.bundles.repositories.BundleRepository;
@@ -47,6 +49,20 @@ public class BundleServiceJPA implements BundleService {
         Bundle savedBundle = bundleRepository.save(bundle);
 
         return BundleMapper.toDTO(savedBundle);
+    }
+
+    @Override
+    public void deleteBundle(UUID bundleId, String accessToken) {
+        UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
+
+        Bundle savedBundle = bundleRepository.findById(bundleId)
+                .orElseThrow(BundleNotFoundException::new);
+
+        if(!vendorId.equals(savedBundle.getVendorId())) {
+            throw new VendorAuthorizationException();
+        }
+
+        bundleRepository.deleteById(bundleId);
     }
 
     private static class BundleMapper {
