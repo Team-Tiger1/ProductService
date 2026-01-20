@@ -1,11 +1,14 @@
 package com.teamtiger.productservice.bundles.controllers;
 
+import com.teamtiger.productservice.bundles.exceptions.BundleNotFoundException;
+import com.teamtiger.productservice.bundles.exceptions.VendorAuthorizationException;
 import com.teamtiger.productservice.bundles.models.BundleDTO;
 import com.teamtiger.productservice.bundles.models.CreateBundleDTO;
 import com.teamtiger.productservice.bundles.services.BundleService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,6 +44,14 @@ public class BundleController {
             String accessToken = authHeader.replace("Bearer ", "");
             bundleService.deleteBundle(bundleId, accessToken);
             return ResponseEntity.noContent().build();
+        }
+
+        catch (BundleNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+
+        catch (VendorAuthorizationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         catch (Exception e) {
