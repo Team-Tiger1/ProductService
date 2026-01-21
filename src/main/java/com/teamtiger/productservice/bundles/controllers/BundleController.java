@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -52,6 +53,20 @@ public class BundleController {
 
         catch (VendorAuthorizationException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+
+
+    @GetMapping("/{vendorId}")
+    public ResponseEntity<?> getVendorBundles(@PathVariable UUID vendorId) {
+        try {
+            List<BundleDTO> bundleList = bundleService.getVendorBundles(vendorId);
+            return ResponseEntity.ok(bundleList);
         }
 
         catch (Exception e) {

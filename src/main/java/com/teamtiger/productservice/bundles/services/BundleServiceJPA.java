@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -63,6 +64,16 @@ public class BundleServiceJPA implements BundleService {
         }
 
         bundleRepository.deleteById(bundleId);
+    }
+
+    @Override
+    public List<BundleDTO> getVendorBundles(UUID vendorId) {
+
+        List<Bundle> bundleList = bundleRepository.findAllByVendorId(vendorId);
+
+        return bundleList.stream()
+                .map(BundleMapper::toDTO)
+                .toList();
     }
 
     private static class BundleMapper {

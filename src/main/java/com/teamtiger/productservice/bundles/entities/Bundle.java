@@ -15,7 +15,13 @@ import java.util.UUID;
 @Builder
 @RequiredArgsConstructor
 @AllArgsConstructor
-@Table(name = "bundles")
+@Table(
+        name = "bundles",
+        indexes = {
+                @Index(name = "idx_vendor_id", columnList = "vendor_id")
+        }
+
+)
 public class Bundle {
 
     @Id
@@ -32,7 +38,7 @@ public class Bundle {
     )
     private Set<Product> products;
 
-    @Column(updatable = false)
+    @Column(name = "vendor_id", updatable = false)
     private UUID vendorId;
 
     @Column(nullable = false)
