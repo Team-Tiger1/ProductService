@@ -18,7 +18,7 @@ import java.util.UUID;
 @Table(
         name = "bundles",
         indexes = {
-                @Index(name = "idx_vendor_id", columnList = "vendor_id")
+                @Index(name = "idx_vendor_id", columnList = "vendor_id", unique = true)
         }
 
 )
