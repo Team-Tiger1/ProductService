@@ -24,6 +24,8 @@ public class Product {
     private String name;
     private BigDecimal retail_price;
     private int weight;
-    private UUID vendor_id;
+    @Column(name = "vendor_id")
+    private UUID vendorId;
+    //private UUID vendor_id;
 
 }

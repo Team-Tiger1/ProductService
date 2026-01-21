@@ -26,13 +26,25 @@ public class ProductController {
 
 
         }catch (Exception ex){
-            //Returns a 500 error
+            ex.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
 
-        
-
     }
+
+    @GetMapping("/vendor")
+    public ResponseEntity<?> getVendorProducts(@RequestHeader("Authorization") String authHeader) {
+        try {
+            String accessToken = authHeader.replace("Bearer ", "");
+            return ResponseEntity.ok(productService.getVendorProducts(accessToken));
+        }
+        catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error fetching vendor products");
+        }
+    }
+
+
+
 
 
 
