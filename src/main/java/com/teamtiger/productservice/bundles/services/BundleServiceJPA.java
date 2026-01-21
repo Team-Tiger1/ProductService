@@ -56,6 +56,11 @@ public class BundleServiceJPA implements BundleService {
     public void deleteBundle(UUID bundleId, String accessToken) {
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
 
+        String role = jwtTokenUtil.getRoleFromToken(accessToken);
+        if(!role.equals("VENDOR")) {
+            throw new VendorAuthorizationException();
+        }
+
         Bundle savedBundle = bundleRepository.findById(bundleId)
                 .orElseThrow(BundleNotFoundException::new);
 
