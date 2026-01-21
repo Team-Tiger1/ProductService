@@ -14,4 +14,6 @@ public interface BundleService {
 
     List<BundleDTO> getVendorBundles(UUID vendorId);
 
+    List<BundleDTO> getOwnBundles(String accessToken);
+
 }

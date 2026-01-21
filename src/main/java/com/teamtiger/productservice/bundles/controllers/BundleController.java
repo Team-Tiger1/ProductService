@@ -60,8 +60,27 @@ public class BundleController {
         }
     }
 
+    @Operation(summary = "Allows a vendor to access all their bundles for sale")
+    @GetMapping("/me")
+    public ResponseEntity<?> getOwnBundles(@RequestHeader("Authorization") String authHeader) {
+        try {
+            String accessToken = authHeader.replace("Bearer ", "");
+            List<BundleDTO> bundleList = bundleService.getOwnBundles(accessToken);
+            return ResponseEntity.ok(bundleList);
+        }
+
+        catch (VendorAuthorizationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 
 
+
+    @Operation(summary = "Get all bundles from a vendor given a vendorId")
     @GetMapping("/{vendorId}")
     public ResponseEntity<?> getVendorBundles(@PathVariable UUID vendorId) {
         try {

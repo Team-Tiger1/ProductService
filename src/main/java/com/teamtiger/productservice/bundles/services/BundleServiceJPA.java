@@ -76,6 +76,18 @@ public class BundleServiceJPA implements BundleService {
                 .toList();
     }
 
+    @Override
+    public List<BundleDTO> getOwnBundles(String accessToken) {
+        UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
+        String role = jwtTokenUtil.getRoleFromToken(accessToken);
+
+        if(!role.equals("VENDOR")) {
+            throw new VendorAuthorizationException();
+        }
+
+        return this.getVendorBundles(vendorId);
+    }
+
     private static class BundleMapper {
 
         public static BundleDTO toDTO(Bundle entity) {
