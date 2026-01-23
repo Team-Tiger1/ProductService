@@ -40,7 +40,7 @@ public class Reservation {
     private UUID userId;
 
     @Positive
-    private double amount_due;
+    private double amountDue;
 
     @Enumerated(EnumType.STRING)
     private CollectionStatus status;

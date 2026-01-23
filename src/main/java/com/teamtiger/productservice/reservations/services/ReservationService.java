@@ -11,4 +11,6 @@ public interface ReservationService {
 
     List<ReservationDTO> getReservations(String accessToken);
 
+    void deleteReservation(UUID reservationId, String accessToken);
+
 }

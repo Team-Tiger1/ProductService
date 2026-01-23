@@ -3,10 +3,12 @@ package com.teamtiger.productservice.reservations.controllers;
 import com.teamtiger.productservice.bundles.exceptions.BundleNotFoundException;
 import com.teamtiger.productservice.reservations.exceptions.AuthorizationException;
 import com.teamtiger.productservice.reservations.exceptions.BundleAlreadyReservedException;
+import com.teamtiger.productservice.reservations.exceptions.ReservationNotFoundException;
 import com.teamtiger.productservice.reservations.models.ReservationDTO;
 import com.teamtiger.productservice.reservations.services.ReservationService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.micrometer.observation.autoconfigure.ObservationProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -55,6 +57,27 @@ public class ReservationController {
             String accessToken = authToken.replace("Bearer ", "");
             List<ReservationDTO> reservationList = reservationService.getReservations(accessToken);
             return ResponseEntity.ok(reservationList);
+        }
+
+        catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @DeleteMapping("/{reservationId}")
+    public ResponseEntity<?> deleteReservation(@PathVariable UUID reservationId, @RequestHeader("Authorization") String authToken) {
+        try {
+            String accessToken = authToken.replace("Bearer ", "");
+            reservationService.deleteReservation(reservationId, accessToken);
+            return ResponseEntity.noContent().build();
+        }
+
+        catch (ReservationNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+
+        catch (AuthorizationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         catch (Exception e) {

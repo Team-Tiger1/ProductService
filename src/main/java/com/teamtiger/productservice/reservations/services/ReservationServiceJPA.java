@@ -8,6 +8,7 @@ import com.teamtiger.productservice.bundles.repositories.BundleRepository;
 import com.teamtiger.productservice.reservations.entities.Reservation;
 import com.teamtiger.productservice.reservations.exceptions.AuthorizationException;
 import com.teamtiger.productservice.reservations.exceptions.BundleAlreadyReservedException;
+import com.teamtiger.productservice.reservations.exceptions.ReservationNotFoundException;
 import com.teamtiger.productservice.reservations.models.CollectionStatus;
 import com.teamtiger.productservice.reservations.models.ReservationDTO;
 import com.teamtiger.productservice.reservations.repositories.ReservationRepository;
@@ -48,7 +49,7 @@ public class ReservationServiceJPA implements ReservationService {
                 .bundle(bundle)
                 .status(CollectionStatus.RESERVED)
                 .userId(userId)
-                .amount_due(bundle.getPrice())
+                .amountDue(bundle.getPrice())
                 .timeReserved(LocalDateTime.now())
                 .build();
 
@@ -67,6 +68,21 @@ public class ReservationServiceJPA implements ReservationService {
         return reservations.stream()
                 .map(ReservationMapper::toDTO)
                 .toList();
+    }
+
+
+    @Override
+    public void deleteReservation(UUID reservationId, String accessToken) {
+        UUID userId = jwtTokenUtil.getUuidFromToken(accessToken);
+
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(ReservationNotFoundException::new);
+
+        if(!reservation.getUserId().equals(userId)) {
+            throw new AuthorizationException();
+        }
+
+        reservationRepository.deleteById(reservationId);
     }
 
     private static class ReservationMapper {
