@@ -8,7 +8,6 @@ import com.teamtiger.productservice.reservations.models.ReservationDTO;
 import com.teamtiger.productservice.reservations.services.ReservationService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.micrometer.observation.autoconfigure.ObservationProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

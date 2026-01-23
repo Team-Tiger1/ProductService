@@ -5,12 +5,15 @@ import com.teamtiger.productservice.bundles.entities.Bundle;
 import com.teamtiger.productservice.bundles.exceptions.BundleNotFoundException;
 import com.teamtiger.productservice.bundles.models.BundleDTO;
 import com.teamtiger.productservice.bundles.repositories.BundleRepository;
+import com.teamtiger.productservice.reservations.ClaimCodeGenerator;
+import com.teamtiger.productservice.reservations.entities.ClaimCode;
 import com.teamtiger.productservice.reservations.entities.Reservation;
 import com.teamtiger.productservice.reservations.exceptions.AuthorizationException;
 import com.teamtiger.productservice.reservations.exceptions.BundleAlreadyReservedException;
 import com.teamtiger.productservice.reservations.exceptions.ReservationNotFoundException;
 import com.teamtiger.productservice.reservations.models.CollectionStatus;
 import com.teamtiger.productservice.reservations.models.ReservationDTO;
+import com.teamtiger.productservice.reservations.repositories.ClaimCodeRepository;
 import com.teamtiger.productservice.reservations.repositories.ReservationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,7 +21,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +29,8 @@ public class ReservationServiceJPA implements ReservationService {
     private final ReservationRepository reservationRepository;
     private final BundleRepository bundleRepository;
     private final JwtTokenUtil jwtTokenUtil;
+    private final ClaimCodeGenerator claimCodeGenerator;
+    private final ClaimCodeRepository claimCodeRepository;
 
     @Override
     public ReservationDTO createReservation(UUID bundleId, String accessToken) {
@@ -54,6 +58,16 @@ public class ReservationServiceJPA implements ReservationService {
                 .build();
 
         Reservation savedReservation = reservationRepository.save(reservation);
+
+        //Generate and Save Claim Code
+        String claimCode = claimCodeGenerator.generateCode();
+
+        ClaimCode claimCodeEntity = ClaimCode.builder()
+                .reservation(savedReservation)
+                .claimCode(claimCode)
+                .build();
+
+        claimCodeRepository.save(claimCodeEntity);
 
         return ReservationMapper.toDTO(savedReservation);
     }
