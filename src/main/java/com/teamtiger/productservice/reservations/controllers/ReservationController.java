@@ -4,6 +4,7 @@ import com.teamtiger.productservice.bundles.exceptions.BundleNotFoundException;
 import com.teamtiger.productservice.reservations.exceptions.AuthorizationException;
 import com.teamtiger.productservice.reservations.exceptions.BundleAlreadyReservedException;
 import com.teamtiger.productservice.reservations.exceptions.ReservationNotFoundException;
+import com.teamtiger.productservice.reservations.models.ClaimCodeDTO;
 import com.teamtiger.productservice.reservations.models.ReservationDTO;
 import com.teamtiger.productservice.reservations.services.ReservationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -63,6 +64,7 @@ public class ReservationController {
         }
     }
 
+    @Operation(summary = "Delete a reservation using the UUID")
     @DeleteMapping("/{reservationId}")
     public ResponseEntity<?> deleteReservation(@PathVariable UUID reservationId, @RequestHeader("Authorization") String authToken) {
         try {
@@ -77,6 +79,50 @@ public class ReservationController {
 
         catch (AuthorizationException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @Operation(summary = "Get a claim code for a reservation")
+    @GetMapping("/claimcode/{reservationId}")
+    public ResponseEntity<?> getClaimCode(@PathVariable UUID reservationId, @RequestHeader("Authorization") String authHeader) {
+        try {
+            String accessToken = authHeader.replace("Bearer ", "");
+            ClaimCodeDTO claimCodeDTO = reservationService.getClaimCode(reservationId, accessToken);
+            return ResponseEntity.ok(claimCodeDTO);
+        }
+
+        catch (ReservationNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+
+        catch (AuthorizationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @Operation(summary = "Allows a vendor to verify a reservation, marking it completed")
+    @PostMapping("/claimcode")
+    public ResponseEntity<?> checkClaimCode(ClaimCodeDTO claimCodeDTO, @RequestHeader("Authorization") String authHeader) {
+        try {
+            String accessToken = authHeader.replace("Bearer ", "");
+            reservationService.checkClaimCode(claimCodeDTO, accessToken);
+            return ResponseEntity.noContent().build();
+        }
+
+        catch (AuthorizationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        catch (BundleNotFoundException e) {
+            return ResponseEntity.notFound().build();
         }
 
         catch (Exception e) {

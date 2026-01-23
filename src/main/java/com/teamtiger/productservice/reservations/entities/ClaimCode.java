@@ -8,7 +8,7 @@ import lombok.*;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "claim_code", indexes = {@Index(name = "idx_claim_code", columnList = "claim_code")})
+@Table(name = "claim_codes", indexes = {@Index(name = "idx_claim_code", columnList = "claim_code")})
 public class ClaimCode {
 
     @Id

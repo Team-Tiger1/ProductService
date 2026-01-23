@@ -11,6 +11,7 @@ import com.teamtiger.productservice.reservations.entities.Reservation;
 import com.teamtiger.productservice.reservations.exceptions.AuthorizationException;
 import com.teamtiger.productservice.reservations.exceptions.BundleAlreadyReservedException;
 import com.teamtiger.productservice.reservations.exceptions.ReservationNotFoundException;
+import com.teamtiger.productservice.reservations.models.ClaimCodeDTO;
 import com.teamtiger.productservice.reservations.models.CollectionStatus;
 import com.teamtiger.productservice.reservations.models.ReservationDTO;
 import com.teamtiger.productservice.reservations.repositories.ClaimCodeRepository;
@@ -97,6 +98,54 @@ public class ReservationServiceJPA implements ReservationService {
         }
 
         reservationRepository.deleteById(reservationId);
+    }
+
+    @Override
+    public ClaimCodeDTO getClaimCode(UUID reservationId, String accessToken) {
+        UUID userId = jwtTokenUtil.getUuidFromToken(accessToken);
+
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(ReservationNotFoundException::new);
+
+        if(!reservation.getUserId().equals(userId)) {
+            throw new AuthorizationException();
+        }
+
+
+        //Generates a new claim code if one hasn't been made
+        ClaimCode claimCode = claimCodeRepository.findById(reservation).orElseGet(() -> {
+           String newClaimCode = claimCodeGenerator.generateCode();
+           return claimCodeRepository.save(ClaimCode.builder()
+                   .reservation(reservation)
+                   .claimCode(newClaimCode)
+                   .build());
+        });
+
+        return ClaimCodeDTO.builder()
+                .claimCode(claimCode.getClaimCode())
+                .build();
+    }
+
+    @Override
+    public void checkClaimCode(ClaimCodeDTO claimCode, String accessToken) {
+        UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
+        String role = jwtTokenUtil.getRoleFromToken(accessToken);
+
+        if(!role.equals("VENDOR")) {
+            throw new AuthorizationException();
+        }
+
+        ClaimCode savedClaimCode = claimCodeRepository.findByClaimCodeAndReservation_Bundle_VendorId(claimCode.getClaimCode(), vendorId)
+                .orElseThrow(BundleNotFoundException::new);
+
+        //Mark as collected and delete claim code
+        Reservation reservation = savedClaimCode.getReservation();
+        reservation.setTimeCollected(LocalDateTime.now());
+        reservation.setStatus(CollectionStatus.COLLECTED);
+        reservationRepository.save(reservation);
+
+        claimCodeRepository.delete(savedClaimCode);
+
     }
 
     private static class ReservationMapper {

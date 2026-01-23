@@ -1,5 +1,6 @@
 package com.teamtiger.productservice.reservations.services;
 
+import com.teamtiger.productservice.reservations.models.ClaimCodeDTO;
 import com.teamtiger.productservice.reservations.models.ReservationDTO;
 
 import java.util.List;
@@ -12,5 +13,9 @@ public interface ReservationService {
     List<ReservationDTO> getReservations(String accessToken);
 
     void deleteReservation(UUID reservationId, String accessToken);
+
+    ClaimCodeDTO getClaimCode(UUID reservationId, String accessToken);
+
+    void checkClaimCode(ClaimCodeDTO claimCode, String accessToken);
 
 }
