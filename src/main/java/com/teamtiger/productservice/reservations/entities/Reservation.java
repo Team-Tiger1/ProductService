@@ -17,7 +17,13 @@ import java.util.UUID;
 @Builder
 @RequiredArgsConstructor
 @AllArgsConstructor
-@Table(name = "reservation")
+@Table(
+        name = "reservation",
+        indexes = {
+                @Index(name = "idx_bundle_id", columnList = "bundle_id"),
+                @Index(name = "idx_user_id", columnList = "user_id")
+        }
+)
 public class Reservation {
 
     @Id
@@ -30,9 +36,11 @@ public class Reservation {
     @JoinColumn(name = "bundle_id", unique = true)
     private Bundle bundle;
 
+    @Column(name = "user_id")
+    private UUID userId;
 
     @Positive
-    private int amount_due;
+    private double amount_due;
 
     @Enumerated(EnumType.STRING)
     private CollectionStatus status;
