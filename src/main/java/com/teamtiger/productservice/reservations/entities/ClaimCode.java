@@ -3,6 +3,8 @@ package com.teamtiger.productservice.reservations.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.UUID;
+
 @Builder
 @Getter
 @Entity
@@ -12,8 +14,13 @@ import lombok.*;
 public class ClaimCode {
 
     @Id
+    @Column(name = "reservation_id")
+    private UUID reservationId;
+
+
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "reservation_id")
+    @MapsId
     private Reservation reservation;
 
     @Column(name = "claim_code", nullable = false, unique = true)
