@@ -7,7 +7,9 @@ import com.teamtiger.productservice.products.repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -18,7 +20,6 @@ public class ProductServiceJPA implements ProductService{
 
     @Override
     public ProductDTO createProduct(String accessToken, ProductDTO dto) {
-
 
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
         Product product = Product.builder()
@@ -32,5 +33,17 @@ public class ProductServiceJPA implements ProductService{
 
         return dto;
     }
+
+    @Override
+    public List<GetProductDTO> getVendorProducts(String accessToken) {
+        UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
+        List<Product> productList = productRepository.findAllByVendorId(vendorId);
+
+        return productList.stream()
+                .map(ProductMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+
 
 }
