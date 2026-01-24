@@ -12,6 +12,6 @@ public record ProductDTO(
     double retailPrice,
 
     @NotNull
-    int weight
+    double weight
 ) {
 }

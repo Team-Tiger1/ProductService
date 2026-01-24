@@ -34,6 +34,7 @@ public class ProductController {
     }
 
     @GetMapping("/vendor")
+
     public ResponseEntity<?> getVendorProducts(@RequestHeader("Authorization") String authHeader) {
         try {
             String accessToken = authHeader.replace("Bearer ", "");
