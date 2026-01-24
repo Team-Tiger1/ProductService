@@ -6,8 +6,8 @@ import java.util.UUID;
 public record GetProductDTO(
      UUID id,
      String name,
-     BigDecimal retail_price,
-     int weight
+     double retailPrice,
+     double weight
 )
 {
 }

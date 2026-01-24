@@ -3,11 +3,13 @@ package com.teamtiger.productservice;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.UUID;
 
@@ -15,9 +17,16 @@ import java.util.UUID;
 public class JwtTokenUtil {
 
     // Load secret from environment variables
-    @Value("${JWT_SECRET}")
+    @Value("${jwt.secret}")
     private String key;
 
+
+    @PostConstruct
+    public void init() {
+        System.out.println("JWT Secret length: " + key.length());
+        System.out.println("JWT Secret bytes: "+key);
+        // Don't log the actual secret in production!
+    }
 
     public UUID getUuidFromToken(String token) {
         return UUID.fromString(getClaimsFromToken(token).getSubject());

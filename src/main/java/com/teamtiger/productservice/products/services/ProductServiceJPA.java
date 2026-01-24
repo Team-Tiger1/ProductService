@@ -2,6 +2,8 @@ package com.teamtiger.productservice.products.services;
 
 import com.teamtiger.productservice.JwtTokenUtil;
 import com.teamtiger.productservice.products.entities.Product;
+import com.teamtiger.productservice.products.mappers.ProductMapper;
+import com.teamtiger.productservice.products.models.GetProductDTO;
 import com.teamtiger.productservice.products.models.ProductDTO;
 import com.teamtiger.productservice.products.repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;

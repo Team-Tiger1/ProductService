@@ -11,7 +11,7 @@ public class ProductMapper {
         return new GetProductDTO(
                 product.getId(),
                 product.getName(),
-                product.getRetail_price(),
+                product.getRetailPrice(),
                 product.getWeight()
         );
 
