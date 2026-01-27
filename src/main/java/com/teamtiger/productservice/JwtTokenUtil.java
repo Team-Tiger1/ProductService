@@ -21,13 +21,6 @@ public class JwtTokenUtil {
     private String key;
 
 
-    @PostConstruct
-    public void init() {
-        System.out.println("JWT Secret length: " + key.length());
-        System.out.println("JWT Secret bytes: "+key);
-        // Don't log the actual secret in production!
-    }
-
     public UUID getUuidFromToken(String token) {
         return UUID.fromString(getClaimsFromToken(token).getSubject());
     }

@@ -1,11 +1,16 @@
 package com.teamtiger.productservice.products.controllers;
 
+
 import com.teamtiger.productservice.products.models.ProductDTO;
+import com.teamtiger.productservice.products.models.UpdateProductDTO;
 import com.teamtiger.productservice.products.services.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/products")
@@ -46,8 +51,30 @@ public class ProductController {
     }
 
 
+    @Operation(summary = "Allows the vendor to delete a product")
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<?> deleteProduct(@RequestHeader("Authorization") String authHeader, @PathVariable UUID productId) {
 
+        try {
+            String accessToken = authHeader.replace("Bearer ", "");
+            productService.deleteProduct(accessToken, productId);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error deleting product");
+        }
 
+    }
+
+    @Operation(summary = "Allows the vendor to update fields for a product")
+    @PatchMapping("/{productId}")
+    public ResponseEntity<?> updateProduct(@RequestHeader("Authorization") String authHeader, @PathVariable UUID productId, @RequestBody UpdateProductDTO dto) {
+        try {
+            String accessToken = authHeader.replace("Bearer ", "");
+            return ResponseEntity.ok(productService.updateProduct(accessToken, productId, dto));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error updating product");
+        }
+    }
 
 
 }
