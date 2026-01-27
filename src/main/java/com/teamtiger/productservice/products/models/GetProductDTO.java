@@ -1,5 +1,4 @@
 package com.teamtiger.productservice.products.models;
-import java.math.BigDecimal;
 import java.util.UUID;
 
 

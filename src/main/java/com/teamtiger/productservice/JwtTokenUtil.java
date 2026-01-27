@@ -15,7 +15,7 @@ import java.util.UUID;
 public class JwtTokenUtil {
 
     // Load secret from environment variables
-    @Value("${JWT_SECRET}")
+    @Value("${jwt.secret}")
     private String key;
 
 

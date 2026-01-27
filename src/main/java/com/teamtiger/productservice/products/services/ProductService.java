@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface ProductService {
 
-    ProductDTO createProduct(String accessToken, ProductDTO dto);
+    GetProductDTO createProduct(String accessToken, ProductDTO dto);
 
     List<GetProductDTO> getVendorProducts(String accessToken);
 }

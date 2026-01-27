@@ -8,12 +8,14 @@ import com.teamtiger.productservice.bundles.models.BundleDTO;
 import com.teamtiger.productservice.bundles.models.CreateBundleDTO;
 import com.teamtiger.productservice.bundles.repositories.BundleRepository;
 import com.teamtiger.productservice.products.entities.Product;
+import com.teamtiger.productservice.products.mappers.ProductMapper;
+import com.teamtiger.productservice.products.models.GetProductDTO;
+import com.teamtiger.productservice.products.models.ProductDTO;
 import com.teamtiger.productservice.products.repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,11 +38,13 @@ public class BundleServiceJPA implements BundleService {
             retailPrice += product.getRetailPrice();
         }
 
+
         Bundle bundle = Bundle.builder()
                 .name(createBundleDTO.getName())
                 .description(createBundleDTO.getDescription())
                 .price(createBundleDTO.getPrice())
                 .retailPrice(retailPrice)
+                .products(products)
                 .vendorId(vendorId)
                 .category(createBundleDTO.getCategory())
                 .collectionStart(createBundleDTO.getCollectionStart())
@@ -96,12 +100,19 @@ public class BundleServiceJPA implements BundleService {
     private static class BundleMapper {
 
         public static BundleDTO toDTO(Bundle entity) {
+
+            List<GetProductDTO> productDTOs = entity.getProducts().stream()
+                    .map(ProductMapper::toDTO)
+                    .toList();
+
             return BundleDTO.builder()
                     .name(entity.getName())
+                    .bundleId(entity.getId())
                     .description(entity.getDescription())
                     .price(entity.getPrice())
                     .retailPrice(entity.getRetailPrice())
                     .vendorId(entity.getVendorId())
+                    .productList(productDTOs)
                     .category(entity.getCategory())
                     .collectionStart(entity.getCollectionStart())
                     .collectionEnd(entity.getCollectionEnd())

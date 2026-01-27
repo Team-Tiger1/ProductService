@@ -21,7 +21,7 @@ public class ProductServiceJPA implements ProductService{
     private final JwtTokenUtil jwtTokenUtil;
 
     @Override
-    public ProductDTO createProduct(String accessToken, ProductDTO dto) {
+    public GetProductDTO createProduct(String accessToken, ProductDTO dto) {
 
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
         Product product = Product.builder()
@@ -33,7 +33,7 @@ public class ProductServiceJPA implements ProductService{
 
         Product createdProduct = productRepository.save(product);
 
-        return dto;
+        return ProductMapper.toDTO(createdProduct);
     }
 
     @Override
