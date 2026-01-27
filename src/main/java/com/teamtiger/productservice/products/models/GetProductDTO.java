@@ -6,7 +6,7 @@ public record GetProductDTO(
      UUID id,
      String name,
      double retailPrice,
-     int weight
+     double weight
 )
 {
 }
