@@ -1,10 +1,11 @@
 package com.teamtiger.productservice.products.entities;
 
+import com.teamtiger.productservice.bundles.entities.Bundle;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
-import java.math.BigDecimal;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -21,9 +22,13 @@ public class Product {
     @UuidGenerator
     @Column(name = "product_id", updatable = false, nullable = false)
     private UUID id;
+
+    @ManyToMany(mappedBy = "products")
+    private Set<Bundle> bundles;
+
     private String name;
-    private BigDecimal retail_price;
-    private int weight;
-    private UUID vendor_id;
+    private double retailPrice;
+    private double weight;
+    private UUID vendorId;
 
 }
