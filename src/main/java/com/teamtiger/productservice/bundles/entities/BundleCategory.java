@@ -5,15 +5,15 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @JsonFormat(shape = JsonFormat.Shape.STRING)
 public enum BundleCategory {
 
-    Bread_Baked_Goods,
-    Sweet_Treats_Desserts,
-    Meat_Protein,
-    Fruit_Vegetables,
-    Dairy_Eggs,
-    Ready_Meals_Hot_Food,
-    Snacks_Savoury_Items,
-    Breakfast_Items,
-    Vegan_Vegetarian,
-    Drinks_Beverages
+    BREAD_BAKED_GOODS,
+    SWEET_TREATS_DESSERTS,
+    MEAT_PROTEIN,
+    FRUIT_VEGETABLES,
+    DAIRY_EGGS,
+    READY_MEALS_HOT_FOOD,
+    SNACKS_SAVOURY_ITEMS,
+    BREAKFAST_ITEMS,
+    VEGAN_VEGETARIAN,
+    DRINKS_BEVERAGES
 
 }
