@@ -14,5 +14,6 @@ public record ProductDTO(
 
     @NotNull
     Double weight
+
 ) {
 }

@@ -1,10 +1,12 @@
 package com.teamtiger.productservice.products.models;
 
+import com.teamtiger.productservice.products.entities.AllergyType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
@@ -25,6 +27,9 @@ public class ProductSeedDTO {
 
     @NotNull
     private double weight;
+
+    @NotNull
+    private Set<AllergyType> allergies;
 
 
 

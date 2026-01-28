@@ -5,6 +5,7 @@ import com.teamtiger.productservice.products.models.ProductDTO;
 import com.teamtiger.productservice.products.models.ProductSeedDTO;
 import com.teamtiger.productservice.products.models.UpdateProductDTO;
 import com.teamtiger.productservice.products.services.ProductService;
+import com.teamtiger.productservice.reservations.exceptions.AuthorizationException;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -83,7 +84,12 @@ public class ProductController {
     public ResponseEntity<?> loadSeededData(@RequestHeader("Authorization") String authHeader, List<ProductSeedDTO> products) {
         try {
             String accessToken = authHeader.replace("Bearer ", "");
+            productService.loadSeededData(accessToken, products);
+            return ResponseEntity.noContent().build();
+        }
 
+        catch (AuthorizationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         catch (Exception e) {

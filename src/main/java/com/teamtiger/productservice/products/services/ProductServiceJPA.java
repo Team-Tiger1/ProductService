@@ -1,6 +1,7 @@
 package com.teamtiger.productservice.products.services;
 
 import com.teamtiger.productservice.JwtTokenUtil;
+import com.teamtiger.productservice.products.entities.Allergy;
 import com.teamtiger.productservice.products.entities.Product;
 import com.teamtiger.productservice.products.mappers.ProductMapper;
 import com.teamtiger.productservice.products.models.GetProductDTO;
@@ -95,8 +96,21 @@ public class ProductServiceJPA implements ProductService{
             throw new AuthorizationException();
         }
 
-//        List<Product> entities = products.stream()
-//                .map(entity -> Product.)
+        List<Product> entities = products.stream()
+                .map(dto -> Product.builder()
+                        .id(dto.getProductId())
+                        .name(dto.getName())
+                        .retailPrice(dto.getRetailPrice())
+                        .weight(dto.getWeight())
+                        .allergies(dto.getAllergies().stream().map(type ->
+                                Allergy.builder()
+                                        .allergy(type)
+                                        .build())
+                                .collect(Collectors.toSet()))
+                        .build())
+                .toList();
+
+        productRepository.saveAll(entities);
 
 
     }
