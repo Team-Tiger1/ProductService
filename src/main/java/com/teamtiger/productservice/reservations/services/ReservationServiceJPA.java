@@ -11,10 +11,7 @@ import com.teamtiger.productservice.reservations.entities.Reservation;
 import com.teamtiger.productservice.reservations.exceptions.AuthorizationException;
 import com.teamtiger.productservice.reservations.exceptions.BundleAlreadyReservedException;
 import com.teamtiger.productservice.reservations.exceptions.ReservationNotFoundException;
-import com.teamtiger.productservice.reservations.models.ClaimCodeDTO;
-import com.teamtiger.productservice.reservations.models.CollectionStatus;
-import com.teamtiger.productservice.reservations.models.ReservationCollectedEvent;
-import com.teamtiger.productservice.reservations.models.ReservationDTO;
+import com.teamtiger.productservice.reservations.models.*;
 import com.teamtiger.productservice.reservations.repositories.ClaimCodeRepository;
 import com.teamtiger.productservice.reservations.repositories.ReservationRepository;
 import lombok.RequiredArgsConstructor;
@@ -150,6 +147,37 @@ public class ReservationServiceJPA implements ReservationService {
 
         reservationEventPublisher.publishReservationCollected(new ReservationCollectedEvent(reservation.getUserId(), reservation.getTimeCollected()));
 
+    }
+
+    @Override
+    public void loadSeededData(String accessToken, List<ReservationSeedDTO> reservations) {
+        String role = jwtTokenUtil.getRoleFromToken(accessToken);
+
+        if(!role.equals("INTERNAL")) {
+            throw new AuthorizationException();
+        }
+
+        List<Reservation> entities = reservations.stream()
+                .map(dto -> {
+
+                    Bundle bundle = bundleRepository.findById(dto.getBundleId())
+                            .orElseThrow(BundleNotFoundException::new);
+
+                    return Reservation.builder()
+                            .id(dto.getReservationId())
+                            .bundle(bundle)
+                            .status(dto.getStatus())
+                            .userId(dto.getUserId())
+                            .amountDue(bundle.getPrice())
+                            .timeReserved(dto.getTimeReserved())
+                            .timeCollected(dto.getTimeCollected())
+                            .build();
+
+
+                })
+                .toList();
+
+        reservationRepository.saveAll(entities);
     }
 
     private static class ReservationMapper {

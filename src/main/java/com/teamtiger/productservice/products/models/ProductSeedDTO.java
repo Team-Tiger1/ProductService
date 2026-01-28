@@ -3,6 +3,7 @@ package com.teamtiger.productservice.products.models;
 import com.teamtiger.productservice.products.entities.AllergyType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -11,6 +12,7 @@ import java.util.UUID;
 
 @Getter
 @Builder
+@AllArgsConstructor
 public class ProductSeedDTO {
 
     @NotNull

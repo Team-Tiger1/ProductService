@@ -4,6 +4,7 @@ import com.teamtiger.productservice.bundles.entities.BundleCategory;
 import com.teamtiger.productservice.products.entities.AllergyType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -11,6 +12,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Getter
+@AllArgsConstructor
 public class BundleSeedDTO {
 
     @NotNull
