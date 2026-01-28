@@ -5,14 +5,14 @@ import com.teamtiger.productservice.products.entities.Product;
 import com.teamtiger.productservice.products.mappers.ProductMapper;
 import com.teamtiger.productservice.products.models.GetProductDTO;
 import com.teamtiger.productservice.products.models.ProductDTO;
+import com.teamtiger.productservice.products.models.ProductSeedDTO;
 import com.teamtiger.productservice.products.models.UpdateProductDTO;
 import com.teamtiger.productservice.products.repositories.ProductRepository;
-import jakarta.annotation.PostConstruct;
+import com.teamtiger.productservice.reservations.exceptions.AuthorizationException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -87,5 +87,17 @@ public class ProductServiceJPA implements ProductService{
 
     }
 
+    @Override
+    public void loadSeededData(String accessToken, List<ProductSeedDTO> products) {
+        String role = jwtTokenUtil.getRoleFromToken(accessToken);
 
+        if(!role.equals("INTERNAL")) {
+            throw new AuthorizationException();
+        }
+
+//        List<Product> entities = products.stream()
+//                .map(entity -> Product.)
+
+
+    }
 }

@@ -2,6 +2,7 @@ package com.teamtiger.productservice.products.controllers;
 
 import com.teamtiger.productservice.products.models.GetProductDTO;
 import com.teamtiger.productservice.products.models.ProductDTO;
+import com.teamtiger.productservice.products.models.ProductSeedDTO;
 import com.teamtiger.productservice.products.models.UpdateProductDTO;
 import com.teamtiger.productservice.products.services.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -73,6 +75,19 @@ public class ProductController {
             return ResponseEntity.ok(productService.updateProduct(accessToken, productId, dto));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Error updating product");
+        }
+    }
+
+    @Operation(summary = "Allows for bulk transfer of seeded data")
+    @PostMapping("/internal")
+    public ResponseEntity<?> loadSeededData(@RequestHeader("Authorization") String authHeader, List<ProductSeedDTO> products) {
+        try {
+            String accessToken = authHeader.replace("Bearer ", "");
+
+        }
+
+        catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
         }
     }
 
