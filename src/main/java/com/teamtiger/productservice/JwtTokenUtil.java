@@ -18,6 +18,7 @@ public class JwtTokenUtil {
     @Value("${jwt.secret}")
     private String key;
 
+
     public UUID getUuidFromToken(String token) {
         return UUID.fromString(getClaimsFromToken(token).getSubject());
     }

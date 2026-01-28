@@ -10,9 +10,9 @@ public record ProductDTO(
     String name,
 
     @NotNull
-    double retailPrice,
+    Double retailPrice,
 
     @NotNull
-    double weight
+    Double weight
 ) {
 }
