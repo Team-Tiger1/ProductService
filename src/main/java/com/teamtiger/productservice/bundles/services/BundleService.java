@@ -1,6 +1,7 @@
 package com.teamtiger.productservice.bundles.services;
 
 import com.teamtiger.productservice.bundles.models.BundleDTO;
+import com.teamtiger.productservice.bundles.models.BundleSeedDTO;
 import com.teamtiger.productservice.bundles.models.CreateBundleDTO;
 
 import java.util.List;
@@ -15,5 +16,7 @@ public interface BundleService {
     List<BundleDTO> getVendorBundles(UUID vendorId);
 
     List<BundleDTO> getOwnBundles(String accessToken);
+
+    void loadSeededData(String accessToken, List<BundleSeedDTO> bundles);
 
 }

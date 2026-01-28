@@ -7,6 +7,7 @@ import com.teamtiger.productservice.products.models.UpdateProductDTO;
 import com.teamtiger.productservice.products.services.ProductService;
 import com.teamtiger.productservice.reservations.exceptions.AuthorizationException;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -81,7 +82,7 @@ public class ProductController {
 
     @Operation(summary = "Allows for bulk transfer of seeded data")
     @PostMapping("/internal")
-    public ResponseEntity<?> loadSeededData(@RequestHeader("Authorization") String authHeader, List<ProductSeedDTO> products) {
+    public ResponseEntity<?> loadSeededData(@RequestHeader("Authorization") String authHeader, @Valid @RequestBody List<ProductSeedDTO> products) {
         try {
             String accessToken = authHeader.replace("Bearer ", "");
             productService.loadSeededData(accessToken, products);
