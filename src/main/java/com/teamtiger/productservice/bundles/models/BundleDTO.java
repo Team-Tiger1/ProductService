@@ -1,6 +1,7 @@
 package com.teamtiger.productservice.bundles.models;
 
 import com.teamtiger.productservice.bundles.entities.BundleCategory;
+import com.teamtiger.productservice.products.models.GetProductDTO;
 import com.teamtiger.productservice.products.models.ProductDTO;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,8 +15,9 @@ import java.util.UUID;
 public class BundleDTO {
 
     private String name;
+    private UUID bundleId;
     private String description;
-    private List<ProductDTO> productList;
+    private List<GetProductDTO> productList;
     private UUID vendorId;
     private double retailPrice;
     private double price;

@@ -1,11 +1,13 @@
 package com.teamtiger.productservice.bundles.entities;
 
+import com.teamtiger.productservice.products.entities.Allergy;
 import com.teamtiger.productservice.products.entities.Product;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -36,7 +38,16 @@ public class Bundle {
             joinColumns = @JoinColumn(name = "bundle_id"),
             inverseJoinColumns = @JoinColumn(name = "product_id")
     )
-    private Set<Product> products;
+    private List<Product> products;
+
+
+    @ManyToMany
+    @JoinTable(
+            name = "bundle_allergy",
+            joinColumns = @JoinColumn(name = "bundle_id"),
+            inverseJoinColumns = @JoinColumn(name = "allergy_id")
+    )
+    private Set<Allergy> allergies;
 
     @Column(name = "vendor_id", updatable = false)
     private UUID vendorId;

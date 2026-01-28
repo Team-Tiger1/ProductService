@@ -26,9 +26,19 @@ public class Product {
     @ManyToMany(mappedBy = "products")
     private Set<Bundle> bundles;
 
+    @ManyToMany
+    @JoinTable(
+            name = "product_allergy",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "allergy_id")
+    )
+    private Set<Allergy> allergies;
+
     private String name;
     private double retailPrice;
     private double weight;
     private UUID vendorId;
+
+
 
 }

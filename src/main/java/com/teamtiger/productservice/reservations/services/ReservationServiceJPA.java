@@ -13,6 +13,7 @@ import com.teamtiger.productservice.reservations.exceptions.BundleAlreadyReserve
 import com.teamtiger.productservice.reservations.exceptions.ReservationNotFoundException;
 import com.teamtiger.productservice.reservations.models.ClaimCodeDTO;
 import com.teamtiger.productservice.reservations.models.CollectionStatus;
+import com.teamtiger.productservice.reservations.models.ReservationCollectedEvent;
 import com.teamtiger.productservice.reservations.models.ReservationDTO;
 import com.teamtiger.productservice.reservations.repositories.ClaimCodeRepository;
 import com.teamtiger.productservice.reservations.repositories.ReservationRepository;
@@ -32,6 +33,7 @@ public class ReservationServiceJPA implements ReservationService {
     private final JwtTokenUtil jwtTokenUtil;
     private final ClaimCodeGenerator claimCodeGenerator;
     private final ClaimCodeRepository claimCodeRepository;
+    private final ReservationEventPublisher reservationEventPublisher;
 
     @Override
     public ReservationDTO createReservation(UUID bundleId, String accessToken) {
@@ -113,7 +115,7 @@ public class ReservationServiceJPA implements ReservationService {
 
 
         //Generates a new claim code if one hasn't been made
-        ClaimCode claimCode = claimCodeRepository.findById(reservation).orElseGet(() -> {
+        ClaimCode claimCode = claimCodeRepository.findById(reservation.getId()).orElseGet(() -> {
            String newClaimCode = claimCodeGenerator.generateCode();
            return claimCodeRepository.save(ClaimCode.builder()
                    .reservation(reservation)
@@ -146,6 +148,8 @@ public class ReservationServiceJPA implements ReservationService {
 
         claimCodeRepository.delete(savedClaimCode);
 
+        reservationEventPublisher.publishReservationCollected(new ReservationCollectedEvent(reservation.getUserId(), reservation.getTimeCollected()));
+
     }
 
     private static class ReservationMapper {
@@ -164,6 +168,7 @@ public class ReservationServiceJPA implements ReservationService {
         public static BundleDTO toDTO(Bundle entity) {
             return BundleDTO.builder()
                     .name(entity.getName())
+                    .bundleId(entity.getId())
                     .description(entity.getDescription())
                     .price(entity.getPrice())
                     .retailPrice(entity.getRetailPrice())

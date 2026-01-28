@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 
 
 public record ProductDTO(
+
     @NotBlank
     String name,
 

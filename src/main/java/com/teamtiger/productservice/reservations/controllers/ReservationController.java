@@ -8,6 +8,7 @@ import com.teamtiger.productservice.reservations.models.ClaimCodeDTO;
 import com.teamtiger.productservice.reservations.models.ReservationDTO;
 import com.teamtiger.productservice.reservations.services.ReservationService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -110,7 +111,7 @@ public class ReservationController {
 
     @Operation(summary = "Allows a vendor to verify a reservation, marking it completed")
     @PostMapping("/claimcode")
-    public ResponseEntity<?> checkClaimCode(ClaimCodeDTO claimCodeDTO, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> checkClaimCode(@Valid @RequestBody ClaimCodeDTO claimCodeDTO, @RequestHeader("Authorization") String authHeader) {
         try {
             String accessToken = authHeader.replace("Bearer ", "");
             reservationService.checkClaimCode(claimCodeDTO, accessToken);
