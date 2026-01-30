@@ -4,6 +4,7 @@ import com.teamtiger.productservice.JwtTokenUtil;
 import com.teamtiger.productservice.products.entities.Allergy;
 import com.teamtiger.productservice.products.entities.AllergyType;
 import com.teamtiger.productservice.products.entities.Product;
+import com.teamtiger.productservice.products.exceptions.AllergyNotFoundException;
 import com.teamtiger.productservice.products.mappers.ProductMapper;
 import com.teamtiger.productservice.products.models.GetProductDTO;
 import com.teamtiger.productservice.products.models.ProductDTO;
@@ -15,6 +16,7 @@ import com.teamtiger.productservice.reservations.exceptions.AuthorizationExcepti
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -117,6 +119,7 @@ public class ProductServiceJPA implements ProductService{
     }
 
     @Override
+    @Transactional
     public void loadSeededData(String accessToken, List<ProductSeedDTO> products) {
         String role = jwtTokenUtil.getRoleFromToken(accessToken);
 
@@ -124,16 +127,25 @@ public class ProductServiceJPA implements ProductService{
             throw new AuthorizationException();
         }
 
+        Map<AllergyType, Allergy> allergyMap = new HashMap<>();
+
         List<Product> entities = products.stream()
                 .map(dto -> Product.builder()
                         .id(dto.getProductId())
                         .name(dto.getName())
                         .retailPrice(dto.getRetailPrice())
                         .weight(dto.getWeight())
-                        .allergies(dto.getAllergies().stream().map(type ->
-                                Allergy.builder()
-                                        .allergy(type)
-                                        .build())
+                        .allergies(dto.getAllergies().stream()
+                                .map(type -> {
+                                  if(allergyMap.containsKey(type)) {
+                                      return allergyMap.get(type);
+                                  } else {
+                                      Allergy allergy = allergyRepository.findByAllergy(type)
+                                              .orElseThrow(AllergyNotFoundException::new);
+                                      allergyMap.put(type, allergy);
+                                      return allergy;
+                                  }
+                                })
                                 .collect(Collectors.toSet()))
                         .build())
                 .toList();
