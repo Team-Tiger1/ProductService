@@ -7,6 +7,7 @@ import com.teamtiger.productservice.bundles.exceptions.VendorAuthorizationExcept
 import com.teamtiger.productservice.bundles.models.BundleDTO;
 import com.teamtiger.productservice.bundles.models.BundleSeedDTO;
 import com.teamtiger.productservice.bundles.models.CreateBundleDTO;
+import com.teamtiger.productservice.bundles.models.ShortBundleDTO;
 import com.teamtiger.productservice.bundles.repositories.BundleRepository;
 import com.teamtiger.productservice.products.entities.Allergy;
 import com.teamtiger.productservice.products.entities.Product;
@@ -141,6 +142,19 @@ public class BundleServiceJPA implements BundleService {
 
         bundleRepository.saveAll(entities);
 
+    }
+
+    @Override
+    public List<ShortBundleDTO> getAllBundles() {
+        List<Bundle> bundles = bundleRepository.findAll();
+
+        return bundles.stream()
+                .map(entity -> ShortBundleDTO.builder()
+                        .bundleId(entity.getId())
+                        .price(entity.getPrice())
+                        .bundleDescription(entity.getDescription())
+                        .build())
+                .toList();
     }
 
     private static class BundleMapper {

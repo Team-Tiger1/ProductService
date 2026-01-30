@@ -5,6 +5,7 @@ import com.teamtiger.productservice.bundles.exceptions.VendorAuthorizationExcept
 import com.teamtiger.productservice.bundles.models.BundleDTO;
 import com.teamtiger.productservice.bundles.models.BundleSeedDTO;
 import com.teamtiger.productservice.bundles.models.CreateBundleDTO;
+import com.teamtiger.productservice.bundles.models.ShortBundleDTO;
 import com.teamtiger.productservice.bundles.services.BundleService;
 import com.teamtiger.productservice.reservations.exceptions.AuthorizationException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -112,6 +113,20 @@ public class BundleController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
+    @Operation(summary = "Get all available bundles")
+    @GetMapping
+    public ResponseEntity<?> getAllBundlesAvailable() {
+        try {
+            List<ShortBundleDTO> bundleDTOS = bundleService.getAllBundles();
+            return ResponseEntity.ok(bundleDTOS);
+        }
+
+        catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
 
 
 
