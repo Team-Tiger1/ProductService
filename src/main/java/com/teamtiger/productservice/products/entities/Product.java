@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -38,6 +39,15 @@ public class Product {
     private double retailPrice;
     private double weight;
     private UUID vendorId;
+    @ManyToMany
+    @JoinTable(
+            name = "product_allergy",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "allergy_id")
+    )
+
+
+    private Set<Allergy> allergies = new HashSet<>();
 
 
 

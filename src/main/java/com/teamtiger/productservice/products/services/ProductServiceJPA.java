@@ -2,20 +2,21 @@ package com.teamtiger.productservice.products.services;
 
 import com.teamtiger.productservice.JwtTokenUtil;
 import com.teamtiger.productservice.products.entities.Allergy;
+import com.teamtiger.productservice.products.entities.AllergyType;
 import com.teamtiger.productservice.products.entities.Product;
 import com.teamtiger.productservice.products.mappers.ProductMapper;
 import com.teamtiger.productservice.products.models.GetProductDTO;
 import com.teamtiger.productservice.products.models.ProductDTO;
 import com.teamtiger.productservice.products.models.ProductSeedDTO;
 import com.teamtiger.productservice.products.models.UpdateProductDTO;
+import com.teamtiger.productservice.products.repositories.AllergyRepository;
 import com.teamtiger.productservice.products.repositories.ProductRepository;
 import com.teamtiger.productservice.reservations.exceptions.AuthorizationException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,9 +25,22 @@ public class ProductServiceJPA implements ProductService{
 
     private final ProductRepository productRepository;
     private final JwtTokenUtil jwtTokenUtil;
-
+    private final AllergyRepository allergyRepository;
     @Override
     public GetProductDTO createProduct(String accessToken, ProductDTO dto) {
+
+
+        String role = jwtTokenUtil.getRoleFromToken(accessToken);
+        if (!role.equals("VENDOR")){
+            throw new AuthorizationException();
+        }
+        Set<Allergy> allergySet = new HashSet<>();
+
+        for (AllergyType type : dto.allergies()) {
+            Allergy allergy = allergyRepository.findByAllergy(type)
+                    .orElseThrow(RuntimeException::new);
+            allergySet.add(allergy);
+        }
 
 
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
@@ -35,10 +49,10 @@ public class ProductServiceJPA implements ProductService{
                 .retailPrice(dto.retailPrice())
                 .weight(dto.weight())
                 .vendorId(vendorId)
+                .allergies(allergySet)
                 .build();
 
         Product createdProduct = productRepository.save(product);
-
         return ProductMapper.toDTO(createdProduct);
     }
 
@@ -65,25 +79,39 @@ public class ProductServiceJPA implements ProductService{
     @Override
     public GetProductDTO updateProduct(String accessToken, UUID productId, UpdateProductDTO dto) {
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
-        Product ProductToBeUpdated = productRepository.findById(productId).orElseThrow(EntityNotFoundException::new);
+        Product productToBeUpdated = productRepository.findById(productId).orElseThrow(EntityNotFoundException::new);
 
-        if(!ProductToBeUpdated.getVendorId().equals(vendorId)){
+        if(!productToBeUpdated.getVendorId().equals(vendorId)){
             throw new RuntimeException("Not the vendor");
         }
 
         if(dto.name()!=null){
-            ProductToBeUpdated.setName(dto.name());
+            productToBeUpdated.setName(dto.name());
         }
 
         if (dto.retailPrice() != null) {
-            ProductToBeUpdated.setRetailPrice(dto.retailPrice());
+            productToBeUpdated.setRetailPrice(dto.retailPrice());
         }
 
         if(dto.weight()!=null){
-            ProductToBeUpdated.setWeight(dto.weight());
+            productToBeUpdated.setWeight(dto.weight());
         }
 
-        Product saved = productRepository.save(ProductToBeUpdated);
+        if(dto.allergies()!=null){
+
+            Set<Allergy> allergySet = productToBeUpdated.getAllergies();
+
+
+            Set<Allergy> allergyEntities = allergyRepository.findAllByAllergyIn(dto.allergies());
+
+            allergySet.addAll(allergyEntities);
+
+            productToBeUpdated.setAllergies(allergySet);
+
+
+        }
+
+        Product saved = productRepository.save(productToBeUpdated);
         return ProductMapper.toDTO(saved);
 
     }
