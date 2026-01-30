@@ -6,8 +6,10 @@ import com.teamtiger.productservice.reservations.exceptions.BundleAlreadyReserve
 import com.teamtiger.productservice.reservations.exceptions.ReservationNotFoundException;
 import com.teamtiger.productservice.reservations.models.ClaimCodeDTO;
 import com.teamtiger.productservice.reservations.models.ReservationDTO;
+import com.teamtiger.productservice.reservations.models.ReservationSeedDTO;
 import com.teamtiger.productservice.reservations.services.ReservationService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -110,7 +112,7 @@ public class ReservationController {
 
     @Operation(summary = "Allows a vendor to verify a reservation, marking it completed")
     @PostMapping("/claimcode")
-    public ResponseEntity<?> checkClaimCode(ClaimCodeDTO claimCodeDTO, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> checkClaimCode(@Valid @RequestBody ClaimCodeDTO claimCodeDTO, @RequestHeader("Authorization") String authHeader) {
         try {
             String accessToken = authHeader.replace("Bearer ", "");
             reservationService.checkClaimCode(claimCodeDTO, accessToken);
@@ -129,6 +131,26 @@ public class ReservationController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
+    @Operation(summary = "Allows bulk transfer of reservation data")
+    @PostMapping("/internal")
+    public ResponseEntity<?> loadSeededData(@RequestHeader("Authorization") String authHeader, @Valid @RequestBody List<ReservationSeedDTO> reservations) {
+        try {
+            String accessToken = authHeader.replace("Bearer ", "");
+            reservationService.loadSeededData(accessToken, reservations);
+            return ResponseEntity.noContent().build();
+        }
+
+        catch (AuthorizationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+
+    }
+
 
 
 

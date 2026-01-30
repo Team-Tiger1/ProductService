@@ -2,6 +2,7 @@ package com.teamtiger.productservice.products.services;
 
 import com.teamtiger.productservice.products.models.GetProductDTO;
 import com.teamtiger.productservice.products.models.ProductDTO;
+import com.teamtiger.productservice.products.models.ProductSeedDTO;
 import com.teamtiger.productservice.products.models.UpdateProductDTO;
 
 import java.util.List;
@@ -16,4 +17,6 @@ public interface ProductService {
     void deleteProduct(String accessToken, UUID productId);
 
     GetProductDTO updateProduct(String accessToken, UUID productId, UpdateProductDTO dto);
+
+    void loadSeededData(String accessToken, List<ProductSeedDTO> products);
 }

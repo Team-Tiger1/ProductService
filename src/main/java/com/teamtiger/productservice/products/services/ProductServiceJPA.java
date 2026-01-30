@@ -7,6 +7,7 @@ import com.teamtiger.productservice.products.entities.Product;
 import com.teamtiger.productservice.products.mappers.ProductMapper;
 import com.teamtiger.productservice.products.models.GetProductDTO;
 import com.teamtiger.productservice.products.models.ProductDTO;
+import com.teamtiger.productservice.products.models.ProductSeedDTO;
 import com.teamtiger.productservice.products.models.UpdateProductDTO;
 import com.teamtiger.productservice.products.repositories.AllergyRepository;
 import com.teamtiger.productservice.products.repositories.ProductRepository;
@@ -115,5 +116,30 @@ public class ProductServiceJPA implements ProductService{
 
     }
 
+    @Override
+    public void loadSeededData(String accessToken, List<ProductSeedDTO> products) {
+        String role = jwtTokenUtil.getRoleFromToken(accessToken);
 
+        if(!role.equals("INTERNAL")) {
+            throw new AuthorizationException();
+        }
+
+        List<Product> entities = products.stream()
+                .map(dto -> Product.builder()
+                        .id(dto.getProductId())
+                        .name(dto.getName())
+                        .retailPrice(dto.getRetailPrice())
+                        .weight(dto.getWeight())
+                        .allergies(dto.getAllergies().stream().map(type ->
+                                Allergy.builder()
+                                        .allergy(type)
+                                        .build())
+                                .collect(Collectors.toSet()))
+                        .build())
+                .toList();
+
+        productRepository.saveAll(entities);
+
+
+    }
 }

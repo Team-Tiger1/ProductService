@@ -5,13 +5,14 @@ import java.math.BigDecimal;
 import java.util.Set;
 import java.util.UUID;
 
+import java.util.UUID;
 
 public record GetProductDTO(
      UUID id,
      String name,
-     Double retailPrice,
-     Double weight,
-     Set<AllergyType>allergies
+     Set<AllergyType> allergies,
+     double retailPrice,
+     double weight
 )
 {
 }

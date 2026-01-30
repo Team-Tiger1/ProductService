@@ -3,9 +3,6 @@ package com.teamtiger.productservice.products.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.HashSet;
-import java.util.Set;
-
 @Entity
 @Getter
 @Setter

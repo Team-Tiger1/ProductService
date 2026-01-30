@@ -5,15 +5,21 @@ import com.teamtiger.productservice.bundles.entities.Bundle;
 import com.teamtiger.productservice.bundles.exceptions.BundleNotFoundException;
 import com.teamtiger.productservice.bundles.exceptions.VendorAuthorizationException;
 import com.teamtiger.productservice.bundles.models.BundleDTO;
+import com.teamtiger.productservice.bundles.models.BundleSeedDTO;
 import com.teamtiger.productservice.bundles.models.CreateBundleDTO;
+import com.teamtiger.productservice.bundles.models.ShortBundleDTO;
 import com.teamtiger.productservice.bundles.repositories.BundleRepository;
+import com.teamtiger.productservice.products.entities.Allergy;
 import com.teamtiger.productservice.products.entities.Product;
+import com.teamtiger.productservice.products.mappers.ProductMapper;
+import com.teamtiger.productservice.products.models.GetProductDTO;
+import com.teamtiger.productservice.products.models.ProductDTO;
 import com.teamtiger.productservice.products.repositories.ProductRepository;
+import com.teamtiger.productservice.reservations.exceptions.AuthorizationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,11 +42,13 @@ public class BundleServiceJPA implements BundleService {
             retailPrice += product.getRetailPrice();
         }
 
+
         Bundle bundle = Bundle.builder()
                 .name(createBundleDTO.getName())
                 .description(createBundleDTO.getDescription())
                 .price(createBundleDTO.getPrice())
                 .retailPrice(retailPrice)
+                .products(products)
                 .vendorId(vendorId)
                 .category(createBundleDTO.getCategory())
                 .collectionStart(createBundleDTO.getCollectionStart())
@@ -93,15 +101,78 @@ public class BundleServiceJPA implements BundleService {
         return this.getVendorBundles(vendorId);
     }
 
+    @Override
+    public void loadSeededData(String accessToken, List<BundleSeedDTO> bundles) {
+        String role = jwtTokenUtil.getRoleFromToken(accessToken);
+
+        if(!role.equals("INTERNAL")) {
+            throw new AuthorizationException();
+        }
+
+        List<Bundle> entities = bundles.stream()
+                .map(dto -> {
+
+                    List<Product> productList = productRepository.findAllById(dto.getProductIds());
+
+                    //Get Aggregate Allergies from Products
+                    Set<Allergy> allergies = productList.stream()
+                            .map(Product::getAllergies)
+                            .flatMap(Set::stream)
+                            .collect(Collectors.toSet());
+
+                    //Calculate Retail Price from Products
+                    double retailPrice = productList.stream()
+                                    .mapToDouble(Product::getRetailPrice)
+                                    .sum();
+
+                    return Bundle.builder()
+                            .name(dto.getName())
+                            .description(dto.getDescription())
+                            .price(dto.getPrice())
+                            .retailPrice(retailPrice)
+                            .products(productList)
+                            .allergies(allergies)
+                            .vendorId(dto.getVendorId())
+                            .category(dto.getCategory())
+                            .collectionStart(dto.getCollectionStart())
+                            .collectionEnd(dto.getCollectionEnd())
+                            .build();
+                })
+                .toList();
+
+        bundleRepository.saveAll(entities);
+
+    }
+
+    @Override
+    public List<ShortBundleDTO> getAllBundles() {
+        List<Bundle> bundles = bundleRepository.findAll();
+
+        return bundles.stream()
+                .map(entity -> ShortBundleDTO.builder()
+                        .bundleId(entity.getId())
+                        .price(entity.getPrice())
+                        .bundleDescription(entity.getDescription())
+                        .build())
+                .toList();
+    }
+
     private static class BundleMapper {
 
         public static BundleDTO toDTO(Bundle entity) {
+
+            List<GetProductDTO> productDTOs = entity.getProducts().stream()
+                    .map(ProductMapper::toDTO)
+                    .toList();
+
             return BundleDTO.builder()
                     .name(entity.getName())
+                    .bundleId(entity.getId())
                     .description(entity.getDescription())
                     .price(entity.getPrice())
                     .retailPrice(entity.getRetailPrice())
                     .vendorId(entity.getVendorId())
+                    .productList(productDTOs)
                     .category(entity.getCategory())
                     .collectionStart(entity.getCollectionStart())
                     .collectionEnd(entity.getCollectionEnd())

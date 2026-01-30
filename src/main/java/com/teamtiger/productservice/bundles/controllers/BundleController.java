@@ -3,8 +3,11 @@ package com.teamtiger.productservice.bundles.controllers;
 import com.teamtiger.productservice.bundles.exceptions.BundleNotFoundException;
 import com.teamtiger.productservice.bundles.exceptions.VendorAuthorizationException;
 import com.teamtiger.productservice.bundles.models.BundleDTO;
+import com.teamtiger.productservice.bundles.models.BundleSeedDTO;
 import com.teamtiger.productservice.bundles.models.CreateBundleDTO;
+import com.teamtiger.productservice.bundles.models.ShortBundleDTO;
 import com.teamtiger.productservice.bundles.services.BundleService;
+import com.teamtiger.productservice.reservations.exceptions.AuthorizationException;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -92,6 +95,39 @@ public class BundleController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
+    @Operation(summary = "Allows bulk transfer of seeded data")
+    @PostMapping("/internal")
+    public ResponseEntity<?> loadSeededData(@RequestHeader("Authorization") String authHeader, @Valid @RequestBody List<BundleSeedDTO> bundles) {
+        try {
+            String accessToken = authHeader.replace("Bearer ", "");
+            bundleService.loadSeededData(accessToken, bundles);
+            return ResponseEntity.noContent().build();
+        }
+
+        catch (AuthorizationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @Operation(summary = "Get all available bundles")
+    @GetMapping
+    public ResponseEntity<?> getAllBundlesAvailable() {
+        try {
+            List<ShortBundleDTO> bundleDTOS = bundleService.getAllBundles();
+            return ResponseEntity.ok(bundleDTOS);
+        }
+
+        catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
 
 
 

@@ -3,14 +3,18 @@ package com.teamtiger.productservice.products.controllers;
 
 import com.teamtiger.productservice.products.models.GetProductDTO;
 import com.teamtiger.productservice.products.models.ProductDTO;
+import com.teamtiger.productservice.products.models.ProductSeedDTO;
 import com.teamtiger.productservice.products.models.UpdateProductDTO;
 import com.teamtiger.productservice.products.services.ProductService;
+import com.teamtiger.productservice.reservations.exceptions.AuthorizationException;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -74,6 +78,25 @@ public class ProductController {
             return ResponseEntity.ok(productService.updateProduct(accessToken, productId, dto));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Error updating product");
+        }
+    }
+
+    @Operation(summary = "Allows for bulk transfer of seeded data")
+    @PostMapping("/internal")
+    public ResponseEntity<?> loadSeededData(@RequestHeader("Authorization") String authHeader, @Valid @RequestBody List<ProductSeedDTO> products) {
+        try {
+            String accessToken = authHeader.replace("Bearer ", "");
+            productService.loadSeededData(accessToken, products);
+            return ResponseEntity.noContent().build();
+        }
+
+        catch (AuthorizationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
         }
     }
 

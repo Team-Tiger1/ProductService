@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Getter
 @Builder
-public class ReservationDTO {
+public class ReservationDTO { //Tied to Userservice (RabbitMQ)
 
     private UUID reservationId;
     private BundleDTO bundle;
