@@ -3,6 +3,7 @@ package com.teamtiger.productservice.bundles.services;
 import com.teamtiger.productservice.bundles.models.BundleDTO;
 import com.teamtiger.productservice.bundles.models.BundleSeedDTO;
 import com.teamtiger.productservice.bundles.models.CreateBundleDTO;
+import com.teamtiger.productservice.bundles.models.ShortBundleDTO;
 
 import java.util.List;
 import java.util.UUID;
@@ -19,4 +20,5 @@ public interface BundleService {
 
     void loadSeededData(String accessToken, List<BundleSeedDTO> bundles);
 
+    List<ShortBundleDTO> getAllBundles();
 }
