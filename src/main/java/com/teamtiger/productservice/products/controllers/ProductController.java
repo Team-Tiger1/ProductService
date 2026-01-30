@@ -1,6 +1,7 @@
 package com.teamtiger.productservice.products.controllers;
 
 
+import com.teamtiger.productservice.products.models.GetProductDTO;
 import com.teamtiger.productservice.products.models.ProductDTO;
 import com.teamtiger.productservice.products.models.UpdateProductDTO;
 import com.teamtiger.productservice.products.services.ProductService;
@@ -26,7 +27,7 @@ public class ProductController {
 
         try{
             String accessToken = authHeader.replace("Bearer ", "");
-            ProductDTO createdProductDTO = productService.createProduct(accessToken,dto);
+            GetProductDTO createdProductDTO = productService.createProduct(accessToken,dto);
             return ResponseEntity.ok(createdProductDTO);
 
 
