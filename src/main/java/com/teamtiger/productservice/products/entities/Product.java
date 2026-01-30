@@ -39,16 +39,6 @@ public class Product {
     private double retailPrice;
     private double weight;
     private UUID vendorId;
-    @ManyToMany
-    @JoinTable(
-            name = "product_allergy",
-            joinColumns = @JoinColumn(name = "product_id"),
-            inverseJoinColumns = @JoinColumn(name = "allergy_id")
-    )
-
-
-    private Set<Allergy> allergies = new HashSet<>();
-
 
 
 }

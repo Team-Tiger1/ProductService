@@ -19,11 +19,10 @@ public class ProductMapper {
         return new GetProductDTO(
                 product.getId(),
                 product.getName(),
-                product.getRetailPrice(),
+                allergyTypes,
                 product.getWeight(),
-                allergyTypes
-
-        );
+                product.getRetailPrice()
+                );
 
     }
 
