@@ -127,6 +127,9 @@ public class ProductServiceJPA implements ProductService{
             throw new AuthorizationException();
         }
 
+        productRepository.deleteAll();
+        productRepository.flush();
+
         Map<UUID, ProductSeedDTO> dtoMap = new HashMap<>();
         for(ProductSeedDTO productSeedDTO : products) {
             if(dtoMap.containsKey(productSeedDTO.getProductId())) {
