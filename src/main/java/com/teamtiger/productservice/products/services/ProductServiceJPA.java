@@ -127,9 +127,18 @@ public class ProductServiceJPA implements ProductService{
             throw new AuthorizationException();
         }
 
+        Map<UUID, ProductSeedDTO> dtoMap = new HashMap<>();
+        for(ProductSeedDTO productSeedDTO : products) {
+            if(dtoMap.containsKey(productSeedDTO.getProductId())) {
+                System.out.println("Contains Duplicate");
+            } else {
+                dtoMap.put(productSeedDTO.getProductId(), productSeedDTO);
+            }
+        }
+
         Map<AllergyType, Allergy> allergyMap = new HashMap<>();
 
-        List<Product> entities = products.stream()
+        List<Product> entities = dtoMap.values().stream()
                 .map(dto -> Product.builder()
                         .id(dto.getProductId())
                         .name(dto.getName())
