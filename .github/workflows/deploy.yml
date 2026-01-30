@@ -30,6 +30,11 @@ jobs:
       - name: Build with Maven
         run: ./mvnw clean package -DskipTests
 
+      - name: Run Tests
+        env:
+          RABBITMQ_PASSWORD: ${{ secrets.RABBITMQ_PASSWORD }}
+        run: ./mvnw test
+
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
