@@ -85,7 +85,7 @@ public class BundleServiceJPA implements BundleService {
     @Override
     public List<BundleDTO> getVendorBundles(UUID vendorId) {
 
-        List<Bundle> bundleList = bundleRepository.findAllByVendorId(vendorId);
+        List<Bundle> bundleList = bundleRepository.findAvailableBundlesByVendor(vendorId);
 
         return bundleList.stream()
                 .map(BundleMapper::toDTO)
