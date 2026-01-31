@@ -13,6 +13,7 @@ import com.teamtiger.productservice.products.models.UpdateProductDTO;
 import com.teamtiger.productservice.products.repositories.AllergyRepository;
 import com.teamtiger.productservice.products.repositories.ProductRepository;
 import com.teamtiger.productservice.reservations.exceptions.AuthorizationException;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,9 @@ public class ProductServiceJPA implements ProductService{
     private final ProductRepository productRepository;
     private final JwtTokenUtil jwtTokenUtil;
     private final AllergyRepository allergyRepository;
+    private final EntityManager entityManager;
+
+
     @Override
     public GetProductDTO createProduct(String accessToken, ProductDTO dto) {
 
@@ -127,9 +131,6 @@ public class ProductServiceJPA implements ProductService{
             throw new AuthorizationException();
         }
 
-        productRepository.deleteAll();
-        productRepository.flush();
-
         Map<UUID, ProductSeedDTO> dtoMap = new HashMap<>();
         for(ProductSeedDTO productSeedDTO : products) {
             if(!dtoMap.containsKey(productSeedDTO.getProductId())) {
@@ -161,7 +162,7 @@ public class ProductServiceJPA implements ProductService{
                 .toList();
 
         for(Product product : entities) {
-            productRepository.save(product);
+            entityManager.persist(product);
         }
 
 

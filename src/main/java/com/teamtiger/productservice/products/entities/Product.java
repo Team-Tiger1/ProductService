@@ -40,5 +40,8 @@ public class Product {
     private double weight;
     private UUID vendorId;
 
+    @Version
+    private long version;
+
 
 }
