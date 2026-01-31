@@ -140,29 +140,31 @@ public class ProductServiceJPA implements ProductService{
 
         Map<AllergyType, Allergy> allergyMap = new HashMap<>();
 
-        List<Product> entities = dtoMap.values().stream()
-                .map(dto -> Product.builder()
-                        .id(dto.getProductId())
-                        .name(dto.getName())
-                        .retailPrice(dto.getRetailPrice())
-                        .weight(dto.getWeight())
-                        .allergies(dto.getAllergies().stream()
-                                .map(type -> {
-                                  if(allergyMap.containsKey(type)) {
-                                      return allergyMap.get(type);
-                                  } else {
-                                      Allergy allergy = allergyRepository.findByAllergy(type)
-                                              .orElseThrow(AllergyNotFoundException::new);
-                                      allergyMap.put(type, allergy);
-                                      return allergy;
-                                  }
-                                })
-                                .collect(Collectors.toSet()))
-                        .build())
-                .toList();
+        for (ProductSeedDTO dto : dtoMap.values()) {
 
-        for(Product product : entities) {
+            Product product = Product.builder()
+                    .id(dto.getProductId())
+                    .name(dto.getName())
+                    .retailPrice(dto.getRetailPrice())
+                    .weight(dto.getWeight())
+                    .allergies(new HashSet<>())
+                    .build();
+
             entityManager.persist(product);
+            entityManager.flush();
+
+            Set<Allergy> productAllergies = dto.getAllergies().stream()
+                    .map(type -> {
+                        if (!allergyMap.containsKey(type)) {
+                            Allergy allergy = allergyRepository.findByAllergy(type)
+                                    .orElseThrow(AllergyNotFoundException::new);
+                            allergyMap.put(type, allergy);
+                        }
+                        return allergyMap.get(type);
+                    })
+                    .collect(Collectors.toSet());
+
+            product.setAllergies(productAllergies);
         }
 
 
