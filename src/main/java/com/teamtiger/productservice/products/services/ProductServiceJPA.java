@@ -135,6 +135,7 @@ public class ProductServiceJPA implements ProductService{
                 .map(dto -> Product.builder()
                         .id(dto.getProductId())
                         .name(dto.getName())
+                        .vendorId(dto.getVendorId())
                         .retailPrice(dto.getRetailPrice())
                         .weight(dto.getWeight())
                         .allergies(allergyRepository.findAllByAllergyTypeIn(dto.getAllergies()))
