@@ -18,11 +18,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Table(
-        name = "bundles",
-        indexes = {
-                @Index(name = "idx_vendor_id", columnList = "vendor_id")
-        }
-
+        name = "bundles"
 )
 public class Bundle {
 
