@@ -59,11 +59,13 @@ public class Bundle {
     @Column(nullable = false, columnDefinition = "varchar") //REMOVE THIS WHEN MIGRATING TO POSTGRESQL
     private BundleCategory category;
 
+    private LocalDateTime postingTime;
     private LocalDateTime collectionStart;
     private LocalDateTime collectionEnd;
     private String description;
     private double retailPrice;
     private double price;
+
 
     @Version
     private long version;

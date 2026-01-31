@@ -39,7 +39,9 @@ public class BundleSeedDTO {
     @NotNull
     private LocalDateTime collectionEnd;
 
-    @NotBlank
+    @NotNull
+    private LocalDateTime postingTime;
+
     private String description;
 
     @NotNull
