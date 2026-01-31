@@ -109,6 +109,7 @@ public class BundleServiceJPA implements BundleService {
             throw new AuthorizationException();
         }
 
+
         List<Bundle> entities = bundles.stream()
                 .map(dto -> {
 
