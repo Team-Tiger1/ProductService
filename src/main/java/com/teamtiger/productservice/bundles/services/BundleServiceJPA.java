@@ -18,6 +18,7 @@ import com.teamtiger.productservice.products.repositories.ProductRepository;
 import com.teamtiger.productservice.reservations.exceptions.AuthorizationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -102,6 +103,7 @@ public class BundleServiceJPA implements BundleService {
     }
 
     @Override
+    @Transactional
     public void loadSeededData(String accessToken, List<BundleSeedDTO> bundles) {
         String role = jwtTokenUtil.getRoleFromToken(accessToken);
 
@@ -109,40 +111,43 @@ public class BundleServiceJPA implements BundleService {
             throw new AuthorizationException();
         }
 
+        for(BundleSeedDTO dto : bundles) {
 
-        List<Bundle> entities = bundles.stream()
-                .map(dto -> {
+            if(bundleRepository.existsById(dto.getBundleId())) {
+               continue;
+            }
 
-                    List<Product> productList = productRepository.findAllById(dto.getProductIds());
+            List<Product> productList = productRepository.findAllById(dto.getProductIds());
 
-                    //Get Aggregate Allergies from Products
-                    Set<Allergy> allergies = productList.stream()
-                            .map(Product::getAllergies)
-                            .flatMap(Set::stream)
-                            .collect(Collectors.toSet());
+            //Get Aggregate Allergies from Products
+            Set<Allergy> allergies = productList.stream()
+                    .map(Product::getAllergies)
+                    .flatMap(Set::stream)
+                    .collect(Collectors.toSet());
 
-                    //Calculate Retail Price from Products
-                    double retailPrice = productList.stream()
-                                    .mapToDouble(Product::getRetailPrice)
-                                    .sum();
+            //Calculate Retail Price from Products
+            double retailPrice = productList.stream()
+                    .mapToDouble(Product::getRetailPrice)
+                    .sum();
 
-                    return Bundle.builder()
-                            .name(dto.getName())
-                            .description(dto.getDescription())
-                            .price(dto.getPrice())
-                            .retailPrice(retailPrice)
-                            .products(productList)
-                            .allergies(allergies)
-                            .vendorId(dto.getVendorId())
-                            .postingTime(dto.getPostingTime())
-                            .category(dto.getCategory())
-                            .collectionStart(dto.getCollectionStart())
-                            .collectionEnd(dto.getCollectionEnd())
-                            .build();
-                })
-                .toList();
+            Bundle bundle = Bundle.builder()
+                    .name(dto.getName())
+                    .description(dto.getDescription())
+                    .price(dto.getPrice())
+                    .retailPrice(retailPrice)
+                    .products(productList)
+                    .allergies(allergies)
+                    .vendorId(dto.getVendorId())
+                    .postingTime(dto.getPostingTime())
+                    .category(dto.getCategory())
+                    .collectionStart(dto.getCollectionStart())
+                    .collectionEnd(dto.getCollectionEnd())
+                    .build();
 
-        bundleRepository.saveAll(entities);
+            bundleRepository.save(bundle);
+            System.out.println("Bundle Saved");
+        }
+
 
     }
 
