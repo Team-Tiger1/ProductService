@@ -111,43 +111,39 @@ public class BundleServiceJPA implements BundleService {
             throw new AuthorizationException();
         }
 
-        for(BundleSeedDTO dto : bundles) {
+        List<Bundle> entities = bundles.stream()
+                .map(dto -> {
 
-            if(bundleRepository.existsById(dto.getBundleId())) {
-               continue;
-            }
+                    List<Product> productList = productRepository.findAllById(dto.getProductIds());
 
-            List<Product> productList = productRepository.findAllById(dto.getProductIds());
+                    //Get Aggregate Allergies from Products
+                    Set<Allergy> allergies = productList.stream()
+                            .map(Product::getAllergies)
+                            .flatMap(Set::stream)
+                            .collect(Collectors.toSet());
 
-            //Get Aggregate Allergies from Products
-            Set<Allergy> allergies = productList.stream()
-                    .map(Product::getAllergies)
-                    .flatMap(Set::stream)
-                    .collect(Collectors.toSet());
+                    //Calculate Retail Price from Products
+                    double retailPrice = productList.stream()
+                                    .mapToDouble(Product::getRetailPrice)
+                                    .sum();
 
-            //Calculate Retail Price from Products
-            double retailPrice = productList.stream()
-                    .mapToDouble(Product::getRetailPrice)
-                    .sum();
+                    return Bundle.builder()
+                            .id(dto.getBundleId())
+                            .name(dto.getName())
+                            .description(dto.getDescription())
+                            .price(dto.getPrice())
+                            .retailPrice(retailPrice)
+                            .products(productList)
+                            .allergies(allergies)
+                            .vendorId(dto.getVendorId())
+                            .category(dto.getCategory())
+                            .collectionStart(dto.getCollectionStart())
+                            .collectionEnd(dto.getCollectionEnd())
+                            .build();
+                })
+                .toList();
 
-            Bundle bundle = Bundle.builder()
-                    .name(dto.getName())
-                    .description(dto.getDescription())
-                    .price(dto.getPrice())
-                    .retailPrice(retailPrice)
-                    .products(productList)
-                    .allergies(allergies)
-                    .vendorId(dto.getVendorId())
-                    .postingTime(dto.getPostingTime())
-                    .category(dto.getCategory())
-                    .collectionStart(dto.getCollectionStart())
-                    .collectionEnd(dto.getCollectionEnd())
-                    .build();
-
-            bundleRepository.save(bundle);
-            System.out.println("Bundle Saved");
-        }
-
+        bundleRepository.saveAll(entities);
 
     }
 
