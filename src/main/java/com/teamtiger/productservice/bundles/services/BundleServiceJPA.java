@@ -17,6 +17,8 @@ import com.teamtiger.productservice.products.models.ProductDTO;
 import com.teamtiger.productservice.products.repositories.ProductRepository;
 import com.teamtiger.productservice.reservations.exceptions.AuthorizationException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -151,8 +153,10 @@ public class BundleServiceJPA implements BundleService {
     }
 
     @Override
-    public List<ShortBundleDTO> getAllBundles() {
-        List<Bundle> bundles = bundleRepository.findAll();
+    public List<ShortBundleDTO> getAllBundles(int limit, int offset) {
+
+        Pageable pageable = PageRequest.of(offset, limit);
+        List<Bundle> bundles = bundleRepository.findAvailableBundles(pageable);
 
         return bundles.stream()
                 .map(entity -> ShortBundleDTO.builder()

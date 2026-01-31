@@ -20,8 +20,7 @@ import java.util.UUID;
 @Table(
         name = "reservation",
         indexes = {
-                @Index(name = "idx_bundle_id", columnList = "bundle_id"),
-                @Index(name = "idx_user_id", columnList = "user_id")
+                @Index(name = "idx_bundle_id", columnList = "bundle_id")
         }
 )
 public class Reservation {
@@ -47,9 +46,5 @@ public class Reservation {
 
     private LocalDateTime timeReserved;
     private LocalDateTime timeCollected;
-
-
-
-
 
 }

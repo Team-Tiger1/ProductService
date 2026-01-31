@@ -1,5 +1,6 @@
 package com.teamtiger.productservice.reservations.repositories;
 
+import com.teamtiger.productservice.bundles.entities.Bundle;
 import com.teamtiger.productservice.reservations.entities.Reservation;
 import com.teamtiger.productservice.reservations.models.CollectionStatus;
 import org.springframework.data.jpa.repository.JpaRepository;

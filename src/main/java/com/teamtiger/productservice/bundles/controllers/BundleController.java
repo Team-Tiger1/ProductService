@@ -110,21 +110,20 @@ public class BundleController {
         }
 
         catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
     }
 
     @Operation(summary = "Get all available bundles")
     @GetMapping
-    public ResponseEntity<?> getAllBundlesAvailable() {
+    public ResponseEntity<?> getAllBundlesAvailable(@RequestParam(name = "limit", defaultValue = "50", required = false) int limit,
+                                                    @RequestParam(name = "offset", defaultValue = "0", required = false) int offset) {
         try {
-            List<ShortBundleDTO> bundleDTOS = bundleService.getAllBundles();
+            List<ShortBundleDTO> bundleDTOS = bundleService.getAllBundles(limit, offset);
             return ResponseEntity.ok(bundleDTOS);
         }
 
         catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
     }

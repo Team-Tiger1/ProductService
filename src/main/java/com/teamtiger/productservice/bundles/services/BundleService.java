@@ -20,5 +20,5 @@ public interface BundleService {
 
     void loadSeededData(String accessToken, List<BundleSeedDTO> bundles);
 
-    List<ShortBundleDTO> getAllBundles();
+    List<ShortBundleDTO> getAllBundles(int limit, int offset);
 }
