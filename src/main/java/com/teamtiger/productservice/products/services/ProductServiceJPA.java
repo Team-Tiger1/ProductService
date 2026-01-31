@@ -132,9 +132,7 @@ public class ProductServiceJPA implements ProductService{
 
         Map<UUID, ProductSeedDTO> dtoMap = new HashMap<>();
         for(ProductSeedDTO productSeedDTO : products) {
-            if(dtoMap.containsKey(productSeedDTO.getProductId())) {
-                System.out.println("Contains Duplicate");
-            } else {
+            if(!dtoMap.containsKey(productSeedDTO.getProductId())) {
                 dtoMap.put(productSeedDTO.getProductId(), productSeedDTO);
             }
         }
@@ -162,7 +160,9 @@ public class ProductServiceJPA implements ProductService{
                         .build())
                 .toList();
 
-        productRepository.saveAll(entities);
+        for(Product product : entities) {
+            productRepository.save(product);
+        }
 
 
     }
