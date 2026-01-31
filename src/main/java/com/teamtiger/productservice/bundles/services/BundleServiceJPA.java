@@ -137,6 +137,7 @@ public class BundleServiceJPA implements BundleService {
                             .allergies(allergies)
                             .vendorId(dto.getVendorId())
                             .category(dto.getCategory())
+                            .postingTime(dto.getPostingTime())
                             .collectionStart(dto.getCollectionStart())
                             .collectionEnd(dto.getCollectionEnd())
                             .build();
