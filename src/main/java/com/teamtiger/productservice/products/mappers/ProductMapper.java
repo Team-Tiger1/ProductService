@@ -14,7 +14,7 @@ public class ProductMapper {
 
     public static GetProductDTO toDTO(Product product) {
         Set<AllergyType> allergyTypes = product.getAllergies().stream()
-                .map(Allergy::getAllergy)
+                .map(Allergy::getAllergyType)
                 .collect(Collectors.toSet());
         return new GetProductDTO(
                 product.getId(),
