@@ -27,8 +27,8 @@ import java.util.UUID;
 public class Reservation {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @UuidGenerator
+//    @GeneratedValue(generator = "UUID")
+//    @UuidGenerator
     @Column(name = "reservation_id", updatable = false, nullable = false)
     private UUID id;
 
