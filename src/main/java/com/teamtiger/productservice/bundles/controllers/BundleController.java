@@ -87,7 +87,7 @@ public class BundleController {
     @GetMapping("/{vendorId}")
     public ResponseEntity<?> getVendorBundles(@PathVariable UUID vendorId) {
         try {
-            List<BundleDTO> bundleList = bundleService.getVendorBundles(vendorId);
+            List<ShortBundleDTO> bundleList = bundleService.getVendorBundles(vendorId);
             return ResponseEntity.ok(bundleList);
         }
 

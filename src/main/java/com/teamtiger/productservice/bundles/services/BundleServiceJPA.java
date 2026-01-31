@@ -83,13 +83,17 @@ public class BundleServiceJPA implements BundleService {
     }
 
     @Override
-    public List<BundleDTO> getVendorBundles(UUID vendorId) {
+    public List<ShortBundleDTO> getVendorBundles(UUID vendorId) {
 
         List<Bundle> bundleList = bundleRepository.findAvailableBundlesByVendor(vendorId);
 
         return bundleList.stream()
-                .map(BundleMapper::toDTO)
-                .toList();
+                .map(entity -> ShortBundleDTO.builder()
+                        .bundleId(entity.getId())
+                        .price(entity.getPrice())
+                        .bundleName(entity.getName())
+                        .build()
+                ).toList();
     }
 
     @Override
@@ -101,7 +105,10 @@ public class BundleServiceJPA implements BundleService {
             throw new VendorAuthorizationException();
         }
 
-        return this.getVendorBundles(vendorId);
+        List<Bundle> bundles = bundleRepository.findAllByVendorId(vendorId);
+        return bundles.stream()
+                .map(BundleMapper::toDTO)
+                .toList();
     }
 
     @Override
@@ -162,7 +169,6 @@ public class BundleServiceJPA implements BundleService {
                 .map(entity -> ShortBundleDTO.builder()
                         .bundleId(entity.getId())
                         .price(entity.getPrice())
-                        .bundleDescription(entity.getDescription())
                         .build())
                 .toList();
     }

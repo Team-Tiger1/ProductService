@@ -14,7 +14,7 @@ public interface BundleService {
 
     void deleteBundle(UUID bundleId, String accessToken);
 
-    List<BundleDTO> getVendorBundles(UUID vendorId);
+    List<ShortBundleDTO> getVendorBundles(UUID vendorId);
 
     List<BundleDTO> getOwnBundles(String accessToken);
 

@@ -10,7 +10,7 @@ import java.util.UUID;
 public class ShortBundleDTO {
 
     private UUID bundleId;
-    private String bundleDescription;
+    private String bundleName;
     private double price;
 
 }
