@@ -29,7 +29,6 @@ public class ProductServiceJPA implements ProductService{
     private final ProductRepository productRepository;
     private final JwtTokenUtil jwtTokenUtil;
     private final AllergyRepository allergyRepository;
-    private final EntityManager entityManager;
 
 
     @Override
@@ -43,7 +42,7 @@ public class ProductServiceJPA implements ProductService{
         Set<Allergy> allergySet = new HashSet<>();
 
         for (AllergyType type : dto.allergies()) {
-            Allergy allergy = allergyRepository.findByAllergy(type)
+            Allergy allergy = allergyRepository.findByAllergyType(type)
                     .orElseThrow(RuntimeException::new);
             allergySet.add(allergy);
         }
@@ -108,7 +107,7 @@ public class ProductServiceJPA implements ProductService{
             Set<Allergy> allergySet = productToBeUpdated.getAllergies();
 
 
-            Set<Allergy> allergyEntities = allergyRepository.findAllByAllergyIn(dto.allergies());
+            Set<Allergy> allergyEntities = allergyRepository.findAllByAllergyTypeIn(dto.allergies());
 
             allergySet.addAll(allergyEntities);
 
@@ -131,41 +130,19 @@ public class ProductServiceJPA implements ProductService{
             throw new AuthorizationException();
         }
 
-        Map<UUID, ProductSeedDTO> dtoMap = new HashMap<>();
-        for(ProductSeedDTO productSeedDTO : products) {
-            if(!dtoMap.containsKey(productSeedDTO.getProductId())) {
-                dtoMap.put(productSeedDTO.getProductId(), productSeedDTO);
-            }
-        }
 
-        Map<AllergyType, Allergy> allergyMap = new HashMap<>();
+        List<Product> entities = products.stream()
+                .map(dto -> Product.builder()
+                        .id(dto.getProductId())
+                        .name(dto.getName())
+                        .retailPrice(dto.getRetailPrice())
+                        .weight(dto.getWeight())
+                        .allergies(allergyRepository.findAllByAllergyTypeIn(dto.getAllergies()))
+                        .build())
+                .toList();
 
-        for (ProductSeedDTO dto : dtoMap.values()) {
+        productRepository.saveAll(entities);
 
-            Product product = Product.builder()
-                    .id(dto.getProductId())
-                    .name(dto.getName())
-                    .retailPrice(dto.getRetailPrice())
-                    .weight(dto.getWeight())
-                    .allergies(new HashSet<>())
-                    .build();
-
-            entityManager.persist(product);
-            entityManager.flush();
-
-            Set<Allergy> productAllergies = dto.getAllergies().stream()
-                    .map(type -> {
-                        if (!allergyMap.containsKey(type)) {
-                            Allergy allergy = allergyRepository.findByAllergy(type)
-                                    .orElseThrow(AllergyNotFoundException::new);
-                            allergyMap.put(type, allergy);
-                        }
-                        return allergyMap.get(type);
-                    })
-                    .collect(Collectors.toSet());
-
-            product.setAllergies(productAllergies);
-        }
 
 
     }

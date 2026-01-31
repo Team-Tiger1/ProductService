@@ -18,7 +18,7 @@ public class Allergy {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    private AllergyType allergy;
+    private AllergyType allergyType;
 
 
 

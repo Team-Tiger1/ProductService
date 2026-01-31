@@ -8,6 +8,8 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface AllergyRepository  extends JpaRepository<Allergy, Long> {
-    Optional<Allergy> findByAllergy(AllergyType allergy);
-    Set<Allergy> findAllByAllergyIn(Set<AllergyType> allergySet);
+    Optional<Allergy> findByAllergyType(AllergyType allergy);
+
+    Set<Allergy> findAllByAllergyTypeIn(Set<AllergyType> allergySet);
+
 }
