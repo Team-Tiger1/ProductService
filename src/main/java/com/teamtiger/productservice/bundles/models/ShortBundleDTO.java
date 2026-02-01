@@ -1,5 +1,6 @@
 package com.teamtiger.productservice.bundles.models;
 
+import com.teamtiger.productservice.bundles.entities.BundleCategory;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -12,5 +13,6 @@ public class ShortBundleDTO {
     private UUID bundleId;
     private String bundleName;
     private double price;
+    private BundleCategory category;
 
 }

@@ -92,6 +92,7 @@ public class BundleServiceJPA implements BundleService {
                         .bundleId(entity.getId())
                         .price(entity.getPrice())
                         .bundleName(entity.getName())
+                        .category(entity.getCategory())
                         .build()
                 ).toList();
     }
