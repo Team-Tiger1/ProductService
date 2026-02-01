@@ -28,13 +28,9 @@ public class Bundle {
     @Column(name = "bundle_id", updatable = false, nullable = false)
     private UUID id;
 
-    @ManyToMany
-    @JoinTable(
-            name="bundle_products",
-            joinColumns = @JoinColumn(name = "bundle_id"),
-            inverseJoinColumns = @JoinColumn(name = "product_id")
-    )
-    private List<Product> products;
+
+    @OneToMany(mappedBy = "bundle", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BundleProduct> bundleProducts;
 
 
     @ManyToMany
@@ -52,7 +48,7 @@ public class Bundle {
     private String name;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, columnDefinition = "varchar") //REMOVE THIS WHEN MIGRATING TO POSTGRESQL
+    @Column(nullable = false, columnDefinition = "varchar")
     private BundleCategory category;
 
     private LocalDateTime postingTime;
@@ -62,8 +58,13 @@ public class Bundle {
     private double retailPrice;
     private double price;
 
-
     @Version
     private long version;
+
+    public void addProduct(Product product, Integer quantity) {
+        BundleProduct bundleProduct = new BundleProduct(this, product, quantity);
+        bundleProducts.add(bundleProduct);
+        product.getBundleProducts().add(bundleProduct);
+    }
 
 }

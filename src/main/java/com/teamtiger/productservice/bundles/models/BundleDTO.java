@@ -17,7 +17,7 @@ public class BundleDTO {
     private String name;
     private UUID bundleId;
     private String description;
-    private List<GetProductDTO> productList;
+    private List<BundleProductDTO> productList;
     private UUID vendorId;
     private double retailPrice;
     private double price;

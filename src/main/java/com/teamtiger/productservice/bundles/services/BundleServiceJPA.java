@@ -2,12 +2,10 @@ package com.teamtiger.productservice.bundles.services;
 
 import com.teamtiger.productservice.JwtTokenUtil;
 import com.teamtiger.productservice.bundles.entities.Bundle;
+import com.teamtiger.productservice.bundles.entities.BundleProduct;
 import com.teamtiger.productservice.bundles.exceptions.BundleNotFoundException;
 import com.teamtiger.productservice.bundles.exceptions.VendorAuthorizationException;
-import com.teamtiger.productservice.bundles.models.BundleDTO;
-import com.teamtiger.productservice.bundles.models.BundleSeedDTO;
-import com.teamtiger.productservice.bundles.models.CreateBundleDTO;
-import com.teamtiger.productservice.bundles.models.ShortBundleDTO;
+import com.teamtiger.productservice.bundles.models.*;
 import com.teamtiger.productservice.bundles.repositories.BundleRepository;
 import com.teamtiger.productservice.products.entities.Allergy;
 import com.teamtiger.productservice.products.entities.Product;
@@ -38,11 +36,15 @@ public class BundleServiceJPA implements BundleService {
 
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
 
+        //Count times product appears
+        Map<UUID, Long> occurenceMap = createBundleDTO.getProductList().stream()
+                .collect(Collectors.groupingBy(id -> id, Collectors.counting()));
+
 
         List<Product> products = productRepository.findAllById(createBundleDTO.getProductList());
         double retailPrice = 0;
         for(Product product : products) {
-            retailPrice += product.getRetailPrice();
+            retailPrice += product.getRetailPrice() * occurenceMap.get(product.getId());
         }
 
 
@@ -51,16 +53,24 @@ public class BundleServiceJPA implements BundleService {
                 .description(createBundleDTO.getDescription())
                 .price(createBundleDTO.getPrice())
                 .retailPrice(retailPrice)
-                .products(products)
                 .vendorId(vendorId)
                 .category(createBundleDTO.getCategory())
                 .collectionStart(createBundleDTO.getCollectionStart())
                 .collectionEnd(createBundleDTO.getCollectionEnd())
                 .build();
 
-        Bundle savedBundle = bundleRepository.save(bundle);
+        bundle = bundleRepository.save(bundle);
 
-        return BundleMapper.toDTO(savedBundle);
+        //Add products
+        for(Product product : products) {
+            int quantity = occurenceMap.get(product.getId()).intValue();
+            bundle.addProduct(product, quantity);
+        }
+
+        bundle = bundleRepository.save(bundle);
+
+
+        return BundleMapper.toDTO(bundle);
     }
 
     @Override
@@ -121,10 +131,24 @@ public class BundleServiceJPA implements BundleService {
             throw new AuthorizationException();
         }
 
+        Set<UUID> allProductIds = bundles.stream()
+                .flatMap(dto -> dto.getProductIds().stream())
+                .collect(Collectors.toSet());
+
+        Map<UUID, Product> productMap = productRepository.findAllById(allProductIds).stream()
+                .collect(Collectors.toMap(Product::getId, p -> p));
+
         List<Bundle> entities = bundles.stream()
                 .map(dto -> {
 
-                    List<Product> productList = productRepository.findAllById(dto.getProductIds());
+                    //Count times product appears
+                    Map<UUID, Long> occurenceMap = dto.getProductIds().stream()
+                            .collect(Collectors.groupingBy(id -> id, Collectors.counting()));
+
+                    List<Product> productList = dto.getProductIds().stream()
+                            .map(productMap::get)
+                            .filter(Objects::nonNull)
+                            .toList();
 
                     //Get Aggregate Allergies from Products
                     Set<Allergy> allergies = productList.stream()
@@ -134,16 +158,15 @@ public class BundleServiceJPA implements BundleService {
 
                     //Calculate Retail Price from Products
                     double retailPrice = productList.stream()
-                                    .mapToDouble(Product::getRetailPrice)
+                                    .mapToDouble(product -> product.getRetailPrice() * occurenceMap.get(product.getId()))
                                     .sum();
 
-                    return Bundle.builder()
+                    Bundle bundle = Bundle.builder()
                             .id(dto.getBundleId())
                             .name(dto.getName())
                             .description(dto.getDescription())
                             .price(dto.getPrice())
                             .retailPrice(retailPrice)
-                            .products(productList)
                             .allergies(allergies)
                             .vendorId(dto.getVendorId())
                             .category(dto.getCategory())
@@ -151,9 +174,19 @@ public class BundleServiceJPA implements BundleService {
                             .collectionStart(dto.getCollectionStart())
                             .collectionEnd(dto.getCollectionEnd())
                             .build();
+
+                    //Add products
+                    for(UUID productId : occurenceMap.keySet()) {
+                        Product product = productMap.get(productId);
+                        if(product == null) continue;
+
+                        int quantity = occurenceMap.get(productId).intValue();
+                        bundle.addProduct(product, quantity);
+                    }
+
+                    return bundle;
                 })
                 .toList();
-
 
 
         bundleRepository.saveAll(entities);
@@ -196,8 +229,17 @@ public class BundleServiceJPA implements BundleService {
 
         public static BundleDTO toDTO(Bundle entity) {
 
-            List<GetProductDTO> productDTOs = entity.getProducts().stream()
-                    .map(ProductMapper::toDTO)
+            List<BundleProductDTO> productDTOs = entity.getBundleProducts().stream()
+                    .map(bp -> {
+                        Product product = bp.getProduct();
+                        return BundleProductDTO.builder()
+                                .productId(product.getId())
+                                .productName(product.getName())
+                                .quantity(bp.getQuantity())
+                                .allergies(new HashSet<>())
+                                .price(product.getRetailPrice())
+                                .build();
+                    })
                     .toList();
 
             return BundleDTO.builder()

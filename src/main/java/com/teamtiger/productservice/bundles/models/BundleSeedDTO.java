@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -19,7 +20,7 @@ public class BundleSeedDTO {
     private UUID bundleId;
 
     @NotNull
-    private Set<UUID> productIds;
+    private List<UUID> productIds;
 
     @NotNull
     private Set<AllergyType> allergyTypes;

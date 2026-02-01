@@ -1,10 +1,11 @@
 package com.teamtiger.productservice.products.entities;
 
-import com.teamtiger.productservice.bundles.entities.Bundle;
+import com.teamtiger.productservice.bundles.entities.BundleProduct;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -23,8 +24,8 @@ public class Product {
     @Column(name = "product_id", updatable = false, nullable = false)
     private UUID id;
 
-    @ManyToMany(mappedBy = "products")
-    private Set<Bundle> bundles;
+    @OneToMany(mappedBy = "products", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BundleProduct> bundleProducts;
 
     @ManyToMany
     @JoinTable(
