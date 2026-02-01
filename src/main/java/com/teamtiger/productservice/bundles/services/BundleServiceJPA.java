@@ -168,6 +168,8 @@ public class BundleServiceJPA implements BundleService {
 
         return bundles.stream()
                 .map(entity -> ShortBundleDTO.builder()
+                        .bundleName(entity.getName())
+                        .category(entity.getCategory())
                         .bundleId(entity.getId())
                         .price(entity.getPrice())
                         .build())
