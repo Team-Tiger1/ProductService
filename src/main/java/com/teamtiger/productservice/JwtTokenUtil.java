@@ -32,6 +32,7 @@ public class JwtTokenUtil {
         Key hmacKey = new SecretKeySpec(decodedKey, SignatureAlgorithm.HS256.getJcaName());
 
         return Jwts.parserBuilder()
+                .setAllowedClockSkewSeconds(60) //Allows 60 seconds after expiry
                 .setSigningKey(hmacKey)
                 .build()
                 .parseClaimsJws(token)
