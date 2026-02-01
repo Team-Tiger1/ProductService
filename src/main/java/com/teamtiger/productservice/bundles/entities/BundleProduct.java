@@ -28,10 +28,12 @@ public class BundleProduct {
 
     @ManyToOne
     @MapsId("bundleId")
+    @JoinColumn(name = "bundle_id")
     private Bundle bundle;
 
     @ManyToOne
     @MapsId("productId")
+    @JoinColumn(name = "product_id")
     private Product product;
 
     private Integer quantity;
