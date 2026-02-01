@@ -174,6 +174,22 @@ public class BundleServiceJPA implements BundleService {
                 .toList();
     }
 
+
+    @Override
+    public BundleDTO getDetailedBundle(String accessToken, UUID bundleId) {
+        String role = jwtTokenUtil.getRoleFromToken(accessToken);
+
+        if(!role.equals("USER")) {
+            throw new AuthorizationException();
+        }
+
+        Bundle bundle = bundleRepository.findById(bundleId)
+                .orElseThrow(BundleNotFoundException::new);
+
+        return BundleMapper.toDTO(bundle);
+
+    }
+
     private static class BundleMapper {
 
         public static BundleDTO toDTO(Bundle entity) {

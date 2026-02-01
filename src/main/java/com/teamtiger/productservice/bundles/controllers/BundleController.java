@@ -128,6 +128,24 @@ public class BundleController {
         }
     }
 
+    @Operation(summary = "Get detailed information about a bundle")
+    @GetMapping("/{bundleId}")
+    public ResponseEntity<?> getDetailedBundle(@PathVariable UUID bundleId, @RequestHeader("Authorization") String authHeader) {
+        try {
+            String accessToken = authHeader.replace("Bearer ", "");
+            BundleDTO dto = bundleService.getDetailedBundle(accessToken, bundleId);
+            return ResponseEntity.ok(dto);
+        }
+
+        catch (BundleNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+
+        catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
 
 
 
