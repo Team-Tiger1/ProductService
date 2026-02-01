@@ -129,7 +129,7 @@ public class BundleController {
     }
 
     @Operation(summary = "Get detailed information about a bundle")
-    @GetMapping("/{bundleId}")
+    @GetMapping("/detailed/{bundleId}")
     public ResponseEntity<?> getDetailedBundle(@PathVariable UUID bundleId, @RequestHeader("Authorization") String authHeader) {
         try {
             String accessToken = authHeader.replace("Bearer ", "");
