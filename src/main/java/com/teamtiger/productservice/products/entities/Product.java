@@ -24,7 +24,7 @@ public class Product {
     @Column(name = "product_id", updatable = false, nullable = false)
     private UUID id;
 
-    @OneToMany(mappedBy = "products", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BundleProduct> bundleProducts;
 
     @ManyToMany
