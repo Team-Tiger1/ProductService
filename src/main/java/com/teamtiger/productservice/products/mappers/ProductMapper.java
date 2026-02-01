@@ -20,8 +20,8 @@ public class ProductMapper {
                 product.getId(),
                 product.getName(),
                 allergyTypes,
-                product.getWeight(),
-                product.getRetailPrice()
+                product.getRetailPrice(),
+                product.getWeight()
                 );
 
     }

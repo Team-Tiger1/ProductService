@@ -137,6 +137,10 @@ public class BundleController {
             return ResponseEntity.ok(dto);
         }
 
+        catch (AuthorizationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         catch (BundleNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
