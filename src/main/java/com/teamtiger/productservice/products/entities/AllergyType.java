@@ -4,7 +4,10 @@ public enum AllergyType {
 
     GLUTEN,
     DAIRY,
+    FISH,
+    PEANUTS,
     NUTS,
+    EGGS,
     VEGAN,
     VEGETARIAN,
 
