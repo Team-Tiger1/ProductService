@@ -39,14 +39,8 @@ public class ProductServiceJPA implements ProductService{
         if (!role.equals("VENDOR")){
             throw new AuthorizationException();
         }
-        Set<Allergy> allergySet = new HashSet<>();
 
-        for (AllergyType type : dto.allergies()) {
-            Allergy allergy = allergyRepository.findByAllergyType(type)
-                    .orElseThrow(RuntimeException::new);
-            allergySet.add(allergy);
-        }
-
+        Set<Allergy> allergySet = allergyRepository.findAllByAllergyTypeIn(dto.allergies());
 
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
         Product product = Product.builder()
@@ -75,8 +69,13 @@ public class ProductServiceJPA implements ProductService{
     public void deleteProduct(String accessToken, UUID productId) {
 
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
-        Product ProductToBeDeleted = productRepository.findById(productId).orElseThrow(EntityNotFoundException::new);
-        productRepository.delete(ProductToBeDeleted);
+        Product productToBeDeleted = productRepository.findById(productId).orElseThrow(EntityNotFoundException::new);
+
+        if(!productToBeDeleted.getVendorId().equals(vendorId)){
+            throw new AuthorizationException();
+        }
+
+        productRepository.delete(productToBeDeleted);
 
 
     }
