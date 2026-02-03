@@ -248,22 +248,22 @@ public class BundleServiceJPA implements BundleService {
 
         Long numExpiredBundles = bundleRepository.countPreviousExpiredBundlesByVendor(vendorId, period);
 
-        int noShows = 0;
-        int collected = 0;
+        Long noShows = 0L;
+        Long collected = 0L;
         for(Object[] group : bundleMetrics) {
             switch (group[0].toString()) {
                 case "NO_SHOW":
-                    noShows = (int) group[1];
+                    noShows = (long) group[1];
                     break;
                 case "COLLECTED":
-                    collected = (int) group[1];
+                    collected = (long) group[1];
                     break;
             }
         }
 
         return BundleMetricDTO.builder()
-                .numCollected(collected)
-                .numNoShows(noShows)
+                .numCollected(collected.intValue())
+                .numNoShows(noShows.intValue())
                 .numExpired(numExpiredBundles.intValue())
                 .build();
     }
