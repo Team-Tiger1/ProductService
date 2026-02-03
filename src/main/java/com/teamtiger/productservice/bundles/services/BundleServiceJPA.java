@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -223,6 +224,48 @@ public class BundleServiceJPA implements BundleService {
 
         return BundleMapper.toDTO(bundle);
 
+    }
+
+    @Override
+    public BundleMetricDTO getBundleMetrics(String accessToken, String timePeriod) {
+        UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
+        String role = jwtTokenUtil.getRoleFromToken(accessToken);
+
+        if(!role.equals("VENDOR")) {
+            throw new AuthorizationException();
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime period = switch (timePeriod) {
+            case "day" -> now.minusDays(1);
+            case "week" -> now.minusWeeks(1);
+            case "month" -> now.minusWeeks(1);
+            case "year" -> now.minusYears(1);
+            default -> now.minusWeeks(1);
+        };
+
+        List<Object[]> bundleMetrics = bundleRepository.countBundlesByVendorId(vendorId, period);
+
+        Long numExpiredBundles = bundleRepository.countPreviousExpiredBundlesByVendor(vendorId, period);
+
+        int noShows = 0;
+        int collected = 0;
+        for(Object[] group : bundleMetrics) {
+            switch (group[0].toString()) {
+                case "NO_SHOW":
+                    noShows = (int) group[1];
+                    break;
+                case "COLLECTED":
+                    collected = (int) group[1];
+                    break;
+            }
+        }
+
+        return BundleMetricDTO.builder()
+                .numCollected(collected)
+                .numNoShows(noShows)
+                .numExpired(numExpiredBundles.intValue())
+                .build();
     }
 
     private static class BundleMapper {
