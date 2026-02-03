@@ -58,6 +58,8 @@ public class Bundle {
     private double retailPrice;
     private double price;
 
+
+
     @Version
     private long version;
 
