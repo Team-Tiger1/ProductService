@@ -8,10 +8,12 @@ import com.teamtiger.productservice.bundles.exceptions.VendorAuthorizationExcept
 import com.teamtiger.productservice.bundles.models.*;
 import com.teamtiger.productservice.bundles.repositories.BundleRepository;
 import com.teamtiger.productservice.products.entities.Allergy;
+import com.teamtiger.productservice.products.entities.AllergyType;
 import com.teamtiger.productservice.products.entities.Product;
 import com.teamtiger.productservice.products.mappers.ProductMapper;
 import com.teamtiger.productservice.products.models.GetProductDTO;
 import com.teamtiger.productservice.products.models.ProductDTO;
+import com.teamtiger.productservice.products.repositories.AllergyRepository;
 import com.teamtiger.productservice.products.repositories.ProductRepository;
 import com.teamtiger.productservice.reservations.exceptions.AuthorizationException;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,7 @@ public class BundleServiceJPA implements BundleService {
     private final BundleRepository bundleRepository;
     private final JwtTokenUtil jwtTokenUtil;
     private final ProductRepository productRepository;
+    private final AllergyRepository allergyRepository;
 
     @Override
     public BundleDTO createBundle(CreateBundleDTO createBundleDTO, String accessToken) {
@@ -49,6 +52,15 @@ public class BundleServiceJPA implements BundleService {
         }
 
 
+        Set<AllergyType> bundleAllergyTypes = products.stream()
+                .flatMap(p -> p.getAllergies().stream())
+                .map(Allergy::getAllergyType)
+                .collect(Collectors.toSet());
+
+        Set<Allergy> bundleAllergies = bundleAllergyTypes.stream()
+                .map(type -> allergyRepository.findByAllergyType(type).get())
+                .collect(Collectors.toSet());
+
         Bundle bundle = Bundle.builder()
                 .name(createBundleDTO.getName())
                 .description(createBundleDTO.getDescription())
@@ -58,6 +70,7 @@ public class BundleServiceJPA implements BundleService {
                 .category(createBundleDTO.getCategory())
                 .collectionStart(createBundleDTO.getCollectionStart())
                 .collectionEnd(createBundleDTO.getCollectionEnd())
+                .allergies(bundleAllergies)
                 .build();
 
         bundle = bundleRepository.save(bundle);
@@ -279,7 +292,12 @@ public class BundleServiceJPA implements BundleService {
                                 .productId(product.getId())
                                 .productName(product.getName())
                                 .quantity(bp.getQuantity())
-                                .allergies(new HashSet<>())
+                                .allergies(
+                                        product.getAllergies().stream()
+                                                .map(Allergy::getAllergyType)
+                                                .collect(Collectors.toSet())
+                                )
+
                                 .price(product.getRetailPrice())
                                 .build();
                     })
@@ -296,6 +314,10 @@ public class BundleServiceJPA implements BundleService {
                     .category(entity.getCategory())
                     .collectionStart(entity.getCollectionStart())
                     .collectionEnd(entity.getCollectionEnd())
+                    .allergies(entity.getAllergies().stream()
+                                    .map(Allergy::getAllergyType)
+                                    .collect(Collectors.toSet())
+                    )
                     .build();
         }
     }

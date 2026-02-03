@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 @JsonFormat(shape = JsonFormat.Shape.STRING)
 public enum BundleCategory {
-
     BREAD_BAKED_GOODS,
     SWEET_TREATS_DESSERTS,
     MEAT_PROTEIN,
