@@ -57,10 +57,7 @@ public class BundleServiceJPA implements BundleService {
                 .collect(Collectors.toSet());
 
         Set<Allergy> bundleAllergies = bundleAllergyTypes.stream()
-                .map(type -> allergyRepository.findByAllergyType(type)
-                        .orElseGet(() -> allergyRepository.save(
-                                Allergy.builder().allergyType(type).build()
-                        )))
+                .map(type -> allergyRepository.findByAllergyType(type).get())
                 .collect(Collectors.toSet());
 
         Bundle bundle = Bundle.builder()
@@ -253,9 +250,7 @@ public class BundleServiceJPA implements BundleService {
                                 .productName(product.getName())
                                 .quantity(bp.getQuantity())
                                 .allergies(
-                                        product.getAllergies() == null
-                                                ? Set.of()
-                                                : product.getAllergies().stream()
+                                        product.getAllergies().stream()
                                                 .map(Allergy::getAllergyType)
                                                 .collect(Collectors.toSet())
                                 )
@@ -276,10 +271,7 @@ public class BundleServiceJPA implements BundleService {
                     .category(entity.getCategory())
                     .collectionStart(entity.getCollectionStart())
                     .collectionEnd(entity.getCollectionEnd())
-                    .allergies(
-                            entity.getAllergies() == null
-                                    ? Set.of()
-                                    : entity.getAllergies().stream()
+                    .allergies(entity.getAllergies().stream()
                                     .map(Allergy::getAllergyType)
                                     .collect(Collectors.toSet())
                     )
