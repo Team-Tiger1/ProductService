@@ -20,6 +20,7 @@ public class BundleProduct {
         this.bundle = bundle;
         this.product = product;
         this.quantity = quantity;
+        this.id = new BundleProductId();
     }
 
     @EmbeddedId
