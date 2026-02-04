@@ -2,10 +2,7 @@ package com.teamtiger.productservice.bundles.entities;
 
 import com.teamtiger.productservice.products.entities.Product;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -16,7 +13,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "bundle_products")
-@EqualsAndHashCode
 public class BundleProduct {
 
     public BundleProduct(Bundle bundle, Product product, Integer quantity) {
@@ -51,16 +47,35 @@ public class BundleProduct {
         return Objects.equals(id, that.id);
     }
 
-
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 
     @Embeddable
-    @Data
+    @Getter
+    @Setter
     @AllArgsConstructor
     @NoArgsConstructor
-    @EqualsAndHashCode
     public static class BundleProductId implements Serializable {
         private UUID bundleId;
         private UUID productId;
+
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            BundleProductId that = (BundleProductId) o;
+            return Objects.equals(bundleId, that.bundleId)
+                    && Objects.equals(productId, that.productId);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(bundleId, productId);
+        }
+
     }
 
 }

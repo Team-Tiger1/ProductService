@@ -13,7 +13,7 @@ import java.util.*;
 @Getter
 @Setter
 @Builder
-@RequiredArgsConstructor
+@NoArgsConstructor
 @AllArgsConstructor
 @Table(
         name = "bundles"
@@ -28,7 +28,8 @@ public class Bundle {
 
 
     @OneToMany(mappedBy = "bundle", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<BundleProduct> bundleProducts;
+    @Builder.Default
+    private Set<BundleProduct> bundleProducts = new HashSet<>();
 
 
     @ManyToMany
@@ -37,7 +38,8 @@ public class Bundle {
             joinColumns = @JoinColumn(name = "bundle_id"),
             inverseJoinColumns = @JoinColumn(name = "allergy_id")
     )
-    private Set<Allergy> allergies;
+    @Builder.Default
+    private Set<Allergy> allergies = new HashSet<>();
 
     @Column(name = "vendor_id", updatable = false)
     private UUID vendorId;
