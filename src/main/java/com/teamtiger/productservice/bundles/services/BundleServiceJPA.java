@@ -252,7 +252,7 @@ public class BundleServiceJPA implements BundleService {
         LocalDateTime period = switch (timePeriod) {
             case "day" -> now.minusDays(1);
             case "week" -> now.minusWeeks(1);
-            case "month" -> now.minusWeeks(1);
+            case "month" -> now.minusMonths(1);
             case "year" -> now.minusYears(1);
             default -> now.minusWeeks(1);
         };
