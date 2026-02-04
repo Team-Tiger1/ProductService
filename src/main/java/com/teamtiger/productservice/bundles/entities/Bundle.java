@@ -66,12 +66,15 @@ public class Bundle {
 
     public void addProduct(Product product, Integer quantity) {
 
-        if(product.getBundleProducts() == null) {
-            product.setBundleProducts(new ArrayList<>());
-        }
 
         if(bundleProducts == null) {
             bundleProducts = new ArrayList<>();
+        }
+
+        for(BundleProduct bundleProduct : bundleProducts) {
+            if(bundleProduct.getProduct().getId().equals(product.getId())) {
+                return;
+            }
         }
 
         BundleProduct bundleProduct = new BundleProduct(this, product, quantity);
