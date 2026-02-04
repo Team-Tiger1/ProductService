@@ -9,7 +9,8 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "bundle_products")
@@ -19,7 +20,6 @@ public class BundleProduct {
         this.bundle = bundle;
         this.product = product;
         this.quantity = quantity;
-        this.id = new BundleProductId(bundle.getId(), product.getId());
     }
 
     @EmbeddedId
@@ -44,12 +44,12 @@ public class BundleProduct {
 
         BundleProduct that = (BundleProduct) o;
 
-        return Objects.equals(id, that.id);
+        return bundle.equals(that.bundle) && product.equals(that.product);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return Objects.hash(bundle, product);
     }
 
     @Embeddable

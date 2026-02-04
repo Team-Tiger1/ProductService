@@ -71,13 +71,7 @@ public class Bundle {
         }
 
         BundleProduct bundleProduct = new BundleProduct(this, product, quantity);
-
-        if(bundleProducts.add(bundleProduct)) {
-            if(product.getBundleProducts() == null) {
-                product.setBundleProducts(new HashSet<>());
-            }
-            product.getBundleProducts().add(bundleProduct);
-        }
+        bundleProducts.add(bundleProduct);
 
     }
 
