@@ -25,7 +25,7 @@ public class Product {
     private UUID id;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BundleProduct> bundleProducts;
+    private Set<BundleProduct> bundleProducts;
 
     @ManyToMany
     @JoinTable(

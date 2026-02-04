@@ -7,10 +7,7 @@ import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Getter
@@ -31,7 +28,7 @@ public class Bundle {
 
 
     @OneToMany(mappedBy = "bundle", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BundleProduct> bundleProducts;
+    private Set<BundleProduct> bundleProducts;
 
 
     @ManyToMany
@@ -68,18 +65,18 @@ public class Bundle {
 
 
         if(bundleProducts == null) {
-            bundleProducts = new ArrayList<>();
-        }
-
-        for(BundleProduct bundleProduct : bundleProducts) {
-            if(bundleProduct.getProduct().getId().equals(product.getId())) {
-                return;
-            }
+            bundleProducts = new HashSet<>();
         }
 
         BundleProduct bundleProduct = new BundleProduct(this, product, quantity);
-        bundleProducts.add(bundleProduct);
-        product.getBundleProducts().add(bundleProduct);
+
+        if(bundleProducts.add(bundleProduct)) {
+            if(product.getBundleProducts() == null) {
+                product.setBundleProducts(new HashSet<>());
+            }
+            product.getBundleProducts().add(bundleProduct);
+        }
+
     }
 
 }
