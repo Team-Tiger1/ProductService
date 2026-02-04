@@ -49,7 +49,7 @@ public class BundleProduct {
 
     @Override
     public int hashCode() {
-        return super.hashCode();
+        return Objects.hashCode(id);
     }
 
     @Embeddable
