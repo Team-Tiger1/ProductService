@@ -7,6 +7,7 @@ import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -64,6 +65,15 @@ public class Bundle {
     private long version;
 
     public void addProduct(Product product, Integer quantity) {
+
+        if(product.getBundleProducts() == null) {
+            product.setBundleProducts(new ArrayList<>());
+        }
+
+        if(bundleProducts == null) {
+            bundleProducts = new ArrayList<>();
+        }
+
         BundleProduct bundleProduct = new BundleProduct(this, product, quantity);
         bundleProducts.add(bundleProduct);
         product.getBundleProducts().add(bundleProduct);
