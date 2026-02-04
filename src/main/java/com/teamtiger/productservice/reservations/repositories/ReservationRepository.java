@@ -16,4 +16,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID> 
 
     List<Reservation> findAllByUserIdAndStatus(UUID userId, CollectionStatus status);
 
+    List<Reservation> findAllByStatusAndBundleVendorId(CollectionStatus status, UUID vendorId);
+
 }

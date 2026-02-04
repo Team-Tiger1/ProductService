@@ -7,10 +7,12 @@ import com.teamtiger.productservice.reservations.exceptions.ReservationNotFoundE
 import com.teamtiger.productservice.reservations.models.ClaimCodeDTO;
 import com.teamtiger.productservice.reservations.models.ReservationDTO;
 import com.teamtiger.productservice.reservations.models.ReservationSeedDTO;
+import com.teamtiger.productservice.reservations.models.ReservationVendorDTO;
 import com.teamtiger.productservice.reservations.services.ReservationService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.micrometer.observation.autoconfigure.ObservationProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -63,6 +65,25 @@ public class ReservationController {
         }
 
         catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @Operation(summary = "Get all pending reservations for a vendor")
+    @GetMapping("/vendor")
+    public ResponseEntity<?> getReservationsForVendor(@RequestHeader("Authorization") String authToken) {
+        try {
+            String accessToken = authToken.replace("Bearer ", "");
+            List<ReservationVendorDTO> reservationList = reservationService.getReservationsForVendor(accessToken);
+            return ResponseEntity.ok(reservationList);
+        }
+
+        catch (AuthorizationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
     }
