@@ -7,15 +7,13 @@ import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Getter
 @Setter
 @Builder
-@RequiredArgsConstructor
+@NoArgsConstructor
 @AllArgsConstructor
 @Table(
         name = "bundles"
@@ -30,7 +28,8 @@ public class Bundle {
 
 
     @OneToMany(mappedBy = "bundle", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BundleProduct> bundleProducts;
+    @Builder.Default
+    private Set<BundleProduct> bundleProducts = new HashSet<>();
 
 
     @ManyToMany
@@ -39,7 +38,8 @@ public class Bundle {
             joinColumns = @JoinColumn(name = "bundle_id"),
             inverseJoinColumns = @JoinColumn(name = "allergy_id")
     )
-    private Set<Allergy> allergies;
+    @Builder.Default
+    private Set<Allergy> allergies = new HashSet<>();
 
     @Column(name = "vendor_id", updatable = false)
     private UUID vendorId;
@@ -58,13 +58,21 @@ public class Bundle {
     private double retailPrice;
     private double price;
 
+
+
     @Version
     private long version;
 
     public void addProduct(Product product, Integer quantity) {
+
+
+        if(bundleProducts == null) {
+            bundleProducts = new HashSet<>();
+        }
+
         BundleProduct bundleProduct = new BundleProduct(this, product, quantity);
         bundleProducts.add(bundleProduct);
-        product.getBundleProducts().add(bundleProduct);
+
     }
 
 }

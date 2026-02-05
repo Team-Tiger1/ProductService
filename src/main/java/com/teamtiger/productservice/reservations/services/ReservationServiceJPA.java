@@ -180,6 +180,29 @@ public class ReservationServiceJPA implements ReservationService {
         reservationRepository.saveAll(entities);
     }
 
+    @Override
+    public List<ReservationVendorDTO> getReservationsForVendor(String accessToken) {
+        String role = jwtTokenUtil.getRoleFromToken(accessToken);
+
+        if(!role.equals("VENDOR")) {
+            throw new AuthorizationException();
+        }
+
+        UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
+        List<Reservation> currentReservations = reservationRepository.findAllByStatusAndBundleVendorId(CollectionStatus.RESERVED, vendorId);
+
+        return currentReservations.stream()
+                .map(entity -> ReservationVendorDTO.builder()
+                        .bundleName(entity.getBundle().getName())
+                        .reservationId(entity.getId())
+                        .bundleId(entity.getBundle().getId())
+                        .collectionStart(entity.getBundle().getCollectionStart())
+                        .collectionEnd(entity.getBundle().getCollectionEnd())
+                        .amountDue(entity.getAmountDue())
+                        .build())
+                .toList();
+    }
+
     private static class ReservationMapper {
 
         public static ReservationDTO toDTO(Reservation reservation) {

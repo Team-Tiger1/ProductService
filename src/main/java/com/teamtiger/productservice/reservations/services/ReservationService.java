@@ -3,6 +3,7 @@ package com.teamtiger.productservice.reservations.services;
 import com.teamtiger.productservice.reservations.models.ClaimCodeDTO;
 import com.teamtiger.productservice.reservations.models.ReservationDTO;
 import com.teamtiger.productservice.reservations.models.ReservationSeedDTO;
+import com.teamtiger.productservice.reservations.models.ReservationVendorDTO;
 
 import java.util.List;
 import java.util.UUID;
@@ -20,5 +21,7 @@ public interface ReservationService {
     void checkClaimCode(ClaimCodeDTO claimCode, String accessToken);
 
     void loadSeededData(String accessToken, List<ReservationSeedDTO> reservations);
+
+    List<ReservationVendorDTO> getReservationsForVendor(String accessToken);
 
 }

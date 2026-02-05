@@ -1,9 +1,6 @@
 package com.teamtiger.productservice.bundles.services;
 
-import com.teamtiger.productservice.bundles.models.BundleDTO;
-import com.teamtiger.productservice.bundles.models.BundleSeedDTO;
-import com.teamtiger.productservice.bundles.models.CreateBundleDTO;
-import com.teamtiger.productservice.bundles.models.ShortBundleDTO;
+import com.teamtiger.productservice.bundles.models.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,5 +20,7 @@ public interface BundleService {
     List<ShortBundleDTO> getAllBundles(int limit, int offset);
 
     BundleDTO getDetailedBundle(String accessToken, UUID bundleId);
+
+    BundleMetricDTO getBundleMetrics(String accessToken, String timePeriod);
 
 }

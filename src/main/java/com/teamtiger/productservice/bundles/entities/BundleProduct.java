@@ -2,15 +2,15 @@ package com.teamtiger.productservice.bundles.entities;
 
 import com.teamtiger.productservice.products.entities.Product;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "bundle_products")
@@ -20,7 +20,7 @@ public class BundleProduct {
         this.bundle = bundle;
         this.product = product;
         this.quantity = quantity;
-        this.id = new BundleProductId(bundle.getId(), product.getId());
+        this.id = new BundleProductId();
     }
 
     @EmbeddedId
@@ -38,15 +38,45 @@ public class BundleProduct {
 
     private Integer quantity;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
+        BundleProduct that = (BundleProduct) o;
+
+        return bundle.equals(that.bundle) && product.equals(that.product);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(bundle, product);
+    }
 
     @Embeddable
-    @Data
+    @Getter
+    @Setter
     @AllArgsConstructor
     @NoArgsConstructor
     public static class BundleProductId implements Serializable {
         private UUID bundleId;
         private UUID productId;
+
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            BundleProductId that = (BundleProductId) o;
+            return Objects.equals(bundleId, that.bundleId)
+                    && Objects.equals(productId, that.productId);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(bundleId, productId);
+        }
+
     }
 
 }

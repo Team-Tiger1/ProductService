@@ -9,7 +9,7 @@ import lombok.*;
 @Builder
 @RequiredArgsConstructor
 @AllArgsConstructor
-@Table(name = "allergies")
+@Table(name = "allergens")
 public class Allergy {
 
     @Id
