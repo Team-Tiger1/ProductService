@@ -21,8 +21,8 @@ import java.util.*;
 public class Bundle {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @UuidGenerator
+//    @GeneratedValue(generator = "UUID")
+//    @UuidGenerator
     @Column(name = "bundle_id", updatable = false, nullable = false)
     private UUID id;
 
