@@ -171,8 +171,11 @@ public class BundleServiceJPA implements BundleService {
                             .collect(Collectors.toSet());
 
                     //Calculate Retail Price from Products
-                    double retailPrice = productList.stream()
-                                    .mapToDouble(product -> product.getRetailPrice() * occurenceMap.get(product.getId()))
+                    double retailPrice = occurenceMap.entrySet().stream()
+                                    .mapToDouble(entry -> {
+                                        Product product = productMap.get(entry.getKey());
+                                        return product.getRetailPrice() * entry.getValue();
+                                    })
                                     .sum();
 
                     Bundle bundle = Bundle.builder()
