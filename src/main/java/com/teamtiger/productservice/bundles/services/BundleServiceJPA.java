@@ -227,6 +227,12 @@ public class BundleServiceJPA implements BundleService {
                         .category(entity.getCategory())
                         .bundleId(entity.getId())
                         .price(entity.getPrice())
+                        .allergens(entity.getAllergies().stream()
+                                .map(Allergy::getAllergyType)
+                                .collect(Collectors.toSet()))
+                        .collectionStart(entity.getCollectionStart())
+                        .collectionEnd(entity.getCollectionEnd())
+
                         .build())
                 .toList();
     }
