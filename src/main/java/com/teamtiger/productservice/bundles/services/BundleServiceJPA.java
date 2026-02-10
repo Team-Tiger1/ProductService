@@ -117,6 +117,11 @@ public class BundleServiceJPA implements BundleService {
                         .price(entity.getPrice())
                         .bundleName(entity.getName())
                         .category(entity.getCategory())
+                        .allergens(entity.getAllergies().stream()
+                                .map(Allergy::getAllergyType)
+                                .collect(Collectors.toSet()))
+                        .collectionStart(entity.getCollectionStart())
+                        .collectionEnd(entity.getCollectionEnd())
                         .build()
                 ).toList();
     }
@@ -222,6 +227,12 @@ public class BundleServiceJPA implements BundleService {
                         .category(entity.getCategory())
                         .bundleId(entity.getId())
                         .price(entity.getPrice())
+                        .allergens(entity.getAllergies().stream()
+                                .map(Allergy::getAllergyType)
+                                .collect(Collectors.toSet()))
+                        .collectionStart(entity.getCollectionStart())
+                        .collectionEnd(entity.getCollectionEnd())
+
                         .build())
                 .toList();
     }
