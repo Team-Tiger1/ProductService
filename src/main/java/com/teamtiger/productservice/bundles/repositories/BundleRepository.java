@@ -13,11 +13,11 @@ public interface BundleRepository extends JpaRepository<Bundle, UUID> {
 
     List<Bundle> findAllByVendorId(UUID vendorId);
 
-    @Query("SELECT b FROM Bundle b WHERE b.collectionEnd < CURRENT_TIMESTAMP AND NOT EXISTS " +
+    @Query("SELECT b FROM Bundle b WHERE b.collectionEnd > CURRENT_TIMESTAMP AND NOT EXISTS " +
             "(SELECT r FROM Reservation r WHERE r.bundle = b)")
     List<Bundle> findAvailableBundles(Pageable pageable);
 
-    @Query("SELECT b FROM Bundle b WHERE b.vendorId = :vendorId AND b.collectionEnd < CURRENT_TIMESTAMP AND NOT EXISTS " +
+    @Query("SELECT b FROM Bundle b WHERE b.vendorId = :vendorId AND b.collectionEnd > CURRENT_TIMESTAMP AND NOT EXISTS " +
             "(SELECT r FROM Reservation r WHERE r.bundle = b ) ORDER BY b.price ASC")
     List<Bundle> findAvailableBundlesByVendor(UUID vendorId);
 
