@@ -9,7 +9,7 @@ public interface ReservationService {
 
     ReservationDTO createReservation(UUID bundleId, String accessToken);
 
-    List<ReservationDTO> getReservations(String accessToken);
+    List<ReservationDTO> getReservations(String accessToken, CollectionStatus status);
 
     void deleteReservation(UUID reservationId, String accessToken);
 
@@ -19,6 +19,6 @@ public interface ReservationService {
 
     void loadSeededData(String accessToken, List<ReservationSeedDTO> reservations);
 
-    List<ReservationVendorDTO> getReservationsForVendor(String accessToken, CollectionStatus status);
+    List<ReservationVendorDTO> getReservationsForVendor(String accessToken);
 
 }

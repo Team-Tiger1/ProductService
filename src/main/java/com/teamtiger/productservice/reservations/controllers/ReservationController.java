@@ -73,7 +73,7 @@ public class ReservationController {
     public ResponseEntity<?> getReservationsForVendor(@RequestHeader("Authorization") String authToken) {
         try {
             String accessToken = authToken.replace("Bearer ", "");
-            List<ReservationVendorDTO> reservationList = reservationService.getReservationsForVendor(accessToken, CollectionStatus.RESERVED);
+            List<ReservationVendorDTO> reservationList = reservationService.getReservationsForVendor(accessToken);
             return ResponseEntity.ok(reservationList);
         }
 

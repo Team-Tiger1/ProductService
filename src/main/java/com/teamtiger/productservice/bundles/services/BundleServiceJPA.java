@@ -310,7 +310,7 @@ public class BundleServiceJPA implements BundleService {
                                 .productId(product.getId())
                                 .productName(product.getName())
                                 .quantity(bp.getQuantity())
-                                .allergies(
+                                .allergens(
                                         product.getAllergies().stream()
                                                 .map(Allergy::getAllergyType)
                                                 .collect(Collectors.toSet())
@@ -332,7 +332,7 @@ public class BundleServiceJPA implements BundleService {
                     .category(entity.getCategory())
                     .collectionStart(entity.getCollectionStart())
                     .collectionEnd(entity.getCollectionEnd())
-                    .allergies(entity.getAllergies().stream()
+                    .allergens(entity.getAllergies().stream()
                                     .map(Allergy::getAllergyType)
                                     .collect(Collectors.toSet())
                     )
