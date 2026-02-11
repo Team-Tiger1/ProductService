@@ -15,6 +15,6 @@ public class BundleProductDTO {
     private String productName;
     private double price;
     private int quantity;
-    private Set<AllergyType> allergies;
+    private Set<AllergyType> allergens;
 
 }

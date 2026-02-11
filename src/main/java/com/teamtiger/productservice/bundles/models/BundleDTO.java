@@ -26,6 +26,6 @@ public class BundleDTO {
     private BundleCategory category;
     private LocalDateTime collectionStart;
     private LocalDateTime collectionEnd;
-    private Set<AllergyType> allergies;
+    private Set<AllergyType> allergens;
 
 }
