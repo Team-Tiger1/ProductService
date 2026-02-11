@@ -33,4 +33,8 @@ public interface BundleRepository extends JpaRepository<Bundle, UUID> {
             "(SELECT r FROM Reservation r WHERE r.bundle = b )")
     Long countPreviousExpiredBundlesByVendor(UUID vendorId, LocalDateTime period);
 
+
+    @Query("SELECT COUNT(b.id) FROM Bundle b WHERE b.vendorId = :vendorId AND b.collectionEnd > CURRENT_TIMESTAMP")
+    Long countPostedBundlesByVendor(UUID vendorId);
+
 }

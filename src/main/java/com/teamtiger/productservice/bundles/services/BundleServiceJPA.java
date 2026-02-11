@@ -289,6 +289,7 @@ public class BundleServiceJPA implements BundleService {
                 case "COLLECTED":
                     collected = (long) group[1];
                     break;
+
             }
         }
 
@@ -297,6 +298,19 @@ public class BundleServiceJPA implements BundleService {
                 .numNoShows(noShows.intValue())
                 .numExpired(numExpiredBundles.intValue())
                 .build();
+    }
+
+    @Override
+    public Integer getNumBundlePosted(String accessToken) {
+        UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
+        String role = jwtTokenUtil.getRoleFromToken(accessToken);
+
+        if(!role.equals("VENDOR")) {
+            throw new AuthorizationException();
+        }
+
+        Long numPostedBundles = bundleRepository.countPostedBundlesByVendor(vendorId);
+        return numPostedBundles.intValue();
     }
 
     private static class BundleMapper {

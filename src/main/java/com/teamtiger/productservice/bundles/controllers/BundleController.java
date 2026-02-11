@@ -150,21 +150,6 @@ public class BundleController {
         }
     }
 
-//    @Operation(summary = "Get analytics all reservations for a vendor in a time period")
-//    @GetMapping("/vendor")
-//    public ResponseEntity<?> getPastReservations(@RequestParam(name = "period", defaultValue = "week", required = false)
-//                                                 @RequestHeader("Authorization") String authHeader) {
-//        try {
-//
-//            String accessToken = authHeader.replace("Bearer ", "");
-//
-//
-//        }
-//
-//        catch (Exception e) {
-//            return ResponseEntity.internalServerError().build();
-//        }
-//    }
 
     @Operation(summary = "Get number of bundles in a time period")
     @GetMapping("/metrics")
@@ -185,6 +170,26 @@ public class BundleController {
             return ResponseEntity.internalServerError().build();
         }
 
+    }
+
+    @Operation(summary = "Get number of posted bundles")
+    @GetMapping("/available")
+    public ResponseEntity<?> getNumPostedBundles(@RequestHeader("Authorization") String authHeader) {
+        try {
+
+            String accessToken = authHeader.replace("Bearer ", "");
+            Integer numPostedBundles = bundleService.getNumBundlePosted(accessToken);
+            return ResponseEntity.ok(numPostedBundles);
+        }
+
+        catch (AuthorizationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
 
