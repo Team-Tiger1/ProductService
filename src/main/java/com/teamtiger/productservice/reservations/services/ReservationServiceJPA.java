@@ -181,7 +181,7 @@ public class ReservationServiceJPA implements ReservationService {
     }
 
     @Override
-    public List<ReservationVendorDTO> getReservationsForVendor(String accessToken) {
+    public List<ReservationVendorDTO> getReservationsForVendor(String accessToken, CollectionStatus status) {
         String role = jwtTokenUtil.getRoleFromToken(accessToken);
 
         if(!role.equals("VENDOR")) {
@@ -189,7 +189,7 @@ public class ReservationServiceJPA implements ReservationService {
         }
 
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
-        List<Reservation> currentReservations = reservationRepository.findAllByStatusAndBundleVendorId(CollectionStatus.RESERVED, vendorId);
+        List<Reservation> currentReservations = reservationRepository.findAllByStatusAndBundleVendorId(status, vendorId);
 
         return currentReservations.stream()
                 .map(entity -> ReservationVendorDTO.builder()

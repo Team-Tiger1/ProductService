@@ -4,10 +4,7 @@ import com.teamtiger.productservice.bundles.exceptions.BundleNotFoundException;
 import com.teamtiger.productservice.reservations.exceptions.AuthorizationException;
 import com.teamtiger.productservice.reservations.exceptions.BundleAlreadyReservedException;
 import com.teamtiger.productservice.reservations.exceptions.ReservationNotFoundException;
-import com.teamtiger.productservice.reservations.models.ClaimCodeDTO;
-import com.teamtiger.productservice.reservations.models.ReservationDTO;
-import com.teamtiger.productservice.reservations.models.ReservationSeedDTO;
-import com.teamtiger.productservice.reservations.models.ReservationVendorDTO;
+import com.teamtiger.productservice.reservations.models.*;
 import com.teamtiger.productservice.reservations.services.ReservationService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -55,12 +52,14 @@ public class ReservationController {
         }
     }
 
-    @Operation(summary = "Get all pending reservations for a user")
+    @Operation(summary = "Get all reservations for a user")
     @GetMapping
-    public ResponseEntity<?> getReservations(@RequestHeader("Authorization") String authToken) {
+    public ResponseEntity<?> getReservations(@RequestParam(name = "status", defaultValue = "RESERVED", required = false) CollectionStatus status,
+                                             @RequestHeader("Authorization") String authToken) {
         try {
             String accessToken = authToken.replace("Bearer ", "");
-            List<ReservationDTO> reservationList = reservationService.getReservations(accessToken);
+
+            List<ReservationDTO> reservationList = reservationService.getReservations(accessToken, status);
             return ResponseEntity.ok(reservationList);
         }
 
@@ -74,7 +73,7 @@ public class ReservationController {
     public ResponseEntity<?> getReservationsForVendor(@RequestHeader("Authorization") String authToken) {
         try {
             String accessToken = authToken.replace("Bearer ", "");
-            List<ReservationVendorDTO> reservationList = reservationService.getReservationsForVendor(accessToken);
+            List<ReservationVendorDTO> reservationList = reservationService.getReservationsForVendor(accessToken, CollectionStatus.RESERVED);
             return ResponseEntity.ok(reservationList);
         }
 
