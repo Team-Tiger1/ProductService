@@ -8,8 +8,13 @@ This service handles:
 - Allergens
 - Reservations
 
-This service handles the relationship between products, bundles, allergens and reservations, allowing users and vendors to access the endpoints. This service pushes messages to RabbitMQ when a vendor verifies a claim code, so the streak on the User Service can be updated.
+This service handles the relationship between products, bundles, allergens and reservations, allowing users and vendors to access the endpoints. 
+This service pushes messages to RabbitMQ when a vendor verifies a claim code, so the streak on the User Service can be updated.
+The Image below highlights where in the architecture this service operates.
 
+<p>
+  <img src="Architecture_ProductService.png" alt="Project Logo" style="border-radius: 10px; padding: 10px; background-color: white; max-height: 500px">
+</p>
 
 ## Documentation
 
