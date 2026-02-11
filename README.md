@@ -13,7 +13,7 @@ This service pushes messages to RabbitMQ when a vendor verifies a claim code, so
 The Image below highlights where in the architecture this service operates.
 
 <p>
-  <img src="Architecture_ProductService.png" alt="Project Logo" style="border-radius: 10px; padding: 10px; background-color: white; max-height: 500px">
+  <img src="Architecture_ProductService.png" alt="Project Logo" height="500px">
 </p>
 
 ## Documentation
