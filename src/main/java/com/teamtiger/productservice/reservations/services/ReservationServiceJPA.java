@@ -123,6 +123,11 @@ public class ReservationServiceJPA implements ReservationService {
     @Override
     public ClaimCodeDTO getClaimCode(UUID reservationId, String accessToken) {
         UUID userId = jwtTokenUtil.getUuidFromToken(accessToken);
+        String role = jwtTokenUtil.getRoleFromToken(accessToken);
+
+        if (!role.equals("USER")) {
+            throw new AuthorizationException();
+        }
 
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(ReservationNotFoundException::new);

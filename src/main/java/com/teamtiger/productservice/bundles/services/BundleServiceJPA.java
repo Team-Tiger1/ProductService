@@ -138,7 +138,7 @@ public class BundleServiceJPA implements BundleService {
             throw new VendorAuthorizationException();
         }
 
-        List<Bundle> bundles = bundleRepository.findAllByVendorId(vendorId);
+        List<Bundle> bundles = bundleRepository.findAvailableBundlesByVendor(vendorId);
         return bundles.stream()
                 .map(BundleMapper::toDTO)
                 .toList();
