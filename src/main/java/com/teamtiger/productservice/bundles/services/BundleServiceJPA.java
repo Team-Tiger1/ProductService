@@ -19,6 +19,7 @@ import com.teamtiger.productservice.reservations.exceptions.AuthorizationExcepti
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,6 +72,7 @@ public class BundleServiceJPA implements BundleService {
                 .collectionStart(createBundleDTO.getCollectionStart())
                 .collectionEnd(createBundleDTO.getCollectionEnd())
                 .allergies(bundleAllergies)
+                .postingTime(LocalDateTime.now())
                 .build();
 
         bundle = bundleRepository.save(bundle);
