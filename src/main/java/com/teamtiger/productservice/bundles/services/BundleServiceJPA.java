@@ -72,6 +72,7 @@ public class BundleServiceJPA implements BundleService {
                 .collectionStart(createBundleDTO.getCollectionStart())
                 .collectionEnd(createBundleDTO.getCollectionEnd())
                 .allergies(bundleAllergies)
+                .postingTime(LocalDateTime.now())
                 .build();
 
         bundle = bundleRepository.save(bundle);
@@ -118,6 +119,7 @@ public class BundleServiceJPA implements BundleService {
                         .price(entity.getPrice())
                         .bundleName(entity.getName())
                         .category(entity.getCategory())
+                        .vendorId(entity.getVendorId())
                         .allergens(entity.getAllergies().stream()
                                 .map(Allergy::getAllergyType)
                                 .collect(Collectors.toSet()))
@@ -136,7 +138,7 @@ public class BundleServiceJPA implements BundleService {
             throw new VendorAuthorizationException();
         }
 
-        List<Bundle> bundles = bundleRepository.findAllByVendorId(vendorId);
+        List<Bundle> bundles = bundleRepository.findAvailableBundlesByVendor(vendorId);
         return bundles.stream()
                 .map(BundleMapper::toDTO)
                 .toList();
@@ -228,6 +230,7 @@ public class BundleServiceJPA implements BundleService {
                         .category(entity.getCategory())
                         .bundleId(entity.getId())
                         .price(entity.getPrice())
+                        .vendorId(entity.getVendorId())
                         .allergens(entity.getAllergies().stream()
                                 .map(Allergy::getAllergyType)
                                 .collect(Collectors.toSet()))
@@ -286,6 +289,7 @@ public class BundleServiceJPA implements BundleService {
                 case "COLLECTED":
                     collected = (long) group[1];
                     break;
+
             }
         }
 
@@ -294,6 +298,19 @@ public class BundleServiceJPA implements BundleService {
                 .numNoShows(noShows.intValue())
                 .numExpired(numExpiredBundles.intValue())
                 .build();
+    }
+
+    @Override
+    public Integer getNumBundlePosted(String accessToken) {
+        UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
+        String role = jwtTokenUtil.getRoleFromToken(accessToken);
+
+        if(!role.equals("VENDOR")) {
+            throw new AuthorizationException();
+        }
+
+        Long numPostedBundles = bundleRepository.countPostedBundlesByVendor(vendorId);
+        return numPostedBundles.intValue();
     }
 
     private static class BundleMapper {
@@ -307,7 +324,7 @@ public class BundleServiceJPA implements BundleService {
                                 .productId(product.getId())
                                 .productName(product.getName())
                                 .quantity(bp.getQuantity())
-                                .allergies(
+                                .allergens(
                                         product.getAllergies().stream()
                                                 .map(Allergy::getAllergyType)
                                                 .collect(Collectors.toSet())
@@ -329,7 +346,7 @@ public class BundleServiceJPA implements BundleService {
                     .category(entity.getCategory())
                     .collectionStart(entity.getCollectionStart())
                     .collectionEnd(entity.getCollectionEnd())
-                    .allergies(entity.getAllergies().stream()
+                    .allergens(entity.getAllergies().stream()
                                     .map(Allergy::getAllergyType)
                                     .collect(Collectors.toSet())
                     )

@@ -23,4 +23,6 @@ public interface BundleService {
 
     BundleMetricDTO getBundleMetrics(String accessToken, String timePeriod);
 
+    Integer getNumBundlePosted(String accessToken);
+
 }

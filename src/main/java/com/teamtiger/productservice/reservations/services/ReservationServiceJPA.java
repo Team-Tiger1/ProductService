@@ -37,11 +37,11 @@ public class ReservationServiceJPA implements ReservationService {
         UUID userId = jwtTokenUtil.getUuidFromToken(accessToken);
         String role = jwtTokenUtil.getRoleFromToken(accessToken);
 
-        if(!role.equals("USER")) {
+        if (!role.equals("USER")) {
             throw new AuthorizationException();
         }
 
-        if(reservationRepository.existsByBundleId(bundleId)) {
+        if (reservationRepository.existsByBundleId(bundleId)) {
             throw new BundleAlreadyReservedException();
         }
 
@@ -74,18 +74,31 @@ public class ReservationServiceJPA implements ReservationService {
 
 
     @Override
-    public List<ReservationDTO> getReservations(String accessToken) {
-
+    public List<ReservationDTO> getReservations(String accessToken, CollectionStatus status) {
+        UUID userId = jwtTokenUtil.getUuidFromToken(accessToken);
         String role = jwtTokenUtil.getRoleFromToken(accessToken);
-        if (!role.equals("USER")){
+
+        if (!role.equals("USER")) {
             throw new AuthorizationException();
         }
 
-        UUID userId = jwtTokenUtil.getUuidFromToken(accessToken);
 
-        List<Reservation> reservations = reservationRepository.findAllByUserIdAndStatus(userId, CollectionStatus.RESERVED);
+        List<Reservation> reservations = reservationRepository.findAllByUserIdAndStatus(userId, status);
 
-        return reservations.stream()
+        //Update Reservations that Have Expired
+        List<Reservation> expiredReservations = reservations.stream()
+                .filter(entity -> entity.getBundle().getCollectionEnd().isBefore(LocalDateTime.now()))
+                .peek(entity -> entity.setStatus(CollectionStatus.NO_SHOW))
+                .toList();
+
+        List<Reservation> pendingReservations = reservations.stream()
+                .filter(entity -> entity.getBundle().getCollectionEnd().isAfter(LocalDateTime.now()))
+                .toList();
+
+        reservationRepository.saveAll(expiredReservations);
+
+
+        return pendingReservations.stream()
                 .map(ReservationMapper::toDTO)
                 .toList();
     }
@@ -104,7 +117,7 @@ public class ReservationServiceJPA implements ReservationService {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(ReservationNotFoundException::new);
 
-        if(!reservation.getUserId().equals(userId)) {
+        if (!reservation.getUserId().equals(userId)) {
             throw new AuthorizationException();
         }
 
@@ -124,18 +137,18 @@ public class ReservationServiceJPA implements ReservationService {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(ReservationNotFoundException::new);
 
-        if(!reservation.getUserId().equals(userId)) {
+        if (!reservation.getUserId().equals(userId)) {
             throw new AuthorizationException();
         }
 
 
         //Generates a new claim code if one hasn't been made
         ClaimCode claimCode = claimCodeRepository.findById(reservation.getId()).orElseGet(() -> {
-           String newClaimCode = claimCodeGenerator.generateCode();
-           return claimCodeRepository.save(ClaimCode.builder()
-                   .reservation(reservation)
-                   .claimCode(newClaimCode)
-                   .build());
+            String newClaimCode = claimCodeGenerator.generateCode();
+            return claimCodeRepository.save(ClaimCode.builder()
+                    .reservation(reservation)
+                    .claimCode(newClaimCode)
+                    .build());
         });
 
         return ClaimCodeDTO.builder()
@@ -148,7 +161,7 @@ public class ReservationServiceJPA implements ReservationService {
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
         String role = jwtTokenUtil.getRoleFromToken(accessToken);
 
-        if(!role.equals("VENDOR")) {
+        if (!role.equals("VENDOR")) {
             throw new AuthorizationException();
         }
 
@@ -171,7 +184,7 @@ public class ReservationServiceJPA implements ReservationService {
     public void loadSeededData(String accessToken, List<ReservationSeedDTO> reservations) {
         String role = jwtTokenUtil.getRoleFromToken(accessToken);
 
-        if(!role.equals("INTERNAL")) {
+        if (!role.equals("INTERNAL")) {
             throw new AuthorizationException();
         }
 
@@ -202,7 +215,7 @@ public class ReservationServiceJPA implements ReservationService {
     public List<ReservationVendorDTO> getReservationsForVendor(String accessToken) {
         String role = jwtTokenUtil.getRoleFromToken(accessToken);
 
-        if(!role.equals("VENDOR")) {
+        if (!role.equals("VENDOR")) {
             throw new AuthorizationException();
         }
 

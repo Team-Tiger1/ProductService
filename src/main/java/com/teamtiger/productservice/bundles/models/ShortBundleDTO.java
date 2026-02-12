@@ -14,6 +14,7 @@ import java.util.UUID;
 public class ShortBundleDTO {
 
     private UUID bundleId;
+    private UUID vendorId;
     private String bundleName;
     private double price;
     private BundleCategory category;
