@@ -8,7 +8,6 @@ import com.teamtiger.productservice.reservations.exceptions.AuthorizationExcepti
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +30,10 @@ public class BundleController {
             String accessToken = authHeader.replace("Bearer ", "");
             BundleDTO bundleDTO = bundleService.createBundle(createBundleDTO, accessToken);
             return ResponseEntity.ok(bundleDTO);
+        }
+
+        catch (AuthorizationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         catch (Exception e) {
@@ -80,7 +83,6 @@ public class BundleController {
     }
 
 
-
     @Operation(summary = "Get all bundles from a vendor given a vendorId")
     @GetMapping("/{vendorId}")
     public ResponseEntity<?> getVendorBundles(@PathVariable UUID vendorId) {
@@ -108,7 +110,6 @@ public class BundleController {
         }
 
         catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
     }
@@ -145,7 +146,6 @@ public class BundleController {
         }
 
         catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
     }
@@ -166,7 +166,6 @@ public class BundleController {
         }
 
         catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
 

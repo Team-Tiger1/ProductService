@@ -2,7 +2,6 @@ package com.teamtiger.productservice.bundles.services;
 
 import com.teamtiger.productservice.JwtTokenUtil;
 import com.teamtiger.productservice.bundles.entities.Bundle;
-import com.teamtiger.productservice.bundles.entities.BundleProduct;
 import com.teamtiger.productservice.bundles.exceptions.BundleNotFoundException;
 import com.teamtiger.productservice.bundles.exceptions.VendorAuthorizationException;
 import com.teamtiger.productservice.bundles.models.*;
@@ -10,16 +9,12 @@ import com.teamtiger.productservice.bundles.repositories.BundleRepository;
 import com.teamtiger.productservice.products.entities.Allergy;
 import com.teamtiger.productservice.products.entities.AllergyType;
 import com.teamtiger.productservice.products.entities.Product;
-import com.teamtiger.productservice.products.mappers.ProductMapper;
-import com.teamtiger.productservice.products.models.GetProductDTO;
-import com.teamtiger.productservice.products.models.ProductDTO;
 import com.teamtiger.productservice.products.repositories.AllergyRepository;
 import com.teamtiger.productservice.products.repositories.ProductRepository;
 import com.teamtiger.productservice.reservations.exceptions.AuthorizationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +35,11 @@ public class BundleServiceJPA implements BundleService {
     public BundleDTO createBundle(CreateBundleDTO createBundleDTO, String accessToken) {
 
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
+        String role = jwtTokenUtil.getRoleFromToken(accessToken);
+
+        if(!role.equals("VENDOR")) {
+            throw new VendorAuthorizationException();
+        }
 
         //Count times product appears
         Map<UUID, Long> occurenceMap = createBundleDTO.getProductList().stream()

@@ -2,8 +2,6 @@ package com.teamtiger.productservice.bundles.models;
 
 import com.teamtiger.productservice.bundles.entities.BundleCategory;
 import com.teamtiger.productservice.products.entities.AllergyType;
-import com.teamtiger.productservice.products.models.GetProductDTO;
-import com.teamtiger.productservice.products.models.ProductDTO;
 import lombok.Builder;
 import lombok.Getter;
 

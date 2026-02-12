@@ -15,10 +15,8 @@ import com.teamtiger.productservice.reservations.models.*;
 import com.teamtiger.productservice.reservations.repositories.ClaimCodeRepository;
 import com.teamtiger.productservice.reservations.repositories.ReservationRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -108,6 +106,12 @@ public class ReservationServiceJPA implements ReservationService {
 
     @Override
     public void deleteReservation(UUID reservationId, String accessToken) {
+
+        String role = jwtTokenUtil.getRoleFromToken(accessToken);
+        if (!role.equals("USER")){
+            throw new AuthorizationException();
+        }
+
         UUID userId = jwtTokenUtil.getUuidFromToken(accessToken);
 
         Reservation reservation = reservationRepository.findById(reservationId)
@@ -122,12 +126,13 @@ public class ReservationServiceJPA implements ReservationService {
 
     @Override
     public ClaimCodeDTO getClaimCode(UUID reservationId, String accessToken) {
-        UUID userId = jwtTokenUtil.getUuidFromToken(accessToken);
-        String role = jwtTokenUtil.getRoleFromToken(accessToken);
 
-        if (!role.equals("USER")) {
+        String role = jwtTokenUtil.getRoleFromToken(accessToken);
+        if (!role.equals("USER")){
             throw new AuthorizationException();
         }
+
+        UUID userId = jwtTokenUtil.getUuidFromToken(accessToken);
 
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(ReservationNotFoundException::new);

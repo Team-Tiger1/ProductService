@@ -43,6 +43,68 @@ The Image below highlights where in the architecture this service operates.
 
 
 ## How to Run Tests
+> Intructions for **all microservices** can be found on the [**LocalDeployment**](https://github.com/Team-Tiger1/LocalDeployment) repo but the below instructions are for running just the Product Service tests
+### Requirements for running tests
+- **Git**
+- **Java JDK 17+**
+
+## Run Tests
+
+### Run Tests (Windows)
+
+1. Open Terminal, Clone and open this repository
+```Bash
+  git clone https://github.com/Team-Tiger1/ProductService
+
+  cd ProductService
+```
+
+2. run the following command to run tests
+```Bash
+    ./mvnw.cmd test
+```
+3. If successful you should see somthing similar to
+```Bash
+[INFO] Results:
+[INFO]
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  8.860 s
+[INFO] Finished at: 2026-02-11T22:21:36Z
+[INFO] ------------------------------------------------------------------------
+```
+
+###  Run Tests (Linux/MacOs)
+1. Clone this repository
+``` Bash
+    git clone https://github.com/Team-Tiger1/ProductService
+
+  cd ProductService
+```
+
+2. run the following commands to give access for maven to be executable and to run tests
+```Bash
+    chmod +x mvnw
+    ./mvnw test
+```
+
+3. If successful you should see somthing similar to
+```Bash
+[INFO] Results:
+[INFO]
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  8.860 s
+[INFO] Finished at: 2026-02-11T22:21:36Z
+[INFO] ------------------------------------------------------------------------
+```
+
 
 
 ## Contribution
@@ -78,7 +140,11 @@ The Image below highlights where in the architecture this service operates.
 **Author: Jed Leas**
 
 
-<br>
+- Setting up all CI/CD workflows to handle
+  1. Automatic testing on push of main branch on the Product Service repo
+  2. Automatic Deployment onto k3s with zero downtime on completion of automatic testing so broken code won't make it to deployment
+- Set up the connection to the PostgreSQL database, and RabbitMQ
 
+<br>
 
 **Author: Ivy Figari**
