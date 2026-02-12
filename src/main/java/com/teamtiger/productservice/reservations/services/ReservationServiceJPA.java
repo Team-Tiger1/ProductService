@@ -75,6 +75,12 @@ public class ReservationServiceJPA implements ReservationService {
 
     @Override
     public List<ReservationDTO> getReservations(String accessToken) {
+
+        String role = jwtTokenUtil.getRoleFromToken(accessToken);
+        if (!role.equals("USER")){
+            throw new AuthorizationException();
+        }
+
         UUID userId = jwtTokenUtil.getUuidFromToken(accessToken);
 
         List<Reservation> reservations = reservationRepository.findAllByUserIdAndStatus(userId, CollectionStatus.RESERVED);
@@ -87,6 +93,12 @@ public class ReservationServiceJPA implements ReservationService {
 
     @Override
     public void deleteReservation(UUID reservationId, String accessToken) {
+
+        String role = jwtTokenUtil.getRoleFromToken(accessToken);
+        if (!role.equals("USER")){
+            throw new AuthorizationException();
+        }
+
         UUID userId = jwtTokenUtil.getUuidFromToken(accessToken);
 
         Reservation reservation = reservationRepository.findById(reservationId)
@@ -101,6 +113,12 @@ public class ReservationServiceJPA implements ReservationService {
 
     @Override
     public ClaimCodeDTO getClaimCode(UUID reservationId, String accessToken) {
+
+        String role = jwtTokenUtil.getRoleFromToken(accessToken);
+        if (!role.equals("USER")){
+            throw new AuthorizationException();
+        }
+
         UUID userId = jwtTokenUtil.getUuidFromToken(accessToken);
 
         Reservation reservation = reservationRepository.findById(reservationId)

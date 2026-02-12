@@ -33,23 +33,30 @@ public class ProductController {
             String accessToken = authHeader.replace("Bearer ", "");
             GetProductDTO createdProductDTO = productService.createProduct(accessToken,dto);
             return ResponseEntity.ok(createdProductDTO);
+        }
 
+        catch (AuthorizationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
 
-
-        }catch (Exception ex){
-            ex.printStackTrace();
+        catch (Exception ex){
             return ResponseEntity.internalServerError().build();
         }
 
     }
 
+    @Operation(summary = "Allows a vendor to get a list of all their products")
     @GetMapping("/vendor")
-
     public ResponseEntity<?> getVendorProducts(@RequestHeader("Authorization") String authHeader) {
         try {
             String accessToken = authHeader.replace("Bearer ", "");
             return ResponseEntity.ok(productService.getVendorProducts(accessToken));
         }
+
+        catch (AuthorizationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         catch (Exception e) {
             return ResponseEntity.internalServerError().body("Error fetching vendor products");
         }
@@ -64,7 +71,13 @@ public class ProductController {
             String accessToken = authHeader.replace("Bearer ", "");
             productService.deleteProduct(accessToken, productId);
             return ResponseEntity.noContent().build();
-        } catch (Exception e) {
+        }
+
+        catch (AuthorizationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        catch (Exception e) {
             return ResponseEntity.internalServerError().body("Error deleting product");
         }
 
@@ -76,7 +89,13 @@ public class ProductController {
         try {
             String accessToken = authHeader.replace("Bearer ", "");
             return ResponseEntity.ok(productService.updateProduct(accessToken, productId, dto));
-        } catch (Exception e) {
+        }
+
+        catch (AuthorizationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        catch (Exception e) {
             return ResponseEntity.internalServerError().body("Error updating product");
         }
     }
@@ -95,7 +114,6 @@ public class ProductController {
         }
 
         catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
     }

@@ -2,9 +2,7 @@ package com.teamtiger.productservice.products.services;
 
 import com.teamtiger.productservice.JwtTokenUtil;
 import com.teamtiger.productservice.products.entities.Allergy;
-import com.teamtiger.productservice.products.entities.AllergyType;
 import com.teamtiger.productservice.products.entities.Product;
-import com.teamtiger.productservice.products.exceptions.AllergyNotFoundException;
 import com.teamtiger.productservice.products.mappers.ProductMapper;
 import com.teamtiger.productservice.products.models.GetProductDTO;
 import com.teamtiger.productservice.products.models.ProductDTO;
@@ -13,13 +11,14 @@ import com.teamtiger.productservice.products.models.UpdateProductDTO;
 import com.teamtiger.productservice.products.repositories.AllergyRepository;
 import com.teamtiger.productservice.products.repositories.ProductRepository;
 import com.teamtiger.productservice.reservations.exceptions.AuthorizationException;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -58,6 +57,12 @@ public class ProductServiceJPA implements ProductService{
     @Override
     public List<GetProductDTO> getVendorProducts(String accessToken) {
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
+
+        String role = jwtTokenUtil.getRoleFromToken(accessToken);
+        if (!role.equals("VENDOR")){
+            throw new AuthorizationException();
+        }
+
         List<Product> productList = productRepository.findAllByVendorId(vendorId);
 
         return productList.stream()
@@ -68,7 +73,13 @@ public class ProductServiceJPA implements ProductService{
     @Override
     public void deleteProduct(String accessToken, UUID productId) {
 
+        String role = jwtTokenUtil.getRoleFromToken(accessToken);
+        if (!role.equals("VENDOR")){
+            throw new AuthorizationException();
+        }
+
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
+
         Product productToBeDeleted = productRepository.findById(productId).orElseThrow(EntityNotFoundException::new);
 
         if(!productToBeDeleted.getVendorId().equals(vendorId)){
@@ -82,11 +93,17 @@ public class ProductServiceJPA implements ProductService{
 
     @Override
     public GetProductDTO updateProduct(String accessToken, UUID productId, UpdateProductDTO dto) {
+
+        String role = jwtTokenUtil.getRoleFromToken(accessToken);
+        if (!role.equals("VENDOR")){
+            throw new AuthorizationException();
+        }
+
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
         Product productToBeUpdated = productRepository.findById(productId).orElseThrow(EntityNotFoundException::new);
 
         if(!productToBeUpdated.getVendorId().equals(vendorId)){
-            throw new RuntimeException("Not the vendor");
+            throw new AuthorizationException();
         }
 
         if(dto.name()!=null){

@@ -12,7 +12,6 @@ import com.teamtiger.productservice.reservations.services.ReservationService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.micrometer.observation.autoconfigure.ObservationProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -50,7 +49,6 @@ public class ReservationController {
         }
 
         catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
     }
@@ -62,6 +60,10 @@ public class ReservationController {
             String accessToken = authToken.replace("Bearer ", "");
             List<ReservationDTO> reservationList = reservationService.getReservations(accessToken);
             return ResponseEntity.ok(reservationList);
+        }
+
+        catch (AuthorizationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         catch (Exception e) {
@@ -83,7 +85,6 @@ public class ReservationController {
         }
 
         catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
     }
