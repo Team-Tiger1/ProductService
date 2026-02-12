@@ -152,7 +152,7 @@ public class ReservationServiceJPA implements ReservationService {
     }
 
     @Override
-    public void checkClaimCode(ClaimCodeDTO claimCode, String accessToken) {
+    public ReservationVendorDTO checkClaimCode(ClaimCodeDTO claimCode, String accessToken) {
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
         String role = jwtTokenUtil.getRoleFromToken(accessToken);
 
@@ -163,8 +163,20 @@ public class ReservationServiceJPA implements ReservationService {
         ClaimCode savedClaimCode = claimCodeRepository.findByClaimCodeAndReservation_Bundle_VendorId(claimCode.getClaimCode(), vendorId)
                 .orElseThrow(BundleNotFoundException::new);
 
-        //Mark as collected and delete claim code
         Reservation reservation = savedClaimCode.getReservation();
+        Bundle bundle = reservation.getBundle();
+
+        ReservationVendorDTO reservationVendorDTO = ReservationVendorDTO.builder()
+                .reservationId(reservation.getId())
+                .bundleId(bundle.getId())
+                .bundleName(bundle.getName())
+                .amountDue(reservation.getAmountDue())
+                .collectionStart(bundle.getCollectionStart())
+                .collectionEnd(bundle.getCollectionEnd())
+                .build();
+
+
+        //Mark as collected and delete claim code
         reservation.setTimeCollected(LocalDateTime.now());
         reservation.setStatus(CollectionStatus.COLLECTED);
         reservationRepository.save(reservation);
@@ -173,6 +185,7 @@ public class ReservationServiceJPA implements ReservationService {
 
         reservationEventPublisher.publishReservationCollected(new ReservationCollectedEvent(reservation.getUserId(), reservation.getTimeCollected()));
 
+        return reservationVendorDTO;
     }
 
     @Override

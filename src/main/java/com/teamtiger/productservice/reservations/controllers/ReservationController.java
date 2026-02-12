@@ -136,8 +136,8 @@ public class ReservationController {
     public ResponseEntity<?> checkClaimCode(@Valid @RequestBody ClaimCodeDTO claimCodeDTO, @RequestHeader("Authorization") String authHeader) {
         try {
             String accessToken = authHeader.replace("Bearer ", "");
-            reservationService.checkClaimCode(claimCodeDTO, accessToken);
-            return ResponseEntity.noContent().build();
+            ReservationVendorDTO reservationVendorDTO = reservationService.checkClaimCode(claimCodeDTO, accessToken);
+            return ResponseEntity.ok(reservationVendorDTO);
         }
 
         catch (AuthorizationException e) {

@@ -15,7 +15,7 @@ public interface ReservationService {
 
     ClaimCodeDTO getClaimCode(UUID reservationId, String accessToken);
 
-    void checkClaimCode(ClaimCodeDTO claimCode, String accessToken);
+    ReservationVendorDTO checkClaimCode(ClaimCodeDTO claimCode, String accessToken);
 
     void loadSeededData(String accessToken, List<ReservationSeedDTO> reservations);
 
