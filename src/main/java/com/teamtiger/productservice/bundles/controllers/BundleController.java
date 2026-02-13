@@ -64,7 +64,7 @@ public class BundleController {
             return ResponseEntity.internalServerError().build();
         }
     }
-    //Allows a vendor to access all their bundles for sale
+    ///Allows a vendor to access all their bundles for sale
     @Operation(summary = "Allows a vendor to access all their bundles for sale")
     @GetMapping("/me")
     public ResponseEntity<?> getOwnBundles(@RequestHeader("Authorization") String authHeader) {
