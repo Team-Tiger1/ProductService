@@ -18,7 +18,7 @@ public class ClaimCode {
     private UUID reservationId;
 
 
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
+    @OneToOne
     @JoinColumn(name = "reservation_id")
     @MapsId
     private Reservation reservation;
