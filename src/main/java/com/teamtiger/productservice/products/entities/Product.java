@@ -8,7 +8,7 @@ import org.hibernate.annotations.UuidGenerator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-
+//Entity for representing a Product created by a vendor
 @Entity
 @Getter
 @Setter
@@ -31,6 +31,7 @@ public class Product {
             joinColumns = @JoinColumn(name = "product_id"),
             inverseJoinColumns = @JoinColumn(name = "allergy_id")
     )
+    //One product can have multiple allergy's
     private Set<Allergy> allergies;
 
     private String name;

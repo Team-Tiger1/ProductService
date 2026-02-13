@@ -9,6 +9,7 @@ import java.util.UUID;
 
 @Getter
 @AllArgsConstructor
+//DTO for bulk importing reservation records
 public class ReservationSeedDTO {
 
     @NotNull

@@ -16,6 +16,7 @@ import java.util.UUID;
 @Getter
 @Builder
 @AllArgsConstructor
+//Returned to vendor when they create a Bundle
 public class CreateBundleDTO {
 
     @NotBlank

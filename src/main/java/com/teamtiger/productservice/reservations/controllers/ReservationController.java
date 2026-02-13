@@ -23,10 +23,11 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/reservations")
 @RequiredArgsConstructor
+//REST controller managing reservation operations
 public class ReservationController {
 
     private final ReservationService reservationService;
-
+    //Create a reservation given a bundle
     @Operation(summary = "Create a reservation given a bundle")
     @PostMapping("/{bundleId}")
     public ResponseEntity<?> createReservation(@PathVariable UUID bundleId,
@@ -54,7 +55,7 @@ public class ReservationController {
             return ResponseEntity.internalServerError().build();
         }
     }
-
+    //Get all pending reservations for a user
     @Operation(summary = "Get all pending reservations for a user")
     @GetMapping
     public ResponseEntity<?> getReservations(@RequestHeader("Authorization") String authToken) {
@@ -68,7 +69,7 @@ public class ReservationController {
             return ResponseEntity.internalServerError().build();
         }
     }
-
+    //Get all pending reservations for a vendor
     @Operation(summary = "Get all pending reservations for a vendor")
     @GetMapping("/vendor")
     public ResponseEntity<?> getReservationsForVendor(@RequestHeader("Authorization") String authToken) {
@@ -87,7 +88,7 @@ public class ReservationController {
             return ResponseEntity.internalServerError().build();
         }
     }
-
+    //Delete a reservation using the UUID
     @Operation(summary = "Delete a reservation using the UUID")
     @DeleteMapping("/{reservationId}")
     public ResponseEntity<?> deleteReservation(@PathVariable UUID reservationId, @RequestHeader("Authorization") String authToken) {
@@ -109,7 +110,7 @@ public class ReservationController {
             return ResponseEntity.internalServerError().build();
         }
     }
-
+    //Get a claim code for a reservation
     @Operation(summary = "Get a claim code for a reservation")
     @GetMapping("/claimcode/{reservationId}")
     public ResponseEntity<?> getClaimCode(@PathVariable UUID reservationId, @RequestHeader("Authorization") String authHeader) {
@@ -131,7 +132,7 @@ public class ReservationController {
             return ResponseEntity.internalServerError().build();
         }
     }
-
+    //Allows a vendor to verify a reservation, marking it completed"
     @Operation(summary = "Allows a vendor to verify a reservation, marking it completed")
     @PostMapping("/claimcode")
     public ResponseEntity<?> checkClaimCode(@Valid @RequestBody ClaimCodeDTO claimCodeDTO, @RequestHeader("Authorization") String authHeader) {
@@ -153,7 +154,7 @@ public class ReservationController {
             return ResponseEntity.internalServerError().build();
         }
     }
-
+    //Allows bulk transfer of reservation data
     @Operation(summary = "Allows bulk transfer of reservation data")
     @PostMapping("/internal")
     public ResponseEntity<?> loadSeededData(@RequestHeader("Authorization") String authHeader, @Valid @RequestBody List<ReservationSeedDTO> reservations) {

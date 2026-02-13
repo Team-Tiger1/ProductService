@@ -13,6 +13,7 @@ import java.util.UUID;
 @Getter
 @Builder
 @AllArgsConstructor
+//DTO used for bulk loading seeded data
 public class ProductSeedDTO {
 
     @NotNull

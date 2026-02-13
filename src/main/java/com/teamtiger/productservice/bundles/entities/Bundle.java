@@ -1,5 +1,5 @@
 package com.teamtiger.productservice.bundles.entities;
-
+//Entity for representing a Bundle
 import com.teamtiger.productservice.products.entities.Allergy;
 import com.teamtiger.productservice.products.entities.Product;
 import jakarta.persistence.*;
@@ -26,12 +26,12 @@ public class Bundle {
     @Column(name = "bundle_id", updatable = false, nullable = false)
     private UUID id;
 
-
+    //Links products to this bundle
     @OneToMany(mappedBy = "bundle", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private Set<BundleProduct> bundleProducts = new HashSet<>();
 
-
+    //Stores uniques allergies from products in this bundle
     @ManyToMany
     @JoinTable(
             name = "bundle_allergy",
@@ -59,10 +59,9 @@ public class Bundle {
     private double price;
 
 
-
+    //Adding a product includes both type of product and amount
     @Version
     private long version;
-
     public void addProduct(Product product, Integer quantity) {
 
 

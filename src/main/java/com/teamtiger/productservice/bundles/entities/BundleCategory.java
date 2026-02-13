@@ -1,5 +1,5 @@
 package com.teamtiger.productservice.bundles.entities;
-
+//Types of bundles(Collection of products)
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 @JsonFormat(shape = JsonFormat.Shape.STRING)

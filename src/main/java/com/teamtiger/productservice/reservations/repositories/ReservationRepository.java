@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+//Repository for database operations for the Reservation entity
 public interface ReservationRepository extends JpaRepository<Reservation, UUID> {
 
     boolean existsByBundleId(UUID bundleId);

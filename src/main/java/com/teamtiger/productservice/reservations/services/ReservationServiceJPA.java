@@ -23,6 +23,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+//Actual implementation of ReservationService Interface
 public class ReservationServiceJPA implements ReservationService {
 
     private final ReservationRepository reservationRepository;
@@ -33,6 +34,7 @@ public class ReservationServiceJPA implements ReservationService {
     private final ReservationEventPublisher reservationEventPublisher;
 
     @Override
+    //Creates a reservation for a bundle
     public ReservationDTO createReservation(UUID bundleId, String accessToken) {
         UUID userId = jwtTokenUtil.getUuidFromToken(accessToken);
         String role = jwtTokenUtil.getRoleFromToken(accessToken);
@@ -74,6 +76,7 @@ public class ReservationServiceJPA implements ReservationService {
 
 
     @Override
+    //Returns all user reservations
     public List<ReservationDTO> getReservations(String accessToken) {
         UUID userId = jwtTokenUtil.getUuidFromToken(accessToken);
 
@@ -86,6 +89,7 @@ public class ReservationServiceJPA implements ReservationService {
 
 
     @Override
+    //Allows users to cancel their reservations
     public void deleteReservation(UUID reservationId, String accessToken) {
         UUID userId = jwtTokenUtil.getUuidFromToken(accessToken);
 
@@ -100,6 +104,7 @@ public class ReservationServiceJPA implements ReservationService {
     }
 
     @Override
+    //Returns a claim Code for a reservation
     public ClaimCodeDTO getClaimCode(UUID reservationId, String accessToken) {
         UUID userId = jwtTokenUtil.getUuidFromToken(accessToken);
 
@@ -126,6 +131,7 @@ public class ReservationServiceJPA implements ReservationService {
     }
 
     @Override
+    //Verifies claim code exists and marks the reservation as collected
     public void checkClaimCode(ClaimCodeDTO claimCode, String accessToken) {
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
         String role = jwtTokenUtil.getRoleFromToken(accessToken);
@@ -150,6 +156,7 @@ public class ReservationServiceJPA implements ReservationService {
     }
 
     @Override
+    //INTERNAL role only endpoint used to load seeded data
     public void loadSeededData(String accessToken, List<ReservationSeedDTO> reservations) {
         String role = jwtTokenUtil.getRoleFromToken(accessToken);
 
@@ -181,6 +188,7 @@ public class ReservationServiceJPA implements ReservationService {
     }
 
     @Override
+    //Returns current reservations for the authenticated vendor
     public List<ReservationVendorDTO> getReservationsForVendor(String accessToken) {
         String role = jwtTokenUtil.getRoleFromToken(accessToken);
 
@@ -204,7 +212,7 @@ public class ReservationServiceJPA implements ReservationService {
     }
 
     private static class ReservationMapper {
-
+        //Maps entities to DTOs
         public static ReservationDTO toDTO(Reservation reservation) {
             return ReservationDTO.builder()
                     .reservationId(reservation.getId())

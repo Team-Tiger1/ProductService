@@ -14,6 +14,7 @@ import java.util.UUID;
 
 @Getter
 @Builder
+//DTO returned to the client when fetching full bundle details
 public class BundleDTO {
 
     private String name;

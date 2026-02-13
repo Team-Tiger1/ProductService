@@ -9,6 +9,8 @@ import java.security.SecureRandom;
 
 @Component
 @RequiredArgsConstructor
+
+//Generates claim codes for reservations
 public class ClaimCodeGenerator {
 
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -20,7 +22,7 @@ public class ClaimCodeGenerator {
     @Transactional
     public String generateCode() {
         String claimCode = getCandidate();
-
+        //Ensures generated code does not already exist
         if(!claimCodeRepository.existsByClaimCode(claimCode)) {
             return claimCode;
         }

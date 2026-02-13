@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+//Configuration for publishing reservation related events.
 public class RabbitMQConfig {
 
     public static final String EXCHANGE = "reservation.events";
@@ -17,6 +18,7 @@ public class RabbitMQConfig {
         return new DirectExchange(EXCHANGE);
     }
 
+    //Converts Java objects to JSON
     @Bean
     public JacksonJsonMessageConverter jacksonJsonMessageConverter() {
         return new JacksonJsonMessageConverter();

@@ -20,11 +20,12 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/products")
 @RequiredArgsConstructor
+//REST controller managing product operations
 public class ProductController {
 
     private final ProductService productService;
 
-
+    //Allows a Vendor to add a new Product
     @Operation(summary = "Allows a Vendor to add a new Product")
     @PostMapping
     public ResponseEntity<?> createProduct(@RequestHeader("Authorization") String authHeader, @RequestBody ProductDTO dto) {
@@ -43,8 +44,9 @@ public class ProductController {
 
     }
 
+    //Returns all products belonging to the vendor
     @GetMapping("/vendor")
-
+    @Operation(summary = "Returns all products belonging to the vendor")
     public ResponseEntity<?> getVendorProducts(@RequestHeader("Authorization") String authHeader) {
         try {
             String accessToken = authHeader.replace("Bearer ", "");
@@ -55,7 +57,7 @@ public class ProductController {
         }
     }
 
-
+    //Allows the vendor to delete a product
     @Operation(summary = "Allows the vendor to delete a product")
     @DeleteMapping("/{productId}")
     public ResponseEntity<?> deleteProduct(@RequestHeader("Authorization") String authHeader, @PathVariable UUID productId) {
@@ -70,6 +72,7 @@ public class ProductController {
 
     }
 
+    //Allows the vendor to update fields for a product
     @Operation(summary = "Allows the vendor to update fields for a product")
     @PatchMapping("/{productId}")
     public ResponseEntity<?> updateProduct(@RequestHeader("Authorization") String authHeader, @PathVariable UUID productId, @RequestBody UpdateProductDTO dto) {
@@ -81,6 +84,7 @@ public class ProductController {
         }
     }
 
+    //Allows for bulk transfer of seeded data
     @Operation(summary = "Allows for bulk transfer of seeded data")
     @PostMapping("/internal")
     public ResponseEntity<?> loadSeededData(@RequestHeader("Authorization") String authHeader, @Valid @RequestBody List<ProductSeedDTO> products) {

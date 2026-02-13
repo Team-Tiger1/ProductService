@@ -11,6 +11,7 @@ import java.util.UUID;
 
 @Getter
 @Builder
+//Returned when listing bundles
 public class ShortBundleDTO {
 
     private UUID bundleId;
