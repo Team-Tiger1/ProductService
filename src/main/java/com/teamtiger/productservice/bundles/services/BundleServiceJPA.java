@@ -326,11 +326,17 @@ public class BundleServiceJPA implements BundleService {
 
         for(Object[] group : bundles) {
             Bundle savedBundle = (Bundle) group[1];
+            String status = (String) group[0];
+
+            if(status.equals("RESERVED")) {
+                continue;
+            }
+
             PastBundleDTO pastBundleDTO = PastBundleDTO.builder()
                     .bundleName(savedBundle.getName())
                     .date(savedBundle.getPostingTime())
                     .amountDue(savedBundle.getPrice())
-                    .status((String) group[0])
+                    .status(status)
                     .build();
             pastBundleList.add(pastBundleDTO);
         }
