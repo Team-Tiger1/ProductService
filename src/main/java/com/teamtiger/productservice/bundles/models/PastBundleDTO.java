@@ -12,6 +12,6 @@ public class PastBundleDTO {
     private String bundleName;
     private LocalDateTime date;
     private double amountDue;
-    private String status; //Colection Status
+    private String status; //Collection Status
 
 }

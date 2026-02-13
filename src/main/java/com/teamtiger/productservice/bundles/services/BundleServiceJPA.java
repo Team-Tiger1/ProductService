@@ -12,6 +12,7 @@ import com.teamtiger.productservice.products.entities.Product;
 import com.teamtiger.productservice.products.repositories.AllergyRepository;
 import com.teamtiger.productservice.products.repositories.ProductRepository;
 import com.teamtiger.productservice.reservations.exceptions.AuthorizationException;
+import com.teamtiger.productservice.reservations.models.CollectionStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -326,9 +327,9 @@ public class BundleServiceJPA implements BundleService {
 
         for(Object[] group : bundles) {
             Bundle savedBundle = (Bundle) group[1];
-            String status = (String) group[0];
+            CollectionStatus status = (CollectionStatus) group[0];
 
-            if(status.equals("RESERVED")) {
+            if(status.equals(CollectionStatus.RESERVED)) {
                 continue;
             }
 
@@ -336,7 +337,7 @@ public class BundleServiceJPA implements BundleService {
                     .bundleName(savedBundle.getName())
                     .date(savedBundle.getPostingTime())
                     .amountDue(savedBundle.getPrice())
-                    .status(status)
+                    .status(status.toString())
                     .build();
             pastBundleList.add(pastBundleDTO);
         }
