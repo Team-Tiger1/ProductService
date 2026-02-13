@@ -192,7 +192,7 @@ public class BundleController {
     }
 
     @Operation(summary = "Get bundle information in a time period")
-    @GetMapping("/metrics")
+    @GetMapping("/analytics")
     public ResponseEntity<?> getPastBundles(@RequestParam(name = "period", defaultValue = "week", required = false) String period,
                                               @RequestHeader("Authorization") String authHeader) {
         try {
