@@ -18,7 +18,7 @@ public class ClaimCode {
     private UUID reservationId;
 
     //Each claim code corresponds  to one reservation
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne
     @JoinColumn(name = "reservation_id")
     @MapsId
     private Reservation reservation;

@@ -65,7 +65,7 @@ public class BundleServiceJPA implements BundleService {
                 .collect(Collectors.toSet());
 
         Bundle bundle = Bundle.builder()
-                .name(createBundleDTO.getName())
+                .name(createBundleDTO.getName().trim())
                 .description(createBundleDTO.getDescription())
                 .price(createBundleDTO.getPrice())
                 .retailPrice(retailPrice)
