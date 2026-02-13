@@ -301,6 +301,53 @@ public class BundleServiceJPA implements BundleService {
     }
 
     @Override
+    public List<PastBundleDTO> getPastBundles(String accessToken, String timePeriod) {
+        UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
+        String role = jwtTokenUtil.getRoleFromToken(accessToken);
+
+        if(!role.equals("VENDOR")) {
+            throw new AuthorizationException();
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime period = switch (timePeriod) {
+            case "day" -> now.minusDays(1);
+            case "week" -> now.minusWeeks(1);
+            case "month" -> now.minusMonths(1);
+            case "year" -> now.minusYears(1);
+            default -> now.minusWeeks(1);
+        };
+
+        List<Object[]> bundles = bundleRepository.findPastBundlesByVendor(vendorId, period);
+
+        List<Bundle> expiredBundles = bundleRepository.findExpiredBundlesByVendor(vendorId, period);
+
+        List<PastBundleDTO> pastBundleList = new ArrayList<>();
+
+        for(Object[] group : bundles) {
+            Bundle savedBundle = (Bundle) group[1];
+            PastBundleDTO pastBundleDTO = PastBundleDTO.builder()
+                    .bundleName(savedBundle.getName())
+                    .date(savedBundle.getPostingTime())
+                    .amountDue(savedBundle.getPrice())
+                    .status((String) group[0])
+                    .build();
+            pastBundleList.add(pastBundleDTO);
+        }
+
+        pastBundleList.addAll(expiredBundles.stream()
+                .map(entity -> PastBundleDTO.builder()
+                        .bundleName(entity.getName())
+                        .date(entity.getPostingTime())
+                        .amountDue(entity.getPrice())
+                        .status("EXPIRED")
+                        .build())
+                .toList());
+
+        return pastBundleList;
+    }
+
+    @Override
     public Integer getNumBundlePosted(String accessToken) {
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
         String role = jwtTokenUtil.getRoleFromToken(accessToken);

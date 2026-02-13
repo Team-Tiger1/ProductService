@@ -191,9 +191,30 @@ public class BundleController {
         }
     }
 
+    @Operation(summary = "Get bundle information in a time period")
+    @GetMapping("/metrics")
+    public ResponseEntity<?> getPastBundles(@RequestParam(name = "period", defaultValue = "week", required = false) String period,
+                                              @RequestHeader("Authorization") String authHeader) {
+        try {
+            String accessToken = authHeader.replace("Bearer ", "");
+            List<PastBundleDTO> pastBundleDTO = bundleService.getPastBundles(accessToken, period);
+            return ResponseEntity.ok(pastBundleDTO);
+        }
+
+        catch (AuthorizationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+            return ResponseEntity.internalServerError().build();
+        }
 
 
 
 
 
-}
+
+
+    }

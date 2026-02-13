@@ -25,4 +25,5 @@ public interface BundleService {
 
     Integer getNumBundlePosted(String accessToken);
 
+    List<PastBundleDTO> getPastBundles(String accessToken, String period);
 }
