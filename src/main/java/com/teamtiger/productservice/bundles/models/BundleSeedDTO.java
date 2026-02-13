@@ -14,6 +14,7 @@ import java.util.UUID;
 
 @Getter
 @AllArgsConstructor
+//Used for loading bundles from seeded data
 public class BundleSeedDTO {
 
     @NotNull

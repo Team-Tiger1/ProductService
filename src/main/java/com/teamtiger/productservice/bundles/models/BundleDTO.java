@@ -2,6 +2,8 @@ package com.teamtiger.productservice.bundles.models;
 
 import com.teamtiger.productservice.bundles.entities.BundleCategory;
 import com.teamtiger.productservice.products.entities.AllergyType;
+import com.teamtiger.productservice.products.models.GetProductDTO;
+import com.teamtiger.productservice.products.models.ProductDTO;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -12,6 +14,7 @@ import java.util.UUID;
 
 @Getter
 @Builder
+//DTO returned to the client when fetching full bundle details
 public class BundleDTO {
 
     private String name;
@@ -24,6 +27,6 @@ public class BundleDTO {
     private BundleCategory category;
     private LocalDateTime collectionStart;
     private LocalDateTime collectionEnd;
-    private Set<AllergyType> allergens;
+    private Set<AllergyType> allergies;
 
 }

@@ -18,15 +18,16 @@ public class JwtTokenUtil {
     @Value("${jwt.secret}")
     private String key;
 
-
+    //Extracts vendor/user id from JWT
     public UUID getUuidFromToken(String token) {
         return UUID.fromString(getClaimsFromToken(token).getSubject());
     }
-
+    //Returns role stored in JWT
     public String getRoleFromToken(String token) {
         return (String) getClaimsFromToken(token).get("role");
     }
 
+    //Parses and validates the JWT using the configured key
     private Claims getClaimsFromToken(String token) {
         byte[] decodedKey = Base64.getDecoder().decode(key);
         Key hmacKey = new SecretKeySpec(decodedKey, SignatureAlgorithm.HS256.getJcaName());

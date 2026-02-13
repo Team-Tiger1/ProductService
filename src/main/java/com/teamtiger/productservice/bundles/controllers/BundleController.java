@@ -8,6 +8,7 @@ import com.teamtiger.productservice.reservations.exceptions.AuthorizationExcepti
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,10 +19,13 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/bundles")
 @RequiredArgsConstructor
+//Handles REST API requests for Bundles
 public class BundleController {
 
     private final BundleService bundleService;
 
+
+    //Allows a Vendor to create a new Bundle
     @Operation(summary = "Allows a Vendor to create a new Bundle")
     @PostMapping
     public ResponseEntity<?> createBundle(@Valid @RequestBody CreateBundleDTO createBundleDTO,
@@ -32,20 +36,17 @@ public class BundleController {
             return ResponseEntity.ok(bundleDTO);
         }
 
-        catch (AuthorizationException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
         catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
     }
-
+    //Allows a Vendor to delete a bundle
     @Operation(summary = "Allows a Vendor to delete a bundle")
     @DeleteMapping("/{bundleId}")
     public ResponseEntity<?> deleteBundle(@RequestHeader("Authorization") String authHeader,
                                           @PathVariable UUID bundleId) {
         try {
+            //Extracts raw JWT
             String accessToken = authHeader.replace("Bearer ", "");
             bundleService.deleteBundle(bundleId, accessToken);
             return ResponseEntity.noContent().build();
@@ -63,11 +64,12 @@ public class BundleController {
             return ResponseEntity.internalServerError().build();
         }
     }
-
+    ///Allows a vendor to access all their bundles for sale
     @Operation(summary = "Allows a vendor to access all their bundles for sale")
     @GetMapping("/me")
     public ResponseEntity<?> getOwnBundles(@RequestHeader("Authorization") String authHeader) {
         try {
+            //Extracts raw JWT
             String accessToken = authHeader.replace("Bearer ", "");
             List<BundleDTO> bundleList = bundleService.getOwnBundles(accessToken);
             return ResponseEntity.ok(bundleList);
@@ -83,6 +85,7 @@ public class BundleController {
     }
 
 
+    //Get all bundles from a vendor given a vendorId
     @Operation(summary = "Get all bundles from a vendor given a vendorId")
     @GetMapping("/{vendorId}")
     public ResponseEntity<?> getVendorBundles(@PathVariable UUID vendorId) {
@@ -96,10 +99,12 @@ public class BundleController {
         }
     }
 
+    //Allows bulk transfer of seeded data
     @Operation(summary = "Allows bulk transfer of seeded data")
     @PostMapping("/internal")
     public ResponseEntity<?> loadSeededData(@RequestHeader("Authorization") String authHeader, @Valid @RequestBody List<BundleSeedDTO> bundles) {
         try {
+            //Extracts raw JWT
             String accessToken = authHeader.replace("Bearer ", "");
             bundleService.loadSeededData(accessToken, bundles);
             return ResponseEntity.noContent().build();
@@ -110,10 +115,12 @@ public class BundleController {
         }
 
         catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
     }
 
+    //Get all available bundles
     @Operation(summary = "Get all available bundles")
     @GetMapping
     public ResponseEntity<?> getAllBundlesAvailable(@RequestParam(name = "limit", defaultValue = "50", required = false) int limit,
@@ -128,10 +135,12 @@ public class BundleController {
         }
     }
 
+    //Get detailed information about a bundle
     @Operation(summary = "Get detailed information about a bundle")
     @GetMapping("/detailed/{bundleId}")
     public ResponseEntity<?> getDetailedBundle(@PathVariable UUID bundleId, @RequestHeader("Authorization") String authHeader) {
         try {
+            //Extracts raw JWT
             String accessToken = authHeader.replace("Bearer ", "");
             BundleDTO dto = bundleService.getDetailedBundle(accessToken, bundleId);
             return ResponseEntity.ok(dto);
@@ -146,16 +155,34 @@ public class BundleController {
         }
 
         catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
     }
 
+//    @Operation(summary = "Get analytics all reservations for a vendor in a time period")
+//    @GetMapping("/vendor")
+//    public ResponseEntity<?> getPastReservations(@RequestParam(name = "period", defaultValue = "week", required = false)
+//                                                 @RequestHeader("Authorization") String authHeader) {
+//        try {
+//
+//            String accessToken = authHeader.replace("Bearer ", "");
+//
+//
+//        }
+//
+//        catch (Exception e) {
+//            return ResponseEntity.internalServerError().build();
+//        }
+//    }
 
+    //Get number of bundles in a time period
     @Operation(summary = "Get number of bundles in a time period")
     @GetMapping("/metrics")
     public ResponseEntity<?> getBundleMetrics(@RequestParam(name = "period", defaultValue = "week", required = false) String period,
                                                  @RequestHeader("Authorization") String authHeader) {
         try {
+            //Extracts raw JWT
             String accessToken = authHeader.replace("Bearer ", "");
             BundleMetricDTO bundleMetricDTO = bundleService.getBundleMetrics(accessToken, period);
             return ResponseEntity.ok(bundleMetricDTO);
@@ -166,29 +193,10 @@ public class BundleController {
         }
 
         catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
-
-    }
-
-    @Operation(summary = "Get number of posted bundles")
-    @GetMapping("/available")
-    public ResponseEntity<?> getNumPostedBundles(@RequestHeader("Authorization") String authHeader) {
-        try {
-
-            String accessToken = authHeader.replace("Bearer ", "");
-            Integer numPostedBundles = bundleService.getNumBundlePosted(accessToken);
-            return ResponseEntity.ok(numPostedBundles);
-        }
-
-        catch (AuthorizationException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
+
     }
 
 

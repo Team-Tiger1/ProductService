@@ -23,6 +23,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+//Actual implementation of ReservationService Interface
 public class ReservationServiceJPA implements ReservationService {
 
     private final ReservationRepository reservationRepository;
@@ -33,15 +34,16 @@ public class ReservationServiceJPA implements ReservationService {
     private final ReservationEventPublisher reservationEventPublisher;
 
     @Override
+    //Creates a reservation for a bundle
     public ReservationDTO createReservation(UUID bundleId, String accessToken) {
         UUID userId = jwtTokenUtil.getUuidFromToken(accessToken);
         String role = jwtTokenUtil.getRoleFromToken(accessToken);
 
-        if (!role.equals("USER")) {
+        if(!role.equals("USER")) {
             throw new AuthorizationException();
         }
 
-        if (reservationRepository.existsByBundleId(bundleId)) {
+        if(reservationRepository.existsByBundleId(bundleId)) {
             throw new BundleAlreadyReservedException();
         }
 
@@ -74,50 +76,27 @@ public class ReservationServiceJPA implements ReservationService {
 
 
     @Override
-    public List<ReservationDTO> getReservations(String accessToken, CollectionStatus status) {
+    //Returns all user reservations
+    public List<ReservationDTO> getReservations(String accessToken) {
         UUID userId = jwtTokenUtil.getUuidFromToken(accessToken);
-        String role = jwtTokenUtil.getRoleFromToken(accessToken);
 
-        if (!role.equals("USER")) {
-            throw new AuthorizationException();
-        }
+        List<Reservation> reservations = reservationRepository.findAllByUserIdAndStatus(userId, CollectionStatus.RESERVED);
 
-
-        List<Reservation> reservations = reservationRepository.findAllByUserIdAndStatus(userId, status);
-
-        //Update Reservations that Have Expired
-        List<Reservation> expiredReservations = reservations.stream()
-                .filter(entity -> entity.getBundle().getCollectionEnd().isBefore(LocalDateTime.now()))
-                .peek(entity -> entity.setStatus(CollectionStatus.NO_SHOW))
-                .toList();
-
-        List<Reservation> pendingReservations = reservations.stream()
-                .filter(entity -> entity.getBundle().getCollectionEnd().isAfter(LocalDateTime.now()))
-                .toList();
-
-        reservationRepository.saveAll(expiredReservations);
-
-
-        return pendingReservations.stream()
+        return reservations.stream()
                 .map(ReservationMapper::toDTO)
                 .toList();
     }
 
 
     @Override
+    //Allows users to cancel their reservations
     public void deleteReservation(UUID reservationId, String accessToken) {
-
-        String role = jwtTokenUtil.getRoleFromToken(accessToken);
-        if (!role.equals("USER")){
-            throw new AuthorizationException();
-        }
-
         UUID userId = jwtTokenUtil.getUuidFromToken(accessToken);
 
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(ReservationNotFoundException::new);
 
-        if (!reservation.getUserId().equals(userId)) {
+        if(!reservation.getUserId().equals(userId)) {
             throw new AuthorizationException();
         }
 
@@ -125,30 +104,25 @@ public class ReservationServiceJPA implements ReservationService {
     }
 
     @Override
+    //Returns a claim Code for a reservation
     public ClaimCodeDTO getClaimCode(UUID reservationId, String accessToken) {
-
-        String role = jwtTokenUtil.getRoleFromToken(accessToken);
-        if (!role.equals("USER")){
-            throw new AuthorizationException();
-        }
-
         UUID userId = jwtTokenUtil.getUuidFromToken(accessToken);
 
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(ReservationNotFoundException::new);
 
-        if (!reservation.getUserId().equals(userId)) {
+        if(!reservation.getUserId().equals(userId)) {
             throw new AuthorizationException();
         }
 
 
         //Generates a new claim code if one hasn't been made
         ClaimCode claimCode = claimCodeRepository.findById(reservation.getId()).orElseGet(() -> {
-            String newClaimCode = claimCodeGenerator.generateCode();
-            return claimCodeRepository.save(ClaimCode.builder()
-                    .reservation(reservation)
-                    .claimCode(newClaimCode)
-                    .build());
+           String newClaimCode = claimCodeGenerator.generateCode();
+           return claimCodeRepository.save(ClaimCode.builder()
+                   .reservation(reservation)
+                   .claimCode(newClaimCode)
+                   .build());
         });
 
         return ClaimCodeDTO.builder()
@@ -157,31 +131,20 @@ public class ReservationServiceJPA implements ReservationService {
     }
 
     @Override
-    public ReservationVendorDTO checkClaimCode(ClaimCodeDTO claimCode, String accessToken) {
+    //Verifies claim code exists and marks the reservation as collected
+    public void checkClaimCode(ClaimCodeDTO claimCode, String accessToken) {
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
         String role = jwtTokenUtil.getRoleFromToken(accessToken);
 
-        if (!role.equals("VENDOR")) {
+        if(!role.equals("VENDOR")) {
             throw new AuthorizationException();
         }
 
         ClaimCode savedClaimCode = claimCodeRepository.findByClaimCodeAndReservation_Bundle_VendorId(claimCode.getClaimCode(), vendorId)
                 .orElseThrow(BundleNotFoundException::new);
 
-        Reservation reservation = savedClaimCode.getReservation();
-        Bundle bundle = reservation.getBundle();
-
-        ReservationVendorDTO reservationVendorDTO = ReservationVendorDTO.builder()
-                .reservationId(reservation.getId())
-                .bundleId(bundle.getId())
-                .bundleName(bundle.getName())
-                .amountDue(reservation.getAmountDue())
-                .collectionStart(bundle.getCollectionStart())
-                .collectionEnd(bundle.getCollectionEnd())
-                .build();
-
-
         //Mark as collected and delete claim code
+        Reservation reservation = savedClaimCode.getReservation();
         reservation.setTimeCollected(LocalDateTime.now());
         reservation.setStatus(CollectionStatus.COLLECTED);
         reservationRepository.save(reservation);
@@ -190,14 +153,14 @@ public class ReservationServiceJPA implements ReservationService {
 
         reservationEventPublisher.publishReservationCollected(new ReservationCollectedEvent(reservation.getUserId(), reservation.getTimeCollected()));
 
-        return reservationVendorDTO;
     }
 
     @Override
+    //INTERNAL role only endpoint used to load seeded data
     public void loadSeededData(String accessToken, List<ReservationSeedDTO> reservations) {
         String role = jwtTokenUtil.getRoleFromToken(accessToken);
 
-        if (!role.equals("INTERNAL")) {
+        if(!role.equals("INTERNAL")) {
             throw new AuthorizationException();
         }
 
@@ -225,10 +188,11 @@ public class ReservationServiceJPA implements ReservationService {
     }
 
     @Override
+    //Returns current reservations for the authenticated vendor
     public List<ReservationVendorDTO> getReservationsForVendor(String accessToken) {
         String role = jwtTokenUtil.getRoleFromToken(accessToken);
 
-        if (!role.equals("VENDOR")) {
+        if(!role.equals("VENDOR")) {
             throw new AuthorizationException();
         }
 
@@ -248,7 +212,7 @@ public class ReservationServiceJPA implements ReservationService {
     }
 
     private static class ReservationMapper {
-
+        //Maps entities to DTOs
         public static ReservationDTO toDTO(Reservation reservation) {
             return ReservationDTO.builder()
                     .reservationId(reservation.getId())

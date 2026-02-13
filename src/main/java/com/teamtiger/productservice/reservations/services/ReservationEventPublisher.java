@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+//Notifies that a reservation has been collected
 public class ReservationEventPublisher {
 
     private final RabbitTemplate rabbitTemplate;

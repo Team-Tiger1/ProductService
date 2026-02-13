@@ -4,7 +4,7 @@ import com.teamtiger.productservice.bundles.models.*;
 
 import java.util.List;
 import java.util.UUID;
-
+//defines different operations for the management of Bundles
 public interface BundleService {
 
     BundleDTO createBundle(CreateBundleDTO createBundleDTO, String accessToken);
@@ -22,7 +22,5 @@ public interface BundleService {
     BundleDTO getDetailedBundle(String accessToken, UUID bundleId);
 
     BundleMetricDTO getBundleMetrics(String accessToken, String timePeriod);
-
-    Integer getNumBundlePosted(String accessToken);
 
 }

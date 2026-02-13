@@ -4,11 +4,15 @@ import com.teamtiger.productservice.bundles.exceptions.BundleNotFoundException;
 import com.teamtiger.productservice.reservations.exceptions.AuthorizationException;
 import com.teamtiger.productservice.reservations.exceptions.BundleAlreadyReservedException;
 import com.teamtiger.productservice.reservations.exceptions.ReservationNotFoundException;
-import com.teamtiger.productservice.reservations.models.*;
+import com.teamtiger.productservice.reservations.models.ClaimCodeDTO;
+import com.teamtiger.productservice.reservations.models.ReservationDTO;
+import com.teamtiger.productservice.reservations.models.ReservationSeedDTO;
+import com.teamtiger.productservice.reservations.models.ReservationVendorDTO;
 import com.teamtiger.productservice.reservations.services.ReservationService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.micrometer.observation.autoconfigure.ObservationProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,10 +23,11 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/reservations")
 @RequiredArgsConstructor
+//REST controller managing reservation operations
 public class ReservationController {
 
     private final ReservationService reservationService;
-
+    //Create a reservation given a bundle
     @Operation(summary = "Create a reservation given a bundle")
     @PostMapping("/{bundleId}")
     public ResponseEntity<?> createReservation(@PathVariable UUID bundleId,
@@ -46,30 +51,25 @@ public class ReservationController {
         }
 
         catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
     }
-
-    @Operation(summary = "Get all reservations for a user")
+    //Get all pending reservations for a user
+    @Operation(summary = "Get all pending reservations for a user")
     @GetMapping
-    public ResponseEntity<?> getReservations(@RequestParam(name = "status", defaultValue = "RESERVED", required = false) CollectionStatus status,
-                                             @RequestHeader("Authorization") String authToken) {
+    public ResponseEntity<?> getReservations(@RequestHeader("Authorization") String authToken) {
         try {
             String accessToken = authToken.replace("Bearer ", "");
-
-            List<ReservationDTO> reservationList = reservationService.getReservations(accessToken, status);
+            List<ReservationDTO> reservationList = reservationService.getReservations(accessToken);
             return ResponseEntity.ok(reservationList);
-        }
-
-        catch (AuthorizationException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
     }
-
+    //Get all pending reservations for a vendor
     @Operation(summary = "Get all pending reservations for a vendor")
     @GetMapping("/vendor")
     public ResponseEntity<?> getReservationsForVendor(@RequestHeader("Authorization") String authToken) {
@@ -84,10 +84,11 @@ public class ReservationController {
         }
 
         catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
     }
-
+    //Delete a reservation using the UUID
     @Operation(summary = "Delete a reservation using the UUID")
     @DeleteMapping("/{reservationId}")
     public ResponseEntity<?> deleteReservation(@PathVariable UUID reservationId, @RequestHeader("Authorization") String authToken) {
@@ -109,7 +110,7 @@ public class ReservationController {
             return ResponseEntity.internalServerError().build();
         }
     }
-
+    //Get a claim code for a reservation
     @Operation(summary = "Get a claim code for a reservation")
     @GetMapping("/claimcode/{reservationId}")
     public ResponseEntity<?> getClaimCode(@PathVariable UUID reservationId, @RequestHeader("Authorization") String authHeader) {
@@ -131,14 +132,14 @@ public class ReservationController {
             return ResponseEntity.internalServerError().build();
         }
     }
-
+    //Allows a vendor to verify a reservation, marking it completed"
     @Operation(summary = "Allows a vendor to verify a reservation, marking it completed")
     @PostMapping("/claimcode")
     public ResponseEntity<?> checkClaimCode(@Valid @RequestBody ClaimCodeDTO claimCodeDTO, @RequestHeader("Authorization") String authHeader) {
         try {
             String accessToken = authHeader.replace("Bearer ", "");
-            ReservationVendorDTO reservationVendorDTO = reservationService.checkClaimCode(claimCodeDTO, accessToken);
-            return ResponseEntity.ok(reservationVendorDTO);
+            reservationService.checkClaimCode(claimCodeDTO, accessToken);
+            return ResponseEntity.noContent().build();
         }
 
         catch (AuthorizationException e) {
@@ -153,7 +154,7 @@ public class ReservationController {
             return ResponseEntity.internalServerError().build();
         }
     }
-
+    //Allows bulk transfer of reservation data
     @Operation(summary = "Allows bulk transfer of reservation data")
     @PostMapping("/internal")
     public ResponseEntity<?> loadSeededData(@RequestHeader("Authorization") String authHeader, @Valid @RequestBody List<ReservationSeedDTO> reservations) {

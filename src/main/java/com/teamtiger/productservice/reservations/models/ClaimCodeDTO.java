@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 @Builder
 @Getter
 @AllArgsConstructor
+//DTO used to represent a claim Code for verifying and collecting a reservation
 public class ClaimCodeDTO {
 
     @NotBlank

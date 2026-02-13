@@ -9,12 +9,13 @@ import java.util.UUID;
 
 @Data
 @Builder
+//Used to represent a product entry in a bundle response
 public class BundleProductDTO {
 
     private UUID productId;
     private String productName;
     private double price;
     private int quantity;
-    private Set<AllergyType> allergens;
+    private Set<AllergyType> allergies;
 
 }

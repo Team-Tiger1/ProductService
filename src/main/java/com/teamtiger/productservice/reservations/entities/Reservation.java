@@ -10,7 +10,7 @@ import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
-
+//Entity for representing a reservation
 @Entity
 @Getter
 @Setter
@@ -31,6 +31,7 @@ public class Reservation {
     @Column(name = "reservation_id", updatable = false, nullable = false)
     private UUID id;
 
+    //Each bundle can only have one reservation linked to it at a time
     @OneToOne
     @JoinColumn(name = "bundle_id", unique = true)
     private Bundle bundle;

@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 import java.util.UUID;
-
+//Repository for database operations for the ClaimCode entity
 public interface ClaimCodeRepository extends JpaRepository<ClaimCode, UUID> {
 
     boolean existsByClaimCode(String claimCode);

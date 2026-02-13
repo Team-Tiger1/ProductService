@@ -9,15 +9,16 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+//Repository for database operations for the Bundle entity
 public interface BundleRepository extends JpaRepository<Bundle, UUID> {
 
     List<Bundle> findAllByVendorId(UUID vendorId);
 
-    @Query("SELECT b FROM Bundle b WHERE b.collectionEnd > CURRENT_TIMESTAMP AND NOT EXISTS " +
+    @Query("SELECT b FROM Bundle b WHERE b.collectionEnd < CURRENT_TIMESTAMP AND NOT EXISTS " +
             "(SELECT r FROM Reservation r WHERE r.bundle = b)")
     List<Bundle> findAvailableBundles(Pageable pageable);
 
-    @Query("SELECT b FROM Bundle b WHERE b.vendorId = :vendorId AND b.collectionEnd > CURRENT_TIMESTAMP AND NOT EXISTS " +
+    @Query("SELECT b FROM Bundle b WHERE b.vendorId = :vendorId AND b.collectionEnd < CURRENT_TIMESTAMP AND NOT EXISTS " +
             "(SELECT r FROM Reservation r WHERE r.bundle = b ) ORDER BY b.price ASC")
     List<Bundle> findAvailableBundlesByVendor(UUID vendorId);
 
@@ -32,9 +33,5 @@ public interface BundleRepository extends JpaRepository<Bundle, UUID> {
             "AND b.postingTime BETWEEN :period AND CURRENT_TIMESTAMP  AND NOT EXISTS " +
             "(SELECT r FROM Reservation r WHERE r.bundle = b )")
     Long countPreviousExpiredBundlesByVendor(UUID vendorId, LocalDateTime period);
-
-
-    @Query("SELECT COUNT(b.id) FROM Bundle b WHERE b.vendorId = :vendorId AND b.collectionEnd > CURRENT_TIMESTAMP")
-    Long countPostedBundlesByVendor(UUID vendorId);
 
 }

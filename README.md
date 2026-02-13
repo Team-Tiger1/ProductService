@@ -110,6 +110,18 @@ The Image below highlights where in the architecture this service operates.
 ## Contribution
 
 **Author: Robert Rainer**
+- Led code structure discussions with Daniel Jackson about using the MVC model
+  - Developed Product and Allergen Components:
+    - Created Product REST Endpoints and specified the data required in requests    
+    - Implemented Product Service Layer with JWT ownerships checks
+    - Implemented Product–Allergen many-to-many relationship mapping
+    - Designed and implemented the DTO layer for product operations
+    - Implemented ProductService interface and ProductServiceJPA service layer
+    - Wrote business logic in Product Service Layer that accesses the database
+    - Developed ProductMapper to convert entities into DTOs 
+    - Created repository interfaces for Product and Allergy database operations
+    - 
+- Commented Product Service    
 
 <br>
 
