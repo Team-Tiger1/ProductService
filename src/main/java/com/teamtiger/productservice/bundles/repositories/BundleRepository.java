@@ -37,11 +37,17 @@ public interface BundleRepository extends JpaRepository<Bundle, UUID> {
     @Query("SELECT COUNT(b.id) FROM Bundle b WHERE b.vendorId = :vendorId AND b.collectionEnd > CURRENT_TIMESTAMP")
     Long countPostedBundlesByVendor(UUID vendorId);
 
-    @Query("SELECT r.status, b FROM Reservation AS r " +
+    @Query("SELECT b FROM Reservation AS r " +
             "JOIN r.bundle b " +
-            "WHERE b.vendorId = :vendorId AND b.collectionEnd BETWEEN :period AND CURRENT_TIMESTAMP " +
+            "WHERE b.vendorId = :vendorId AND r.status = 'COLLECTED' AND r.timeCollected BETWEEN :period AND CURRENT_TIMESTAMP " +
             "ORDER BY r.status, b.postingTime DESC")
-    List<Object[]> findPastBundlesByVendor(UUID vendorId, LocalDateTime period);
+    List<Bundle> findPastCollectedBundlesByVendor(UUID vendorId, LocalDateTime period);
+
+    @Query("SELECT b FROM Reservation AS r " +
+            "JOIN r.bundle b " +
+            "WHERE b.vendorId = :vendorId AND b.collectionEnd BETWEEN :period AND CURRENT_TIMESTAMP AND r.timeCollected IS NULL AND b.collectionEnd < CURRENT_TIMESTAMP " +
+            "ORDER BY r.status, b.postingTime DESC")
+    List<Bundle> findPastNoShowBundlesByVendor(UUID vendorId, LocalDateTime period);
 
     @Query("SELECT b FROM Bundle b WHERE b.vendorId = :vendorId " +
             "AND b.collectionEnd BETWEEN :period AND CURRENT_TIMESTAMP  AND NOT EXISTS " +

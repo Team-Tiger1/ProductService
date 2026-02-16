@@ -319,35 +319,38 @@ public class BundleServiceJPA implements BundleService {
             default -> now.minusWeeks(1);
         };
 
-        List<Object[]> bundles = bundleRepository.findPastBundlesByVendor(vendorId, period);
-
+        //SQL Queries
+        List<Bundle> collectedBundles = bundleRepository.findPastCollectedBundlesByVendor(vendorId, period);
+        List<Bundle> noShowBundles = bundleRepository.findPastNoShowBundlesByVendor(vendorId, period);
         List<Bundle> expiredBundles = bundleRepository.findExpiredBundlesByVendor(vendorId, period);
 
         List<PastBundleDTO> pastBundleList = new ArrayList<>();
 
-        for(Object[] group : bundles) {
-            Bundle savedBundle = (Bundle) group[1];
-            CollectionStatus status = (CollectionStatus) group[0];
+        //Map Bundle Entity to DTO
+        pastBundleList.addAll(collectedBundles.stream()
+                .map(entity -> PastBundleDTO.builder()
+                        .bundleName(entity.getName())
+                        .amountDue(entity.getPrice())
+                        .date(entity.getCollectionEnd())
+                        .status(CollectionStatus.COLLECTED)
+                        .build())
+                .toList());
 
-            if(status.equals(CollectionStatus.RESERVED)) {
-                continue;
-            }
-
-            PastBundleDTO pastBundleDTO = PastBundleDTO.builder()
-                    .bundleName(savedBundle.getName())
-                    .date(savedBundle.getPostingTime())
-                    .amountDue(savedBundle.getPrice())
-                    .status(status.toString())
-                    .build();
-            pastBundleList.add(pastBundleDTO);
-        }
+        pastBundleList.addAll(noShowBundles.stream()
+                .map(entity -> PastBundleDTO.builder()
+                        .bundleName(entity.getName())
+                        .amountDue(entity.getPrice())
+                        .date(entity.getCollectionEnd())
+                        .status(CollectionStatus.COLLECTED)
+                        .build())
+                .toList());
 
         pastBundleList.addAll(expiredBundles.stream()
                 .map(entity -> PastBundleDTO.builder()
                         .bundleName(entity.getName())
                         .date(entity.getPostingTime())
                         .amountDue(entity.getPrice())
-                        .status("EXPIRED")
+                        .status(CollectionStatus.EXPIRED)
                         .build())
                 .toList());
 

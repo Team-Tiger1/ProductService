@@ -1,5 +1,6 @@
 package com.teamtiger.productservice.bundles.models;
 
+import com.teamtiger.productservice.reservations.models.CollectionStatus;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -12,6 +13,6 @@ public class PastBundleDTO {
     private String bundleName;
     private LocalDateTime date;
     private double amountDue;
-    private String status; //Collection Status
+    private CollectionStatus status;
 
 }
