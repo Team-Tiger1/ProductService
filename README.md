@@ -139,12 +139,9 @@ The Image below highlights where in the architecture this service operates.
 
 **Author: Jed Leas**
 
-
 - Setting up all CI/CD workflows to handle
   1. Automatic testing on push of main branch on the Product Service repo
   2. Automatic Deployment onto k3s with zero downtime on completion of automatic testing so broken code won't make it to deployment
 - Set up the connection to the PostgreSQL database, and RabbitMQ
 
-<br>
 
-**Author: Ivy Figari**
