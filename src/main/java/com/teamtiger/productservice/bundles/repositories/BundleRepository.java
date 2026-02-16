@@ -22,11 +22,17 @@ public interface BundleRepository extends JpaRepository<Bundle, UUID> {
     List<Bundle> findAvailableBundlesByVendor(UUID vendorId);
 
 
-    @Query("SELECT r.status, COUNT(b.id) FROM Reservation AS r " +
+    @Query("SELECT COUNT(b.id) FROM Reservation AS r " +
             "JOIN r.bundle b " +
-            "WHERE b.vendorId = :vendorId AND b.postingTime BETWEEN :period AND CURRENT_TIMESTAMP " +
+            "WHERE b.vendorId = :vendorId AND b.postingTime BETWEEN :period AND CURRENT_TIMESTAMP AND r.status = 'COLLECTED' " +
             "GROUP BY r.status")
-    List<Object[]> countBundlesByVendorId(UUID vendorId, LocalDateTime period);
+    Long countCollectedBundlesByVendorId(UUID vendorId, LocalDateTime period);
+
+    @Query("SELECT COUNT(b.id) FROM Reservation AS r " +
+            "JOIN r.bundle b " +
+            "WHERE b.vendorId = :vendorId AND b.collectionEnd BETWEEN :period AND CURRENT_TIMESTAMP AND r.timeCollected IS NULL AND b.collectionEnd < CURRENT_TIMESTAMP " +
+            "GROUP BY r.status")
+    Long countNoShowBundlesByVendorId(UUID vendorId, LocalDateTime period);
 
     @Query("SELECT COUNT(b.id) FROM Bundle b WHERE b.vendorId = :vendorId " +
             "AND b.postingTime BETWEEN :period AND CURRENT_TIMESTAMP  AND NOT EXISTS " +
