@@ -199,16 +199,13 @@ public class BundleController {
             String accessToken = authHeader.replace("Bearer ", "");
             List<PastBundleDTO> pastBundleDTO = bundleService.getPastBundles(accessToken, period);
             return ResponseEntity.ok(pastBundleDTO);
-        }
-
-        catch (AuthorizationException e) {
+        } catch (AuthorizationException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
+    }
 
 
 
