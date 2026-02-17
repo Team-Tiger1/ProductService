@@ -150,6 +150,7 @@ public class BundleController {
         }
     }
 
+    
 
     @Operation(summary = "Get number of bundles in a time period")
     @GetMapping("/metrics")
