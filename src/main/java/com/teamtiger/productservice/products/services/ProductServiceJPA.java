@@ -33,8 +33,13 @@ public class ProductServiceJPA implements ProductService{
     private final AllergyRepository allergyRepository;
 
 
+    /**
+     * //Creates a new product for vendor
+     * @param accessToken JWT token
+     * @param dto containing product details
+     * @return a GetProductDTO
+     */
     @Override
-    //Creates a new product for vendor
     public GetProductDTO createProduct(String accessToken, ProductDTO dto) {
 
         //Ensures only vendors are allowed to add a Product
@@ -65,8 +70,13 @@ public class ProductServiceJPA implements ProductService{
     }
 
 
+    /**
+     * Gets all products by the Vendor
+     * @param accessToken JWT token
+     * @return A list of GetProductDTOs details from vendor
+     */
     @Override
-    //Gets all products by the Vendor
+
     public List<GetProductDTO> getVendorProducts(String accessToken) {
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
 
@@ -80,8 +90,12 @@ public class ProductServiceJPA implements ProductService{
     }
 
 
+    /**
+     * Deletes a product owned by the Vendor
+     * @param accessToken JWT token
+     * @param productId of the product to be deleted
+     */
     @Override
-    //Deletes a product owned by the Vendor
     public void deleteProduct(String accessToken, UUID productId) {
 
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
@@ -99,8 +113,15 @@ public class ProductServiceJPA implements ProductService{
 
     }
 
+    /**
+     *Patches a product owned by the vendor
+     * @param accessToken JWT token
+     * @param productId of the product to be deleted
+     * @param dto containing information of product to be updated
+     * @return GetProductDTO of the update product
+     */
     @Override
-    //Patches a vendors product
+
     public GetProductDTO updateProduct(String accessToken, UUID productId, UpdateProductDTO dto) {
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
         Product productToBeUpdated = productRepository.findById(productId).orElseThrow(EntityNotFoundException::new);
@@ -144,6 +165,11 @@ public class ProductServiceJPA implements ProductService{
     }
 
 
+    /**Loads the seeded data into the database
+     *
+     * @param accessToken JWT token
+     * @param products List of ProductSeedDTO containing the seeded data
+     */
     @Override
     //Loads seeded data
     @Transactional

@@ -12,9 +12,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * //Used for loading bundles from seeded data
+ */
 @Getter
 @AllArgsConstructor
-//Used for loading bundles from seeded data
+
 public class BundleSeedDTO {
 
     @NotNull

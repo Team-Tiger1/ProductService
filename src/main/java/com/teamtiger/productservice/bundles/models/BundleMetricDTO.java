@@ -3,9 +3,11 @@ package com.teamtiger.productservice.bundles.models;
 import lombok.Builder;
 import lombok.Data;
 
+/**
+ * //Used to return figures about bundle reservations to client
+ */
 @Builder
 @Data
-//Used to return figures about bundle reservations to client
 public class BundleMetricDTO {
 
     private Integer numNoShows;

@@ -13,6 +13,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+
+/**
+ * //Returned to vendor when they create a Bundle
+ */
 @Getter
 @Builder
 @AllArgsConstructor

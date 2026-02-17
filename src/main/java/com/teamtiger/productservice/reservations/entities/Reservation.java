@@ -10,7 +10,10 @@ import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
-//Entity for representing a reservation
+
+/**
+ * //Entity for representing a reservation
+ */
 @Entity
 @Getter
 @Setter

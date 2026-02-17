@@ -8,6 +8,9 @@ import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * Entity representing a BundleProduct
+ */
 @Entity
 @Getter
 @Setter

@@ -19,13 +19,25 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/bundles")
 @RequiredArgsConstructor
-//Handles REST API requests for Bundles
+
+
+
+/**
+ * Handles REST API requests for Bundles
+ */
 public class BundleController {
 
     private final BundleService bundleService;
 
 
-    //Allows a Vendor to create a new Bundle
+    /**
+     *Allows an authenticated user to create a Bundle
+     *
+     * @param createBundleDTO request body containing bundle details
+     * @param authHeader Header containing JWT token
+     * @return  A ResponseEntity containing the created BundleDTO that returns 200 if successful
+     * 500 Exception returned if an error occurs
+     */
     @Operation(summary = "Allows a Vendor to create a new Bundle")
     @PostMapping
     public ResponseEntity<?> createBundle(@Valid @RequestBody CreateBundleDTO createBundleDTO,
@@ -40,7 +52,17 @@ public class BundleController {
             return ResponseEntity.internalServerError().build();
         }
     }
-    //Allows a Vendor to delete a bundle
+
+    /**
+     * Allows an authenticated user to delete a bundle they own
+     *
+     * @param authHeader containing JWT token
+     * @param bundleId Unique ID of the bundle to be deleted
+     * @return 204 if bundle is successfully deleted
+     *          404 if the bundle to be deleted is not found
+     *          401 if the vendor attempting to delete the bundle is not authorized to
+     *          500 i unexpected error occurs
+     */
     @Operation(summary = "Allows a Vendor to delete a bundle")
     @DeleteMapping("/{bundleId}")
     public ResponseEntity<?> deleteBundle(@RequestHeader("Authorization") String authHeader,
@@ -64,7 +86,14 @@ public class BundleController {
             return ResponseEntity.internalServerError().build();
         }
     }
-    ///Allows a vendor to access all their bundles for sale
+
+    /**
+     *Returns all bundles belonging to the vendor attempting to access them
+     * @param authHeader containing JWT token
+     * @return  A ResponseEntity that returns 200 if successful
+     *          401 error if bundles do not all belong to vendor
+     *          500 if an unexpected error occurs
+     */
     @Operation(summary = "Allows a vendor to access all their bundles for sale")
     @GetMapping("/me")
     public ResponseEntity<?> getOwnBundles(@RequestHeader("Authorization") String authHeader) {
@@ -85,7 +114,12 @@ public class BundleController {
     }
 
 
-    //Get all bundles from a vendor given a vendorId
+    /** Returns List of all bundles from a specific vendor
+     *
+     * @param vendorId A vendors unique identifier
+     * @return A ResponseEntity that returns 200 if successful
+     *
+     */
     @Operation(summary = "Get all bundles from a vendor given a vendorId")
     @GetMapping("/{vendorId}")
     public ResponseEntity<?> getVendorBundles(@PathVariable UUID vendorId) {
@@ -99,7 +133,14 @@ public class BundleController {
         }
     }
 
-    //Allows bulk transfer of seeded data
+    /**
+     *
+     * @param authHeader JWT header
+     * @param bundles
+     * @return A ResponseEntity that returns 204 if successful
+     *        401 if unauthorized
+     *        500 exception if a different error occurs
+     */
     @Operation(summary = "Allows bulk transfer of seeded data")
     @PostMapping("/internal")
     public ResponseEntity<?> loadSeededData(@RequestHeader("Authorization") String authHeader, @Valid @RequestBody List<BundleSeedDTO> bundles) {
@@ -120,7 +161,14 @@ public class BundleController {
         }
     }
 
-    //Get all available bundles
+
+    /** Retrieves all available bundles
+     *
+     * @param limit maximum amount of Bundles that can be returned
+     * @param offset Page offset for pagination
+     * @return A ResponseEntity that returns 200 if successful
+     *         500 exception if an error occurs
+     */
     @Operation(summary = "Get all available bundles")
     @GetMapping
     public ResponseEntity<?> getAllBundlesAvailable(@RequestParam(name = "limit", defaultValue = "50", required = false) int limit,
@@ -135,7 +183,16 @@ public class BundleController {
         }
     }
 
-    //Get detailed information about a bundle
+
+    /** Retrieves information about a specific bundle
+     *
+     * @param bundleId unique identifier for a bundle
+     * @param authHeader containing JWT token
+     * @return ResponseEntity that returns 200 if successful
+     *        401 if unauthorized
+     *        404 error if bundle is not found
+     *        500 if an unexpected error occurs
+     */
     @Operation(summary = "Get detailed information about a bundle")
     @GetMapping("/detailed/{bundleId}")
     public ResponseEntity<?> getDetailedBundle(@PathVariable UUID bundleId, @RequestHeader("Authorization") String authHeader) {
@@ -176,7 +233,15 @@ public class BundleController {
 //        }
 //    }
 
-    //Get number of bundles in a time period
+    /** Retrieves bundle metrics for the authenticated vendor within a time period.
+     *
+     * @param period Time("day","week","month")
+     * @param authHeader containing JWT token
+     * @return A ResponseEntity that returns 200 if successful
+     *      401 if unauthorized
+     *      500 if an unexpected error occurs
+     *
+     */
     @Operation(summary = "Get number of bundles in a time period")
     @GetMapping("/metrics")
     public ResponseEntity<?> getBundleMetrics(@RequestParam(name = "period", defaultValue = "week", required = false) String period,
@@ -199,9 +264,38 @@ public class BundleController {
 
     }
 
+    /**Retrieves bundle metrics for a past bundle for the authenticated vendor
+     *
+     * @param period Time("day","week","month")
+     * @param authHeader containing JWT token
+     * @return BundleDto containing information about the bundle
+     *      401 if unauthorized
+     *      500 if an unexpected error occurs
+     */
+    @Operation(summary = "Get bundle information in a time period")
+    @GetMapping("/analytics")
+    public ResponseEntity<?> getPastBundles(@RequestParam(name = "period", defaultValue = "week", required = false) String period,
+                                              @RequestHeader("Authorization") String authHeader) {
+        try {
+            String accessToken = authHeader.replace("Bearer ", "");
+            List<PastBundleDTO> pastBundleDTO = bundleService.getPastBundles(accessToken, period);
+            return ResponseEntity.ok(pastBundleDTO);
+        }
+
+        catch (AuthorizationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+            return ResponseEntity.internalServerError().build();
+        }
 
 
 
 
 
-}
+
+
+    }

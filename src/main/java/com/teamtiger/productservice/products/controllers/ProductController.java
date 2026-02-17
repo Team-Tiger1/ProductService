@@ -25,7 +25,14 @@ public class ProductController {
 
     private final ProductService productService;
 
-    //Allows a Vendor to add a new Product
+
+    /**
+     * Creates a product for the authenticated user
+     * @param authHeader A bearer access token
+     * @param dto contaning valid Product details
+     * @return ResponseEntity that returns 200 if successful
+     *        500 if an unexpected error occurs
+     */
     @Operation(summary = "Allows a Vendor to add a new Product")
     @PostMapping
     public ResponseEntity<?> createProduct(@RequestHeader("Authorization") String authHeader, @RequestBody ProductDTO dto) {
@@ -44,7 +51,12 @@ public class ProductController {
 
     }
 
-    //Returns all products belonging to the vendor
+    /**
+     * //Returns all products that authenticated Vendors owns
+     * @param authHeader A bearer access token
+     * @return  ResponseEntity that returns 200 if successful
+     *          500 if an unexpected error occurs
+     */
     @GetMapping("/vendor")
     @Operation(summary = "Returns all products belonging to the vendor")
     public ResponseEntity<?> getVendorProducts(@RequestHeader("Authorization") String authHeader) {
@@ -58,6 +70,14 @@ public class ProductController {
     }
 
     //Allows the vendor to delete a product
+
+    /** Deletes a product owned by the authenticated vendor
+     *
+     * @param authHeader  A bearer access token
+     * @param productId of the product to be deleted
+     * @return 204 to indicate successful deletion
+     *         500 Exception returned if an error occurs
+     */
     @Operation(summary = "Allows the vendor to delete a product")
     @DeleteMapping("/{productId}")
     public ResponseEntity<?> deleteProduct(@RequestHeader("Authorization") String authHeader, @PathVariable UUID productId) {
@@ -72,7 +92,18 @@ public class ProductController {
 
     }
 
-    //Allows the vendor to update fields for a product
+
+
+
+    /**
+     * Vendor updates fields for one of their product
+     * @param authHeader A bearer access token
+     * @param productId of the product to be patched/updated
+     * @param dto containing fields of product to potentially be updated
+     * @return  A ResponseEntity that returns 200 if successful
+     *         500 Exception returned if an error occurs
+     *
+     */
     @Operation(summary = "Allows the vendor to update fields for a product")
     @PatchMapping("/{productId}")
     public ResponseEntity<?> updateProduct(@RequestHeader("Authorization") String authHeader, @PathVariable UUID productId, @RequestBody UpdateProductDTO dto) {
@@ -84,7 +115,15 @@ public class ProductController {
         }
     }
 
-    //Allows for bulk transfer of seeded data
+    /** Allows for bulk transfer of data
+     *
+     * @param authHeader A bearer access token
+     * @param products list containing seeded data
+     * @return A ResponseEntity that returns 204 if successful
+     *        500 Exception returned if an error occurs
+     *        401 if unauthorized
+     *        500 if a different error occurs
+     */
     @Operation(summary = "Allows for bulk transfer of seeded data")
     @PostMapping("/internal")
     public ResponseEntity<?> loadSeededData(@RequestHeader("Authorization") String authHeader, @Valid @RequestBody List<ProductSeedDTO> products) {

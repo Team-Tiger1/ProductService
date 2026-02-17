@@ -9,11 +9,12 @@ import lombok.Getter;
 
 import java.util.Set;
 import java.util.UUID;
-
+/**
+ * //DTO used for bulk loading seeded data
+ */
 @Getter
 @Builder
 @AllArgsConstructor
-//DTO used for bulk loading seeded data
 public class ProductSeedDTO {
 
     @NotNull

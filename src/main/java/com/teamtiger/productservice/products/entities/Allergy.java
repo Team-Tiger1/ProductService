@@ -1,8 +1,12 @@
 package com.teamtiger.productservice.products.entities;
-//Entity for representing an allergen
+
+
 import jakarta.persistence.*;
 import lombok.*;
 
+/**
+ * //Entity for representing an allergen
+ */
 @Entity
 @Getter
 @Setter

@@ -10,9 +10,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * //DTO returned to the client when fetching full bundle details
+ */
 @Getter
 @Builder
-//DTO returned to the client when fetching full bundle details
+
 public class BundleDTO {
 
     private String name;

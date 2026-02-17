@@ -7,8 +7,10 @@ import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * //Configuration for publishing reservation related events.
+ */
 @Configuration
-//Configuration for publishing reservation related events.
 public class RabbitMQConfig {
 
     public static final String EXCHANGE = "reservation.events";

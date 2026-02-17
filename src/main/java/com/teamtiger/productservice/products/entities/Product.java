@@ -8,7 +8,10 @@ import org.hibernate.annotations.UuidGenerator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-//Entity for representing a Product created by a vendor
+
+/**
+ * Entity for representing a Product created by a vendor
+ */
 @Entity
 @Getter
 @Setter

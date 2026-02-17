@@ -16,6 +16,7 @@ import com.teamtiger.productservice.products.models.ProductDTO;
 import com.teamtiger.productservice.products.repositories.AllergyRepository;
 import com.teamtiger.productservice.products.repositories.ProductRepository;
 import com.teamtiger.productservice.reservations.exceptions.AuthorizationException;
+import com.teamtiger.productservice.reservations.models.CollectionStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,9 +27,12 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+
+/**
+ * Actual Implementation of ProductService Service
+ */
 @Service
 @RequiredArgsConstructor
-//Actual Implementation of ProductService Service
 public class BundleServiceJPA implements BundleService {
 
     private final BundleRepository bundleRepository;
@@ -36,11 +40,22 @@ public class BundleServiceJPA implements BundleService {
     private final ProductRepository productRepository;
     private final AllergyRepository allergyRepository;
 
-    //Creates bundle for authenticated vendor
+    /**
+     * Creates a new bundle and stores record of it in the database
+     *
+     * @param createBundleDTO a valid request body with the information for the vendor account
+     * @param accessToken JWT access token
+     * @return The created Bundle as a DTO
+     */
     @Override
     public BundleDTO createBundle(CreateBundleDTO createBundleDTO, String accessToken) {
 
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
+        String role = jwtTokenUtil.getRoleFromToken(accessToken);
+
+        if(!role.equals("VENDOR")) {
+            throw new VendorAuthorizationException();
+        }
 
         //Count times product appears
         Map<UUID, Long> occurenceMap = createBundleDTO.getProductList().stream()
@@ -65,7 +80,7 @@ public class BundleServiceJPA implements BundleService {
                 .collect(Collectors.toSet());
 
         Bundle bundle = Bundle.builder()
-                .name(createBundleDTO.getName())
+                .name(createBundleDTO.getName().trim())
                 .description(createBundleDTO.getDescription())
                 .price(createBundleDTO.getPrice())
                 .retailPrice(retailPrice)
@@ -74,6 +89,7 @@ public class BundleServiceJPA implements BundleService {
                 .collectionStart(createBundleDTO.getCollectionStart())
                 .collectionEnd(createBundleDTO.getCollectionEnd())
                 .allergies(bundleAllergies)
+                .postingTime(LocalDateTime.now())
                 .build();
 
         bundle = bundleRepository.save(bundle);
@@ -90,7 +106,11 @@ public class BundleServiceJPA implements BundleService {
         return BundleMapper.toDTO(bundle);
     }
 
-    //Deletes Bundle if vendor owns it
+    /**
+     * Deletes Bundle from database if vendor owns it
+     * @param bundleId unique identifier of bundle to delete
+     * @param accessToken JWT access token
+     */
     @Override
     public void deleteBundle(UUID bundleId, String accessToken) {
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
@@ -110,7 +130,11 @@ public class BundleServiceJPA implements BundleService {
         bundleRepository.deleteById(bundleId);
     }
 
-    //Returns all Bundles currently available by a specific vendor
+    /**
+     * Returns all Bundles currently available by a specific vendor
+     * @param vendorId unique vendor identifier
+     * @return A list of bundles
+     */
     @Override
     public List<ShortBundleDTO> getVendorBundles(UUID vendorId) {
 
@@ -122,6 +146,7 @@ public class BundleServiceJPA implements BundleService {
                         .price(entity.getPrice())
                         .bundleName(entity.getName())
                         .category(entity.getCategory())
+                        .vendorId(entity.getVendorId())
                         .allergens(entity.getAllergies().stream()
                                 .map(Allergy::getAllergyType)
                                 .collect(Collectors.toSet()))
@@ -130,7 +155,13 @@ public class BundleServiceJPA implements BundleService {
                         .build()
                 ).toList();
     }
-    //Gets all bundles that vendor created
+
+
+    /**
+     * Gets all the authenticated vendors Bundles
+     * @param accessToken JWT access token
+     * @return A list of bundles that belong to the authenticated vendor
+     */
     @Override
     public List<BundleDTO> getOwnBundles(String accessToken) {
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
@@ -140,13 +171,17 @@ public class BundleServiceJPA implements BundleService {
             throw new VendorAuthorizationException();
         }
 
-        List<Bundle> bundles = bundleRepository.findAllByVendorId(vendorId);
+        List<Bundle> bundles = bundleRepository.findAvailableBundlesByVendor(vendorId);
         return bundles.stream()
                 .map(BundleMapper::toDTO)
                 .toList();
     }
 
-    //Loaded seeded data
+    /**Saves seeded bundle data to the database
+     *
+     * @param accessToken JWT access token
+     * @param bundles List of BundleSeedDTO containing seeded data
+     */
     @Override
     @Transactional
     public void loadSeededData(String accessToken, List<BundleSeedDTO> bundles) {
@@ -220,7 +255,13 @@ public class BundleServiceJPA implements BundleService {
         bundleRepository.saveAll(entities);
 
     }
-    //Returns a list of all bundles
+
+    /**
+     * //Returns a list of all bundles
+     * @param limit maxiumum number of bundles to return
+     * @param offset
+     * @return a list of ShortBundleDTO's
+     */
     @Override
     public List<ShortBundleDTO> getAllBundles(int limit, int offset) {
 
@@ -233,6 +274,7 @@ public class BundleServiceJPA implements BundleService {
                         .category(entity.getCategory())
                         .bundleId(entity.getId())
                         .price(entity.getPrice())
+                        .vendorId(entity.getVendorId())
                         .allergens(entity.getAllergies().stream()
                                 .map(Allergy::getAllergyType)
                                 .collect(Collectors.toSet()))
@@ -243,7 +285,12 @@ public class BundleServiceJPA implements BundleService {
                 .toList();
     }
 
-    //Returns information for a specific bundle to a user
+    /**
+     * //Returns information for a specific bundle to a user
+     * @param accessToken JWT access token
+     * @param bundleId unique identifier of the bundle
+     * @return  A bundleDTO containing all information about bundle
+     */
     @Override
     public BundleDTO getDetailedBundle(String accessToken, UUID bundleId) {
         String role = jwtTokenUtil.getRoleFromToken(accessToken);
@@ -259,7 +306,12 @@ public class BundleServiceJPA implements BundleService {
 
     }
 
-    //Returns details about the performance of a vendors bundles within a given timeframe
+    /**
+     * Returns details about the performance of a vendors bundles within a given timeframe
+     * @param accessToken JWT access token
+     * @param timePeriod Time length
+     * @return BundleMetricDTO
+     */
     @Override
     public BundleMetricDTO getBundleMetrics(String accessToken, String timePeriod) {
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
@@ -292,6 +344,7 @@ public class BundleServiceJPA implements BundleService {
                 case "COLLECTED":
                     collected = (long) group[1];
                     break;
+
             }
         }
 
@@ -300,6 +353,83 @@ public class BundleServiceJPA implements BundleService {
                 .numNoShows(noShows.intValue())
                 .numExpired(numExpiredBundles.intValue())
                 .build();
+    }
+
+    /**
+     * Gets list a vendors past Bundles
+     * @param accessToken JWT access token
+     * @param timePeriod
+     * @return A list of PastBundleDTO containing past Bundles
+     */
+    @Override
+    public List<PastBundleDTO> getPastBundles(String accessToken, String timePeriod) {
+        UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
+        String role = jwtTokenUtil.getRoleFromToken(accessToken);
+
+        if(!role.equals("VENDOR")) {
+            throw new AuthorizationException();
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime period = switch (timePeriod) {
+            case "day" -> now.minusDays(1);
+            case "week" -> now.minusWeeks(1);
+            case "month" -> now.minusMonths(1);
+            case "year" -> now.minusYears(1);
+            default -> now.minusWeeks(1);
+        };
+
+        List<Object[]> bundles = bundleRepository.findPastBundlesByVendor(vendorId, period);
+
+        List<Bundle> expiredBundles = bundleRepository.findExpiredBundlesByVendor(vendorId, period);
+
+        List<PastBundleDTO> pastBundleList = new ArrayList<>();
+
+        for(Object[] group : bundles) {
+            Bundle savedBundle = (Bundle) group[1];
+            CollectionStatus status = (CollectionStatus) group[0];
+
+            if(status.equals(CollectionStatus.RESERVED)) {
+                continue;
+            }
+
+            PastBundleDTO pastBundleDTO = PastBundleDTO.builder()
+                    .bundleName(savedBundle.getName())
+                    .date(savedBundle.getPostingTime())
+                    .amountDue(savedBundle.getPrice())
+                    .status(status.toString())
+                    .build();
+            pastBundleList.add(pastBundleDTO);
+        }
+
+        pastBundleList.addAll(expiredBundles.stream()
+                .map(entity -> PastBundleDTO.builder()
+                        .bundleName(entity.getName())
+                        .date(entity.getPostingTime())
+                        .amountDue(entity.getPrice())
+                        .status("EXPIRED")
+                        .build())
+                .toList());
+
+        return pastBundleList;
+    }
+
+    /**
+     * Returns the number of Bundles a vendor has posted
+     * @param accessToken JWT access token
+     * @return integer value of the number of Bundles Posted
+     */
+    @Override
+    public Integer getNumBundlePosted(String accessToken) {
+        UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
+        String role = jwtTokenUtil.getRoleFromToken(accessToken);
+
+        if(!role.equals("VENDOR")) {
+            throw new AuthorizationException();
+        }
+
+        Long numPostedBundles = bundleRepository.countPostedBundlesByVendor(vendorId);
+        return numPostedBundles.intValue();
     }
     //Maps Bundle Entities to DTOs
     private static class BundleMapper {
@@ -313,7 +443,7 @@ public class BundleServiceJPA implements BundleService {
                                 .productId(product.getId())
                                 .productName(product.getName())
                                 .quantity(bp.getQuantity())
-                                .allergies(
+                                .allergens(
                                         product.getAllergies().stream()
                                                 .map(Allergy::getAllergyType)
                                                 .collect(Collectors.toSet())
@@ -335,7 +465,7 @@ public class BundleServiceJPA implements BundleService {
                     .category(entity.getCategory())
                     .collectionStart(entity.getCollectionStart())
                     .collectionEnd(entity.getCollectionEnd())
-                    .allergies(entity.getAllergies().stream()
+                    .allergens(entity.getAllergies().stream()
                                     .map(Allergy::getAllergyType)
                                     .collect(Collectors.toSet())
                     )

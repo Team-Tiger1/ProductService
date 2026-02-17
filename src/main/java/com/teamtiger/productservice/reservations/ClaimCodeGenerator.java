@@ -10,7 +10,9 @@ import java.security.SecureRandom;
 @Component
 @RequiredArgsConstructor
 
-//Generates claim codes for reservations
+/**
+ * //Generates claim codes for reservations
+ */
 public class ClaimCodeGenerator {
 
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

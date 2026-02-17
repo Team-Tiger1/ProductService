@@ -7,9 +7,12 @@ import lombok.Data;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * //Used to represent a product entry in a bundle response
+ */
 @Data
 @Builder
-//Used to represent a product entry in a bundle response
+
 public class BundleProductDTO {
 
     private UUID productId;

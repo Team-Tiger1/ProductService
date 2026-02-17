@@ -4,7 +4,10 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.UUID;
-//Entity for representing a ClaimCode
+
+/**
+ * //Entity for representing a ClaimCode
+ */
 @Builder
 @Getter
 @Entity
@@ -18,7 +21,7 @@ public class ClaimCode {
     private UUID reservationId;
 
     //Each claim code corresponds  to one reservation
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne
     @JoinColumn(name = "reservation_id")
     @MapsId
     private Reservation reservation;

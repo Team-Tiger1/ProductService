@@ -1,5 +1,5 @@
 package com.teamtiger.productservice.bundles.entities;
-//Entity for representing a Bundle
+
 import com.teamtiger.productservice.products.entities.Allergy;
 import com.teamtiger.productservice.products.entities.Product;
 import jakarta.persistence.*;
@@ -9,6 +9,9 @@ import org.hibernate.annotations.UuidGenerator;
 import java.time.LocalDateTime;
 import java.util.*;
 
+/**
+ * //Entity for representing a Bundle
+ */
 @Entity
 @Getter
 @Setter
