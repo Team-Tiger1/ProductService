@@ -10,7 +10,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * //Returned when listing bundles
+ * Returned when listing bundles
  */
 @Getter
 @Builder

@@ -8,7 +8,6 @@ import com.teamtiger.productservice.reservations.exceptions.AuthorizationExcepti
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,15 +15,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-@RestController
-@RequestMapping("/bundles")
-@RequiredArgsConstructor
-
-
-
 /**
  * Handles REST API requests for Bundles
  */
+@RestController
+@RequestMapping("/bundles")
+@RequiredArgsConstructor
 public class BundleController {
 
     private final BundleService bundleService;
@@ -156,7 +152,6 @@ public class BundleController {
         }
 
         catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
     }
@@ -212,7 +207,6 @@ public class BundleController {
         }
 
         catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
     }
@@ -235,7 +229,6 @@ public class BundleController {
         }
 
         catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
 
@@ -264,7 +257,6 @@ public class BundleController {
         }
 
         catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
     }

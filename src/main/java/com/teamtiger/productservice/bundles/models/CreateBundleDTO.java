@@ -15,12 +15,11 @@ import java.util.UUID;
 
 
 /**
- * //Returned to vendor when they create a Bundle
+ * Returned to vendor when they create a Bundle
  */
 @Getter
 @Builder
 @AllArgsConstructor
-//Returned to vendor when they create a Bundle
 public class CreateBundleDTO {
 
     @NotBlank

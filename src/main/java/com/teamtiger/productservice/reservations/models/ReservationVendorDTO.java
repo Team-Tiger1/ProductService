@@ -6,11 +6,11 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Data
-@Builder
 /**
  * DTO representing  reservation returned to vendor
  */
+@Data
+@Builder
 public class ReservationVendorDTO {
 
     private UUID bundleId;

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * //defines different operations for the management of Bundles
+ * Defines different operations for the management of Bundles
  */
 public interface BundleService {
 

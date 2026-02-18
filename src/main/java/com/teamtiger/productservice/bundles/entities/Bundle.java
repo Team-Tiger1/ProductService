@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 /**
- * //Entity for representing a Bundle
+ * Entity for representing a Bundle
  */
 @Entity
 @Getter

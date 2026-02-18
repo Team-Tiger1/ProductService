@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 /**
- * //Entity for representing an allergen
+ * Entity for representing an allergen
  */
 @Entity
 @Getter

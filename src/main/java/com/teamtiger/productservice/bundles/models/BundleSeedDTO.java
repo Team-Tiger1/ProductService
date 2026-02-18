@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * //Used for loading bundles from seeded data
+ * Used for loading bundles from seeded data
  */
 @Getter
 @AllArgsConstructor

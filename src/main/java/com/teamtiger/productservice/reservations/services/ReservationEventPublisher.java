@@ -6,11 +6,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
+/**
+ * Notifies that a reservation has been collected
+ */
 @Service
 @RequiredArgsConstructor
-/**
- * //Notifies that a reservation has been collected
- */
 public class ReservationEventPublisher {
 
     private final RabbitTemplate rabbitTemplate;

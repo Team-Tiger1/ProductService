@@ -24,8 +24,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-
-//Actual Implementation of ProductService Interface
 public class ProductServiceJPA implements ProductService{
 
     private final ProductRepository productRepository;
@@ -34,7 +32,7 @@ public class ProductServiceJPA implements ProductService{
 
 
     /**
-     * //Creates a new product for vendor
+     * Creates a new product for vendor
      * @param accessToken JWT token
      * @param dto containing product details
      * @return a GetProductDTO
@@ -114,7 +112,7 @@ public class ProductServiceJPA implements ProductService{
     }
 
     /**
-     *Patches a product owned by the vendor
+     * Patches a product owned by the vendor
      * @param accessToken JWT token
      * @param productId of the product to be deleted
      * @param dto containing information of product to be updated
@@ -165,8 +163,8 @@ public class ProductServiceJPA implements ProductService{
     }
 
 
-    /**Loads the seeded data into the database
-     *
+    /**
+     * Loads the seeded data into the database
      * @param accessToken JWT token
      * @param products List of ProductSeedDTO containing the seeded data
      */

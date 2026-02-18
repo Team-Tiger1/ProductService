@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * //Repository for database operations for the Bundle entity
+ * Repository for database operations for the Bundle entity
  */
 public interface BundleRepository extends JpaRepository<Bundle, UUID> {
 

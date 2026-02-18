@@ -6,7 +6,7 @@ import lombok.*;
 import java.util.UUID;
 
 /**
- * //Entity for representing a ClaimCode
+ * Entity for representing a ClaimCode
  */
 @Builder
 @Getter

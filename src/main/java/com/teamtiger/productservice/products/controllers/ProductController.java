@@ -20,7 +20,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/products")
 @RequiredArgsConstructor
-//REST controller managing product operations
 public class ProductController {
 
     private final ProductService productService;
@@ -41,11 +40,9 @@ public class ProductController {
             String accessToken = authHeader.replace("Bearer ", "");
             GetProductDTO createdProductDTO = productService.createProduct(accessToken,dto);
             return ResponseEntity.ok(createdProductDTO);
+        }
 
-
-
-        }catch (Exception ex){
-            ex.printStackTrace();
+        catch (Exception ex){
             return ResponseEntity.internalServerError().build();
         }
 
@@ -69,7 +66,6 @@ public class ProductController {
         }
     }
 
-    //Allows the vendor to delete a product
 
     /** Deletes a product owned by the authenticated vendor
      *
@@ -86,7 +82,9 @@ public class ProductController {
             String accessToken = authHeader.replace("Bearer ", "");
             productService.deleteProduct(accessToken, productId);
             return ResponseEntity.noContent().build();
-        } catch (Exception e) {
+        }
+
+        catch (Exception e) {
             return ResponseEntity.internalServerError().body("Error deleting product");
         }
 
@@ -102,7 +100,6 @@ public class ProductController {
      * @param dto containing fields of product to potentially be updated
      * @return  A ResponseEntity that returns 200 if successful
      *         500 Exception returned if an error occurs
-     *
      */
     @Operation(summary = "Allows the vendor to update fields for a product")
     @PatchMapping("/{productId}")
@@ -110,13 +107,15 @@ public class ProductController {
         try {
             String accessToken = authHeader.replace("Bearer ", "");
             return ResponseEntity.ok(productService.updateProduct(accessToken, productId, dto));
-        } catch (Exception e) {
+        }
+
+        catch (Exception e) {
             return ResponseEntity.internalServerError().body("Error updating product");
         }
     }
 
-    /** Allows for bulk transfer of data
-     *
+    /**
+     * Allows for bulk transfer of data
      * @param authHeader A bearer access token
      * @param products list containing seeded data
      * @return A ResponseEntity that returns 204 if successful
@@ -138,7 +137,6 @@ public class ProductController {
         }
 
         catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
     }

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * //defines different operations for the management of products
+ * Defines different operations for the management of products
  */
 public interface ProductService {
 

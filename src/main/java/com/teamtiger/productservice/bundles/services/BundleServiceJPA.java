@@ -177,8 +177,8 @@ public class BundleServiceJPA implements BundleService {
                 .toList();
     }
 
-    /**Saves seeded bundle data to the database
-     *
+    /**
+     * Saves seeded bundle data to the database
      * @param accessToken JWT access token
      * @param bundles List of BundleSeedDTO containing seeded data
      */
@@ -257,9 +257,9 @@ public class BundleServiceJPA implements BundleService {
     }
 
     /**
-     * //Returns a list of all bundles
+     * Returns a list of all bundles
      * @param limit maxiumum number of bundles to return
-     * @param offset
+     * @param offset page offset
      * @return a list of ShortBundleDTO's
      */
     @Override
@@ -286,7 +286,7 @@ public class BundleServiceJPA implements BundleService {
     }
 
     /**
-     * //Returns information for a specific bundle to a user
+     * Returns information for a specific bundle to a user
      * @param accessToken JWT access token
      * @param bundleId unique identifier of the bundle
      * @return  A bundleDTO containing all information about bundle
@@ -358,7 +358,7 @@ public class BundleServiceJPA implements BundleService {
     /**
      * Gets list a vendors past Bundles
      * @param accessToken JWT access token
-     * @param timePeriod
+     * @param timePeriod DAY,WEEK,MONTH,YEAR
      * @return A list of PastBundleDTO containing past Bundles
      */
     @Override
@@ -431,7 +431,10 @@ public class BundleServiceJPA implements BundleService {
         Long numPostedBundles = bundleRepository.countPostedBundlesByVendor(vendorId);
         return numPostedBundles.intValue();
     }
-    //Maps Bundle Entities to DTOs
+
+    /**
+     * Maps Bundle Entities to DTOs
+     */
     private static class BundleMapper {
 
         public static BundleDTO toDTO(Bundle entity) {

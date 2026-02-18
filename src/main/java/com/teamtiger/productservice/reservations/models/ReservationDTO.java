@@ -7,11 +7,11 @@ import lombok.Getter;
 import java.util.UUID;
 
 /**
- * Dto representing a bundle reservation
+ * DTO representing a bundle reservation
  */
 @Getter
 @Builder
-public class ReservationDTO { //Tied to Userservice (RabbitMQ)
+public class ReservationDTO {
 
     private UUID reservationId;
     private BundleDTO bundle;

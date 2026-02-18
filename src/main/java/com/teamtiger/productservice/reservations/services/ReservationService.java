@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * //defines different operations for the management of reservations
+ * Defines different operations for the management of reservations
  */
 public interface ReservationService {
 

@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * //Configuration for publishing reservation related events.
+ * Configuration for publishing reservation related events.
  */
 @Configuration
 public class RabbitMQConfig {

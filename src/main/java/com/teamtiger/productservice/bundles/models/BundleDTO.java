@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * //DTO returned to the client when fetching full bundle details
+ * DTO returned to the client when fetching full bundle details
  */
 @Getter
 @Builder

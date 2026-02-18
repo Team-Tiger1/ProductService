@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * //Repository for database operations for the Product entity
+ * Repository for database operations for the Product entity
  */
 public interface ProductRepository extends JpaRepository<Product, UUID> {
 

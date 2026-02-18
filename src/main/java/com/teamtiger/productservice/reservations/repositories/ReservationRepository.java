@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * //Repository for database operations for the Reservation entity
+ * Repository for database operations for the Reservation entity
  */
 public interface ReservationRepository extends JpaRepository<Reservation, UUID> {
 

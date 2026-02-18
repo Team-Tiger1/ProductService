@@ -15,7 +15,7 @@ public class ProductMapper {
 
 
     /**
-     * //Converts product entity into a productDto
+     * Converts product entity into a productDto
      * @param product
      * @return new GetProductDTO
      */

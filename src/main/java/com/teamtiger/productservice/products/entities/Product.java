@@ -1,11 +1,9 @@
 package com.teamtiger.productservice.products.entities;
 
-import com.teamtiger.productservice.bundles.entities.BundleProduct;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
