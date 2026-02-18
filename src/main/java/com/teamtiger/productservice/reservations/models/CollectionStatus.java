@@ -7,6 +7,7 @@ public enum CollectionStatus {
 
     RESERVED,
     COLLECTED,
-    NO_SHOW
+    NO_SHOW,
+    EXPIRED
 
 }

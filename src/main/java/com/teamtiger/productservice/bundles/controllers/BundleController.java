@@ -217,31 +217,8 @@ public class BundleController {
         }
     }
 
-//    @Operation(summary = "Get analytics all reservations for a vendor in a time period")
-//    @GetMapping("/vendor")
-//    public ResponseEntity<?> getPastReservations(@RequestParam(name = "period", defaultValue = "week", required = false)
-//                                                 @RequestHeader("Authorization") String authHeader) {
-//        try {
-//
-//            String accessToken = authHeader.replace("Bearer ", "");
-//
-//
-//        }
-//
-//        catch (Exception e) {
-//            return ResponseEntity.internalServerError().build();
-//        }
-//    }
 
-    /** Retrieves bundle metrics for the authenticated vendor within a time period.
-     *
-     * @param period Time("day","week","month")
-     * @param authHeader containing JWT token
-     * @return A ResponseEntity that returns 200 if successful
-     *      401 if unauthorized
-     *      500 if an unexpected error occurs
-     *
-     */
+
     @Operation(summary = "Get number of bundles in a time period")
     @GetMapping("/metrics")
     public ResponseEntity<?> getBundleMetrics(@RequestParam(name = "period", defaultValue = "week", required = false) String period,
@@ -288,9 +265,9 @@ public class BundleController {
 
         catch (Exception e) {
             e.printStackTrace();
-        }
             return ResponseEntity.internalServerError().build();
         }
+    }
 
 
 
