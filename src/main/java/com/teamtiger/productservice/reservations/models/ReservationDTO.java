@@ -6,6 +6,9 @@ import lombok.Getter;
 
 import java.util.UUID;
 
+/**
+ * Dto representing a bundle reservation
+ */
 @Getter
 @Builder
 public class ReservationDTO { //Tied to Userservice (RabbitMQ)

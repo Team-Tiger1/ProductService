@@ -20,11 +20,19 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/products")
 @RequiredArgsConstructor
+//REST controller managing product operations
 public class ProductController {
 
     private final ProductService productService;
 
 
+    /**
+     * Creates a product for the authenticated user
+     * @param authHeader A bearer access token
+     * @param dto contaning valid Product details
+     * @return ResponseEntity that returns 200 if successful
+     *        500 if an unexpected error occurs
+     */
     @Operation(summary = "Allows a Vendor to add a new Product")
     @PostMapping
     public ResponseEntity<?> createProduct(@RequestHeader("Authorization") String authHeader, @RequestBody ProductDTO dto) {
@@ -33,36 +41,43 @@ public class ProductController {
             String accessToken = authHeader.replace("Bearer ", "");
             GetProductDTO createdProductDTO = productService.createProduct(accessToken,dto);
             return ResponseEntity.ok(createdProductDTO);
-        }
 
-        catch (AuthorizationException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
 
-        catch (Exception ex){
+
+        }catch (Exception ex){
+            ex.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
 
     }
 
-    @Operation(summary = "Allows a vendor to get a list of all their products")
+    /**
+     * //Returns all products that authenticated Vendors owns
+     * @param authHeader A bearer access token
+     * @return  ResponseEntity that returns 200 if successful
+     *          500 if an unexpected error occurs
+     */
     @GetMapping("/vendor")
+    @Operation(summary = "Returns all products belonging to the vendor")
     public ResponseEntity<?> getVendorProducts(@RequestHeader("Authorization") String authHeader) {
         try {
             String accessToken = authHeader.replace("Bearer ", "");
             return ResponseEntity.ok(productService.getVendorProducts(accessToken));
         }
-
-        catch (AuthorizationException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
         catch (Exception e) {
             return ResponseEntity.internalServerError().body("Error fetching vendor products");
         }
     }
 
+    //Allows the vendor to delete a product
 
+    /** Deletes a product owned by the authenticated vendor
+     *
+     * @param authHeader  A bearer access token
+     * @param productId of the product to be deleted
+     * @return 204 to indicate successful deletion
+     *         500 Exception returned if an error occurs
+     */
     @Operation(summary = "Allows the vendor to delete a product")
     @DeleteMapping("/{productId}")
     public ResponseEntity<?> deleteProduct(@RequestHeader("Authorization") String authHeader, @PathVariable UUID productId) {
@@ -71,35 +86,44 @@ public class ProductController {
             String accessToken = authHeader.replace("Bearer ", "");
             productService.deleteProduct(accessToken, productId);
             return ResponseEntity.noContent().build();
-        }
-
-        catch (AuthorizationException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        catch (Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Error deleting product");
         }
 
     }
 
+
+
+
+    /**
+     * Vendor updates fields for one of their product
+     * @param authHeader A bearer access token
+     * @param productId of the product to be patched/updated
+     * @param dto containing fields of product to potentially be updated
+     * @return  A ResponseEntity that returns 200 if successful
+     *         500 Exception returned if an error occurs
+     *
+     */
     @Operation(summary = "Allows the vendor to update fields for a product")
     @PatchMapping("/{productId}")
     public ResponseEntity<?> updateProduct(@RequestHeader("Authorization") String authHeader, @PathVariable UUID productId, @RequestBody UpdateProductDTO dto) {
         try {
             String accessToken = authHeader.replace("Bearer ", "");
             return ResponseEntity.ok(productService.updateProduct(accessToken, productId, dto));
-        }
-
-        catch (AuthorizationException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        catch (Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Error updating product");
         }
     }
 
+    /** Allows for bulk transfer of data
+     *
+     * @param authHeader A bearer access token
+     * @param products list containing seeded data
+     * @return A ResponseEntity that returns 204 if successful
+     *        500 Exception returned if an error occurs
+     *        401 if unauthorized
+     *        500 if a different error occurs
+     */
     @Operation(summary = "Allows for bulk transfer of seeded data")
     @PostMapping("/internal")
     public ResponseEntity<?> loadSeededData(@RequestHeader("Authorization") String authHeader, @Valid @RequestBody List<ProductSeedDTO> products) {
@@ -114,6 +138,7 @@ public class ProductController {
         }
 
         catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
     }

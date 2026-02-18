@@ -32,6 +32,13 @@ public class ReservationServiceJPA implements ReservationService {
     private final ClaimCodeRepository claimCodeRepository;
     private final ReservationEventPublisher reservationEventPublisher;
 
+
+    /**
+     * Creates a new reservation for a user
+     * @param bundleId used to uniquely identify a bundle
+     * @param accessToken JWT token
+     * @return a ReservationDTO
+     */
     @Override
     public ReservationDTO createReservation(UUID bundleId, String accessToken) {
         UUID userId = jwtTokenUtil.getUuidFromToken(accessToken);
@@ -73,6 +80,12 @@ public class ReservationServiceJPA implements ReservationService {
     }
 
 
+    /**
+     * Gets all user reservations
+     * @param accessToken JWT token
+     * @param status of reservation (RESERVED,COLLECTED,NO_SHOW)
+     * @return List of reservations
+     */
     @Override
     public List<ReservationDTO> getReservations(String accessToken, CollectionStatus status) {
         UUID userId = jwtTokenUtil.getUuidFromToken(accessToken);
@@ -103,7 +116,11 @@ public class ReservationServiceJPA implements ReservationService {
                 .toList();
     }
 
-
+    /**
+     * Deletes a users reservation
+     * @param reservationId of the reservation
+     * @param accessToken JWT token
+     */
     @Override
     public void deleteReservation(UUID reservationId, String accessToken) {
 
@@ -124,6 +141,12 @@ public class ReservationServiceJPA implements ReservationService {
         reservationRepository.deleteById(reservationId);
     }
 
+    /**
+     * Gets claim code of a reservation
+     * @param reservationId of the reservation to get claim code From
+     * @param accessToken JWT token
+     * @return ClaimCodeDTO
+     */
     @Override
     public ClaimCodeDTO getClaimCode(UUID reservationId, String accessToken) {
 
@@ -156,6 +179,13 @@ public class ReservationServiceJPA implements ReservationService {
                 .build();
     }
 
+
+    /**
+     * Allows the vendor to check the claim code of a reservation and marks it as collected
+     * @param claimCode
+     * @param accessToken JWT token
+     * @return a reservationVendorDTO describing reservation that was just collected
+     */
     @Override
     public ReservationVendorDTO checkClaimCode(ClaimCodeDTO claimCode, String accessToken) {
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
@@ -193,6 +223,11 @@ public class ReservationServiceJPA implements ReservationService {
         return reservationVendorDTO;
     }
 
+    /**
+     * Loads seeded data into the database
+     * @param accessToken JWT token
+     * @param reservations list of ReservationSeedDTO
+     */
     @Override
     public void loadSeededData(String accessToken, List<ReservationSeedDTO> reservations) {
         String role = jwtTokenUtil.getRoleFromToken(accessToken);
@@ -224,6 +259,11 @@ public class ReservationServiceJPA implements ReservationService {
         reservationRepository.saveAll(entities);
     }
 
+    /**
+     * Gets all the vendors reservations
+     * @param accessToken JWT token
+     * @return A list of reservationVendorDTOs
+     */
     @Override
     public List<ReservationVendorDTO> getReservationsForVendor(String accessToken) {
         String role = jwtTokenUtil.getRoleFromToken(accessToken);
@@ -247,6 +287,9 @@ public class ReservationServiceJPA implements ReservationService {
                 .toList();
     }
 
+    /**
+     * Builds a DTO representation of the reservation Entity
+     */
     private static class ReservationMapper {
 
         public static ReservationDTO toDTO(Reservation reservation) {
@@ -258,6 +301,9 @@ public class ReservationServiceJPA implements ReservationService {
 
     }
 
+    /**
+     * Builds a DTO representation of the Bundle Entity
+     */
     private static class BundleMapper {
 
         public static BundleDTO toDTO(Bundle entity) {

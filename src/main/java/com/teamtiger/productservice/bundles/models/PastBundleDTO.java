@@ -5,6 +5,9 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+/**
+ * Represents information about a past bundle
+ */
 @Getter
 @Builder
 public class PastBundleDTO {

@@ -8,11 +8,19 @@ import com.teamtiger.productservice.products.models.GetProductDTO;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Used to convert the Product entity into its DTO representation for API responses
+ */
 public class ProductMapper {
 
 
-
+    /**
+     * //Converts product entity into a productDto
+     * @param product
+     * @return new GetProductDTO
+     */
     public static GetProductDTO toDTO(Product product) {
+
         Set<AllergyType> allergyTypes = product.getAllergies().stream()
                 .map(Allergy::getAllergyType)
                 .collect(Collectors.toSet());

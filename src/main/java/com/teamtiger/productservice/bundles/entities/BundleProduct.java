@@ -8,6 +8,9 @@ import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * Entity representing a BundleProduct
+ */
 @Entity
 @Getter
 @Setter
@@ -16,6 +19,7 @@ import java.util.UUID;
 @Table(name = "bundle_products")
 public class BundleProduct {
 
+    //Constructor for adding a product ao the bundle
     public BundleProduct(Bundle bundle, Product product, Integer quantity) {
         this.bundle = bundle;
         this.product = product;
@@ -23,6 +27,8 @@ public class BundleProduct {
         this.id = new BundleProductId();
     }
 
+
+    //Composite key consisting of both bundleID and productID
     @EmbeddedId
     private BundleProductId id;
 
@@ -38,6 +44,7 @@ public class BundleProduct {
 
     private Integer quantity;
 
+    //Prevents Duplicates
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -53,6 +60,8 @@ public class BundleProduct {
         return Objects.hash(bundle, product);
     }
 
+
+    //Composite primary key for BundleProduct
     @Embeddable
     @Getter
     @Setter

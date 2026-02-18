@@ -4,7 +4,9 @@ import java.util.Set;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-
+/**
+ * //DTO used by to create a Product
+ */
 public record ProductDTO(
 
     @NotBlank

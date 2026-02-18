@@ -5,6 +5,9 @@ import lombok.*;
 
 import java.util.UUID;
 
+/**
+ * //Entity for representing a ClaimCode
+ */
 @Builder
 @Getter
 @Entity
@@ -17,7 +20,7 @@ public class ClaimCode {
     @Column(name = "reservation_id")
     private UUID reservationId;
 
-
+    //Each claim code corresponds  to one reservation
     @OneToOne
     @JoinColumn(name = "reservation_id")
     @MapsId

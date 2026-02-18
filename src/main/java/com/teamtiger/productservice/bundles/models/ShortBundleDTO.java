@@ -9,8 +9,12 @@ import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * //Returned when listing bundles
+ */
 @Getter
 @Builder
+
 public class ShortBundleDTO {
 
     private UUID bundleId;

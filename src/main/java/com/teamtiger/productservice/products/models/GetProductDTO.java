@@ -7,6 +7,9 @@ import java.util.UUID;
 
 import java.util.UUID;
 
+/**
+ * DTO returned to client when Product data is fetched
+ */
 public record GetProductDTO(
      UUID id,
      String name,

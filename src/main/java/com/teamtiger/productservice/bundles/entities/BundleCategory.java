@@ -2,6 +2,9 @@ package com.teamtiger.productservice.bundles.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+/**
+ * //Types of bundles(Collection of products)
+ */
 @JsonFormat(shape = JsonFormat.Shape.STRING)
 public enum BundleCategory {
     BREAD_BAKED_GOODS,

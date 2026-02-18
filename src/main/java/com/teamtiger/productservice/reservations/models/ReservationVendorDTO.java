@@ -8,6 +8,9 @@ import java.util.UUID;
 
 @Data
 @Builder
+/**
+ * DTO representing  reservation returned to vendor
+ */
 public class ReservationVendorDTO {
 
     private UUID bundleId;

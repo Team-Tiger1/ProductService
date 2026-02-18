@@ -8,6 +8,9 @@ import com.teamtiger.productservice.products.models.UpdateProductDTO;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * //defines different operations for the management of products
+ */
 public interface ProductService {
 
     GetProductDTO createProduct(String accessToken, ProductDTO dto);

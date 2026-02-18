@@ -5,6 +5,9 @@ import com.teamtiger.productservice.reservations.models.*;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * //defines different operations for the management of reservations
+ */
 public interface ReservationService {
 
     ReservationDTO createReservation(UUID bundleId, String accessToken);

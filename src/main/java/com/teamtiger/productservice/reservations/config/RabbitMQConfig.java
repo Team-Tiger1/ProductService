@@ -7,6 +7,9 @@ import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * //Configuration for publishing reservation related events.
+ */
 @Configuration
 public class RabbitMQConfig {
 
@@ -17,6 +20,7 @@ public class RabbitMQConfig {
         return new DirectExchange(EXCHANGE);
     }
 
+    //Converts Java objects to JSON
     @Bean
     public JacksonJsonMessageConverter jacksonJsonMessageConverter() {
         return new JacksonJsonMessageConverter();
