@@ -27,8 +27,7 @@ public class BundleController {
 
 
     /**
-     *Allows an authenticated user to create a Bundle
-     *
+     * Allows an authenticated user to create a Bundle
      * @param createBundleDTO request body containing bundle details
      * @param authHeader Header containing JWT token
      * @return  A ResponseEntity containing the created BundleDTO that returns 200 if successful
@@ -51,7 +50,6 @@ public class BundleController {
 
     /**
      * Allows an authenticated user to delete a bundle they own
-     *
      * @param authHeader containing JWT token
      * @param bundleId Unique ID of the bundle to be deleted
      * @return 204 if bundle is successfully deleted
@@ -84,7 +82,7 @@ public class BundleController {
     }
 
     /**
-     *Returns all bundles belonging to the vendor attempting to access them
+     * Returns all bundles belonging to the vendor attempting to access them
      * @param authHeader containing JWT token
      * @return  A ResponseEntity that returns 200 if successful
      *          401 error if bundles do not all belong to vendor
@@ -110,8 +108,8 @@ public class BundleController {
     }
 
 
-    /** Returns List of all bundles from a specific vendor
-     *
+    /**
+     * Returns List of all bundles from a specific vendor
      * @param vendorId A vendors unique identifier
      * @return A ResponseEntity that returns 200 if successful
      *
@@ -157,8 +155,8 @@ public class BundleController {
     }
 
 
-    /** Retrieves all available bundles
-     *
+    /**
+     * Retrieves all available bundles
      * @param limit maximum amount of Bundles that can be returned
      * @param offset Page offset for pagination
      * @return A ResponseEntity that returns 200 if successful
@@ -179,8 +177,8 @@ public class BundleController {
     }
 
 
-    /** Retrieves information about a specific bundle
-     *
+    /**
+     * Retrieves information about a specific bundle
      * @param bundleId unique identifier for a bundle
      * @param authHeader containing JWT token
      * @return ResponseEntity that returns 200 if successful
@@ -212,7 +210,12 @@ public class BundleController {
     }
 
 
-
+    /**
+     * Processes a vendors request to get an outline of their bundle metrics
+     * @param period DAY,WEEK,MONTH,YEAR
+     * @param authHeader Authorization Header
+     * @return Number of Collected, No Show and Expired Bundles
+     */
     @Operation(summary = "Get number of bundles in a time period")
     @GetMapping("/metrics")
     public ResponseEntity<?> getBundleMetrics(@RequestParam(name = "period", defaultValue = "week", required = false) String period,
@@ -234,8 +237,8 @@ public class BundleController {
 
     }
 
-    /**Retrieves bundle metrics for a past bundle for the authenticated vendor
-     *
+    /**
+     * Retrieves bundle metrics for a past bundle for the authenticated vendor
      * @param period Time("day","week","month")
      * @param authHeader containing JWT token
      * @return BundleDto containing information about the bundle
@@ -261,10 +264,4 @@ public class BundleController {
         }
     }
 
-
-
-
-
-
-
-    }
+}
