@@ -22,7 +22,7 @@ public class NoShowEventListener {
     private final BundleRepository bundleRepository;
 
     /**
-     * Messages received notify end of collection window
+     * Listens for messages that are sent when a bundle's collection window ends
      * @param bundleId The ID of the bundle on the database
      */
     @RabbitListener(queues = RabbitMQConfig.DELAY_QUEUE)

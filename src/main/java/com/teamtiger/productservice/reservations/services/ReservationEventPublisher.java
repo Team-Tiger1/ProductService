@@ -17,6 +17,10 @@ public class ReservationEventPublisher {
 
     private final RabbitTemplate rabbitTemplate;
 
+    /**
+     * Publishes an event to the User Service
+     * @param event An object that has a User ID and time they collected a bundle
+     */
     public void publishReservationCollected(ReservationCollectedEvent event) {
         rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE, "reservation.collected", event,
                 message -> {
@@ -25,6 +29,11 @@ public class ReservationEventPublisher {
                 });
     }
 
+    /**
+     * Publishes an event that is picked up by this service (checks No Show's after collection)
+     * @param bundleId UUID of bundle
+     * @param delay Delay in milliseconds
+     */
     public void publishNoShowEvent(UUID bundleId, long delay) {
         rabbitTemplate.convertAndSend(
                 RabbitMQConfig.DELAY_EXCHANGE,

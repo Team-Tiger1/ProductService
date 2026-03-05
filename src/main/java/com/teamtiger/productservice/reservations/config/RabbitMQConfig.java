@@ -22,11 +22,19 @@ public class RabbitMQConfig {
     public static final String DELAY_QUEUE = "reservation.delay.queue";
     public static final String DELAY_ROUTING_KEY = "reservation.delay.key";
 
+    /**
+     * Configures a standard Direct Exchange
+     * @return A DirectExchange with the Exchange Key
+     */
     @Bean
     public DirectExchange productExchange() {
         return new DirectExchange(EXCHANGE);
     }
 
+    /**
+     * Configures a custom exchange with delay
+     * @return A custom exchange with a delay property
+     */
     @Bean
     public CustomExchange delayedExchange() {
         Map<String, Object> arguments = new HashMap<>();
@@ -34,11 +42,21 @@ public class RabbitMQConfig {
         return new CustomExchange(DELAY_EXCHANGE, "x-delayed-message", true, false, arguments);
     }
 
+    /**
+     * Configures a durable queue for the delayed queue
+     * @return The configured queue
+     */
     @Bean
     public Queue delayQueue() {
         return new Queue(DELAY_QUEUE, true);
     }
 
+    /**
+     * Binds the queue with the routing key and exchange
+     * @param delayQueue Durable queue
+     * @param delayedExchange Custom Exchange
+     * @return A Binding
+     */
     @Bean
     public Binding delayQueueBinding(Queue delayQueue, CustomExchange delayedExchange) {
         return BindingBuilder.bind(delayQueue)
