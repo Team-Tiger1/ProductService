@@ -95,20 +95,11 @@ public class ReservationServiceJPA implements ReservationService {
             throw new AuthorizationException();
         }
 
-
         List<Reservation> reservations = reservationRepository.findAllByUserIdAndStatus(userId, status);
-
-        //Update Reservations that Have Expired
-        List<Reservation> expiredReservations = reservations.stream()
-                .filter(entity -> entity.getBundle().getCollectionEnd().isBefore(LocalDateTime.now()))
-                .peek(entity -> entity.setStatus(CollectionStatus.NO_SHOW))
-                .toList();
 
         List<Reservation> pendingReservations = reservations.stream()
                 .filter(entity -> entity.getBundle().getCollectionEnd().isAfter(LocalDateTime.now()))
                 .toList();
-
-        reservationRepository.saveAll(expiredReservations);
 
 
         return pendingReservations.stream()
