@@ -2,7 +2,6 @@ package com.teamtiger.productservice.bundles.services;
 
 import com.teamtiger.productservice.JwtTokenUtil;
 import com.teamtiger.productservice.bundles.entities.Bundle;
-import com.teamtiger.productservice.bundles.entities.BundleProduct;
 import com.teamtiger.productservice.bundles.exceptions.BundleNotFoundException;
 import com.teamtiger.productservice.bundles.exceptions.VendorAuthorizationException;
 import com.teamtiger.productservice.bundles.models.*;
@@ -10,19 +9,18 @@ import com.teamtiger.productservice.bundles.repositories.BundleRepository;
 import com.teamtiger.productservice.products.entities.Allergy;
 import com.teamtiger.productservice.products.entities.AllergyType;
 import com.teamtiger.productservice.products.entities.Product;
-import com.teamtiger.productservice.products.mappers.ProductMapper;
-import com.teamtiger.productservice.products.models.GetProductDTO;
-import com.teamtiger.productservice.products.models.ProductDTO;
 import com.teamtiger.productservice.products.repositories.AllergyRepository;
 import com.teamtiger.productservice.products.repositories.ProductRepository;
 import com.teamtiger.productservice.reservations.exceptions.AuthorizationException;
 import com.teamtiger.productservice.reservations.models.CollectionStatus;
+import com.teamtiger.productservice.reservations.services.ReservationEventPublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -39,6 +37,7 @@ public class BundleServiceJPA implements BundleService {
     private final JwtTokenUtil jwtTokenUtil;
     private final ProductRepository productRepository;
     private final AllergyRepository allergyRepository;
+    private final ReservationEventPublisher reservationEventPublisher;
 
     /**
      * Creates a new bundle and stores record of it in the database
@@ -67,7 +66,6 @@ public class BundleServiceJPA implements BundleService {
         for(Product product : products) {
             retailPrice += product.getRetailPrice() * occurenceMap.get(product.getId());
         }
-
 
 
         Set<AllergyType> bundleAllergyTypes = products.stream()
@@ -102,6 +100,9 @@ public class BundleServiceJPA implements BundleService {
 
         bundle = bundleRepository.save(bundle);
 
+        //Add message to RabbitMQ to check bundle on expiry
+        long delay = Duration.between(LocalDateTime.now(), bundle.getCollectionEnd()).toMillis();
+        reservationEventPublisher.publishNoShowEvent(bundle.getId(), delay);
 
         return BundleMapper.toDTO(bundle);
     }
