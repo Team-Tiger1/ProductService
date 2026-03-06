@@ -18,7 +18,7 @@ public class RabbitMQConfig {
 
     public static final String EXCHANGE = "reservation.events";
 
-    public static final String DELAY_EXCHANGE = "reservation.delay";
+    public static final String DELAY_EXCHANGE = "reservation.events.delay";
     public static final String DELAY_QUEUE = "reservation.delay.queue";
     public static final String DELAY_ROUTING_KEY = "reservation.delay.key";
 
