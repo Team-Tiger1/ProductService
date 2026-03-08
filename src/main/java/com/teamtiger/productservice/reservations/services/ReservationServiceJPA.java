@@ -10,6 +10,7 @@ import com.teamtiger.productservice.reservations.entities.ClaimCode;
 import com.teamtiger.productservice.reservations.entities.Reservation;
 import com.teamtiger.productservice.reservations.exceptions.AuthorizationException;
 import com.teamtiger.productservice.reservations.exceptions.BundleAlreadyReservedException;
+import com.teamtiger.productservice.reservations.exceptions.BundleExpiredException;
 import com.teamtiger.productservice.reservations.exceptions.ReservationNotFoundException;
 import com.teamtiger.productservice.reservations.models.*;
 import com.teamtiger.productservice.reservations.repositories.ClaimCodeRepository;
@@ -55,6 +56,11 @@ public class ReservationServiceJPA implements ReservationService {
         //Get the bundle reference for reservation
         Bundle bundle = bundleRepository.findById(bundleId)
                 .orElseThrow(BundleNotFoundException::new);
+
+        if(bundle.getCollectionEnd().isBefore(LocalDateTime.now())) {
+            //Is time past bundle collection window
+            throw new BundleExpiredException();
+        }
 
         Reservation reservation = Reservation.builder()
                 .bundle(bundle)
