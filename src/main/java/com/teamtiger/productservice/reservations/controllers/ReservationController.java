@@ -3,6 +3,7 @@ package com.teamtiger.productservice.reservations.controllers;
 import com.teamtiger.productservice.bundles.exceptions.BundleNotFoundException;
 import com.teamtiger.productservice.reservations.exceptions.AuthorizationException;
 import com.teamtiger.productservice.reservations.exceptions.BundleAlreadyReservedException;
+import com.teamtiger.productservice.reservations.exceptions.BundleExpiredException;
 import com.teamtiger.productservice.reservations.exceptions.ReservationNotFoundException;
 import com.teamtiger.productservice.reservations.models.*;
 import com.teamtiger.productservice.reservations.services.ReservationService;
@@ -164,6 +165,10 @@ public class ReservationController {
 
         catch (ReservationNotFoundException e) {
             return ResponseEntity.notFound().build();
+        }
+
+        catch (BundleExpiredException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
 
         catch (AuthorizationException e) {
