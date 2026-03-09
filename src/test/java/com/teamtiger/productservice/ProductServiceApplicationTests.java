@@ -11,5 +11,4 @@ class ProductServiceApplicationTests {
     @Test
     void contextLoads() {
     }
-//TestTest18
 }
