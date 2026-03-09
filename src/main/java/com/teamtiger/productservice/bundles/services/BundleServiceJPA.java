@@ -2,6 +2,7 @@ package com.teamtiger.productservice.bundles.services;
 
 import com.teamtiger.productservice.JwtTokenUtil;
 import com.teamtiger.productservice.bundles.entities.Bundle;
+import com.teamtiger.productservice.bundles.exceptions.BundleNotDiscountedException;
 import com.teamtiger.productservice.bundles.exceptions.BundleNotFoundException;
 import com.teamtiger.productservice.bundles.exceptions.VendorAuthorizationException;
 import com.teamtiger.productservice.bundles.models.*;
@@ -65,6 +66,11 @@ public class BundleServiceJPA implements BundleService {
         double retailPrice = 0;
         for(Product product : products) {
             retailPrice += product.getRetailPrice() * occurenceMap.get(product.getId());
+        }
+
+        //Bundle must be discounted
+        if(retailPrice > createBundleDTO.getPrice()) {
+            throw new BundleNotDiscountedException();
         }
 
 
