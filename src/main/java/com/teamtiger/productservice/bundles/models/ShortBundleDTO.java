@@ -2,8 +2,10 @@ package com.teamtiger.productservice.bundles.models;
 
 import com.teamtiger.productservice.bundles.entities.BundleCategory;
 import com.teamtiger.productservice.products.entities.AllergyType;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -14,7 +16,8 @@ import java.util.UUID;
  */
 @Getter
 @Builder
-
+@NoArgsConstructor
+@AllArgsConstructor
 public class ShortBundleDTO {
 
     private UUID bundleId;
