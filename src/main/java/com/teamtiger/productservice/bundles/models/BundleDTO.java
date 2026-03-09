@@ -2,8 +2,7 @@ package com.teamtiger.productservice.bundles.models;
 
 import com.teamtiger.productservice.bundles.entities.BundleCategory;
 import com.teamtiger.productservice.products.entities.AllergyType;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,7 +14,8 @@ import java.util.UUID;
  */
 @Getter
 @Builder
-
+@NoArgsConstructor
+@AllArgsConstructor
 public class BundleDTO {
 
     private String name;
