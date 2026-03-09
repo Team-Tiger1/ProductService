@@ -16,6 +16,8 @@ import com.teamtiger.productservice.reservations.exceptions.AuthorizationExcepti
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +40,7 @@ public class ProductServiceJPA implements ProductService{
      * @return a GetProductDTO
      */
     @Override
+    @CacheEvict(value = "vendor_products", key = "@jwtTokenUtil.getUuidFromToken(#accessToken)")
     public GetProductDTO createProduct(String accessToken, ProductDTO dto) {
 
         //Ensures only vendors are allowed to add a Product
@@ -74,7 +77,7 @@ public class ProductServiceJPA implements ProductService{
      * @return A list of GetProductDTOs details from vendor
      */
     @Override
-
+    @Cacheable(value = "vendor_products", key = "@jwtTokenUtil.getUuidFromToken(#accessToken)")
     public List<GetProductDTO> getVendorProducts(String accessToken) {
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
 
@@ -94,6 +97,7 @@ public class ProductServiceJPA implements ProductService{
      * @param productId of the product to be deleted
      */
     @Override
+    @CacheEvict(value = "vendor_products", key = "@jwtTokenUtil.getUuidFromToken(#accessToken)")
     public void deleteProduct(String accessToken, UUID productId) {
 
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
@@ -119,7 +123,7 @@ public class ProductServiceJPA implements ProductService{
      * @return GetProductDTO of the update product
      */
     @Override
-
+    @CacheEvict(value = "vendor_products", key = "@jwtTokenUtil.getUuidFromToken(#accessToken)")
     public GetProductDTO updateProduct(String accessToken, UUID productId, UpdateProductDTO dto) {
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
         Product productToBeUpdated = productRepository.findById(productId).orElseThrow(EntityNotFoundException::new);

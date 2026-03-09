@@ -16,6 +16,9 @@ import com.teamtiger.productservice.reservations.exceptions.AuthorizationExcepti
 import com.teamtiger.productservice.reservations.models.CollectionStatus;
 import com.teamtiger.productservice.reservations.services.ReservationEventPublisher;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -47,6 +50,11 @@ public class BundleServiceJPA implements BundleService {
      * @param accessToken JWT access token
      * @return The created Bundle as a DTO
      */
+    @Caching(evict = {
+            @CacheEvict(value = "short_vendor_bundles", key = "@jwtTokenUtil.getUuidFromToken(#accessToken)"),
+            @CacheEvict(value = "vendor_bundles", key = "@jwtTokenUtil.getUuidFromToken(#accessToken)"),
+            @CacheEvict(value = "bundles", allEntries = true)
+    })
     @Override
     public BundleDTO createBundle(CreateBundleDTO createBundleDTO, String accessToken) {
 
@@ -118,6 +126,11 @@ public class BundleServiceJPA implements BundleService {
      * @param bundleId unique identifier of bundle to delete
      * @param accessToken JWT access token
      */
+    @Caching(evict = {
+            @CacheEvict(value = "short_vendor_bundles", key = "@jwtTokenUtil.getUuidFromToken(#accessToken)"),
+            @CacheEvict(value = "vendor_bundles", key = "@jwtTokenUtil.getUuidFromToken(#accessToken)"),
+            @CacheEvict(value = "bundles", allEntries = true)
+    })
     @Override
     public void deleteBundle(UUID bundleId, String accessToken) {
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
@@ -142,6 +155,7 @@ public class BundleServiceJPA implements BundleService {
      * @param vendorId unique vendor identifier
      * @return A list of bundles
      */
+    @Cacheable(value = "short_vendor_bundles", key = "#vendorId")
     @Override
     public List<ShortBundleDTO> getVendorBundles(UUID vendorId) {
 
@@ -169,6 +183,7 @@ public class BundleServiceJPA implements BundleService {
      * @param accessToken JWT access token
      * @return A list of bundles that belong to the authenticated vendor
      */
+    @Cacheable(value = "vendor_bundles", key = "@jwtTokenUtil.getUuidFromToken(#accessToken)")
     @Override
     public List<BundleDTO> getOwnBundles(String accessToken) {
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
@@ -269,6 +284,7 @@ public class BundleServiceJPA implements BundleService {
      * @param offset page offset
      * @return a list of ShortBundleDTO's
      */
+    @Cacheable(value = "bundles")
     @Override
     public List<ShortBundleDTO> getAllBundles(int limit, int offset) {
 
@@ -298,6 +314,7 @@ public class BundleServiceJPA implements BundleService {
      * @param bundleId unique identifier of the bundle
      * @return  A bundleDTO containing all information about bundle
      */
+    @Cacheable(value = "bundle_details", key="#bundleId")
     @Override
     public BundleDTO getDetailedBundle(String accessToken, UUID bundleId) {
         String role = jwtTokenUtil.getRoleFromToken(accessToken);
