@@ -1,12 +1,16 @@
 package com.teamtiger.productservice.bundles.controllers;
 
+import com.teamtiger.productservice.bundles.exceptions.BundleNotFoundException;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+//import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.teamtiger.productservice.bundles.entities.BundleCategory;
 import com.teamtiger.productservice.bundles.exceptions.VendorAuthorizationException;
 import com.teamtiger.productservice.bundles.models.BundleDTO;
 import com.teamtiger.productservice.bundles.models.CreateBundleDTO;
 import com.teamtiger.productservice.bundles.services.BundleService;
+import com.teamtiger.productservice.products.services.ProductService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,14 +18,16 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+//import com.teamtiger.productservice.bundles.models.DeleteBundleDTO;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -33,6 +39,10 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.WebApplicationContext;
 
+
+/**
+ * unit tests for the bundle controller
+ */
 @SpringBootTest
 public class BundleControllerTest {
 
@@ -41,7 +51,11 @@ public class BundleControllerTest {
     @Autowired
     private WebApplicationContext context;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    //private final ObjectMapper objectMapper = new ObjectMapper();
 
     @MockitoBean
     private BundleService bundleService;
@@ -57,7 +71,6 @@ public class BundleControllerTest {
     @BeforeEach
     void set_up() {
 
-
         mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
         testBundleId = UUID.randomUUID();
         testVendorId = UUID.randomUUID();
@@ -68,10 +81,12 @@ public class BundleControllerTest {
                 .price(2.66)
                 .productList(List.of(UUID.randomUUID(), UUID.randomUUID()))
                 .category(BundleCategory.SWEET_TREATS_DESSERTS)
-                .collectionEnd(LocalDateTime.now().plusDays(2))
+                .collectionEnd(LocalDateTime.now())
                 .collectionStart(LocalDateTime.now().plusHours(3))
 
                 .build();
+
+
 
 
         bundleDTO = BundleDTO.builder()
@@ -91,6 +106,7 @@ public class BundleControllerTest {
 
 
     /**
+     * create bundles test 1
      * successful vendor bundle creation
      * should return 200
      */
@@ -121,6 +137,7 @@ public class BundleControllerTest {
 
 
     /**
+     * create bundles test 2
      * a non-vendor token tries to create a bundle
      * 500 error
     */
@@ -145,4 +162,99 @@ public class BundleControllerTest {
         //makes sure the service was called
         verify(bundleService).createBundle(any(CreateBundleDTO.class), anyString());
     }
+
+    /**
+     * create bundles test 3
+     * 500 runtime error
+     */
+
+    @Test
+    public void testCreateBundle_DBerror_Returns500() throws Exception {
+
+        String requestBody = objectMapper.writeValueAsString(createBundleDTO);
+
+        doThrow(new RuntimeException("database error"))
+                .when(bundleService)
+                .createBundle(any(CreateBundleDTO.class), anyString());
+
+        mockMvc.perform(post("/bundles")
+                        .header("Authorization", "Bearer accessToken123")
+                        .content(requestBody)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError());
+
+        verify(bundleService).createBundle(any(CreateBundleDTO.class),anyString());
+
+    }
+
+
+
+    /**
+     * delete bundles test1
+     * delete bundles success
+     * 204
+     */
+
+    @Test
+    public void testDeleteBundle_Success_Returns200() throws Exception {
+
+        //String requestBody = objectMapper.writeValueAsString(deleteBundleDTO);
+
+        doNothing().when(bundleService).deleteBundle(any(UUID.class), anyString());
+
+        mockMvc.perform(delete("/bundles/{bundleId}", testBundleId)
+                    .header("Authorization", "Bearer vendorAccessToken123"))
+                    //.content(requestBody)
+                    //.contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNoContent());
+
+        verify(bundleService).deleteBundle(eq(testBundleId), anyString());
+
+    }
+
+
+    /**
+     * delete bundles test 2
+     * bundle not found
+     * 404
+     */
+
+    @Test
+    public void testDeleteBundle_BundleNotFound_Returns400() throws Exception {
+        doThrow(new BundleNotFoundException())
+                .when(bundleService).deleteBundle(any(UUID.class), anyString());
+
+        mockMvc.perform(delete("/bundles/{bundleId}", testBundleId)
+                        .header("Authorization", "Bearer vendorAccessToken123"))
+                .andExpect(status().isNotFound());
+
+        verify(bundleService).deleteBundle(eq(testBundleId), anyString());
+
+
+    }
+
+
+    /**
+     * delete bundles test 3
+     * incorrect vendor
+     * 401
+     */
+
+    @Test
+    public void testDeleteBundle_WrongVendor_Returns400() throws Exception {}
+
+
+    /**
+     * delete bundles test 4
+     * database error/internal error
+     * 500
+     */
+
+    @Test
+    public void testDeleteBundle_DBerror_Returns500() throws Exception {}
+
+
+
+
+
 }
