@@ -4,6 +4,8 @@ import com.teamtiger.productservice.bundles.exceptions.BundleNotFoundException;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 
 //import com.fasterxml.jackson.databind.ObjectMapper;
+import com.teamtiger.productservice.bundles.models.BundleMetricDTO;
+import com.teamtiger.productservice.reservations.exceptions.AuthorizationException;
 import tools.jackson.databind.ObjectMapper;
 import com.teamtiger.productservice.bundles.entities.BundleCategory;
 import com.teamtiger.productservice.bundles.exceptions.VendorAuthorizationException;
@@ -29,6 +31,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -38,6 +42,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.WebApplicationContext;
+
+
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 /**
@@ -63,6 +73,7 @@ public class BundleControllerTest {
     private CreateBundleDTO createBundleDTO;
 
     private BundleDTO bundleDTO;
+    private BundleMetricDTO bundleMetricDTO;
 
     private UUID testBundleId;
     private UUID testVendorId;
@@ -102,6 +113,12 @@ public class BundleControllerTest {
                 .collectionEnd(LocalDateTime.now().plusHours(3))
 
                 .build();
+
+        bundleMetricDTO = BundleMetricDTO.builder()
+                .numNoShows(3)
+                .numCollected(23)
+                .numExpired(6)
+                .build();
     }
 
 
@@ -112,7 +129,7 @@ public class BundleControllerTest {
      */
 
     @Test
-    public void testCreateBundle_Success() throws Exception {
+    public void testCreateBundle_Success_200() throws Exception {
         String requestBody = objectMapper.writeValueAsString(createBundleDTO);
 
         when(bundleService.createBundle(any(CreateBundleDTO.class), anyString()))
@@ -142,7 +159,7 @@ public class BundleControllerTest {
      * 500 error
     */
     @Test
-    public void testCreateBundle_NonVendorRole_Returns500() throws Exception {
+    public void testCreateBundle_NonVendorRole_500() throws Exception {
 
         String requestBody = objectMapper.writeValueAsString(createBundleDTO);
 
@@ -169,7 +186,7 @@ public class BundleControllerTest {
      */
 
     @Test
-    public void testCreateBundle_DBerror_Returns500() throws Exception {
+    public void testCreateBundle_DBerror_500() throws Exception {
 
         String requestBody = objectMapper.writeValueAsString(createBundleDTO);
 
@@ -196,7 +213,7 @@ public class BundleControllerTest {
      */
 
     @Test
-    public void testDeleteBundle_Success_Returns200() throws Exception {
+    public void testDeleteBundle_Success_200() throws Exception {
 
         //String requestBody = objectMapper.writeValueAsString(deleteBundleDTO);
 
@@ -220,13 +237,13 @@ public class BundleControllerTest {
      */
 
     @Test
-    public void testDeleteBundle_BundleNotFound_Returns400() throws Exception {
+    public void testDeleteBundle_BundleNotFound_400() throws Exception {
         doThrow(new BundleNotFoundException())
                 .when(bundleService).deleteBundle(any(UUID.class), anyString());
 
         mockMvc.perform(delete("/bundles/{bundleId}", testBundleId)
-                        .header("Authorization", "Bearer vendorAccessToken123"))
-                .andExpect(status().isNotFound());
+                    .header("Authorization", "Bearer vendorAccessToken123"))
+            .andExpect(status().isNotFound());
 
         verify(bundleService).deleteBundle(eq(testBundleId), anyString());
 
@@ -241,7 +258,19 @@ public class BundleControllerTest {
      */
 
     @Test
-    public void testDeleteBundle_WrongVendor_Returns400() throws Exception {}
+    public void testDeleteBundle_WrongVendor_400() throws Exception {
+
+        doThrow(new VendorAuthorizationException())
+            .when(bundleService)
+            .deleteBundle(any(UUID.class), anyString());
+
+        mockMvc.perform(delete("/bundles/{bundleId}", testBundleId)
+                    .header("Authorization", "Bearer vendorAccessToken123"))
+            .andExpect(status().isUnauthorized());
+
+        verify(bundleService).deleteBundle(eq(testBundleId), anyString());
+
+    }
 
 
     /**
@@ -251,10 +280,482 @@ public class BundleControllerTest {
      */
 
     @Test
-    public void testDeleteBundle_DBerror_Returns500() throws Exception {}
+    public void testDeleteBundle_DBerror_500() throws Exception {
+        doThrow(new RuntimeException("database error"))
+            .when(bundleService)
+            .deleteBundle(any(UUID.class), anyString());
+
+        mockMvc.perform(delete("/bundles/{bundleId}", testBundleId)
+                    .header("Authorization", "Bearer vendorAccessToken123"))
+            .andExpect(status().isInternalServerError());
+
+        verify(bundleService).deleteBundle(eq(testBundleId), anyString());
+
+
+    }
+
+
+    /**
+     * getOwn Bundles test 1
+     * success
+     * 200
+     */
+
+    @Test
+    public void testGetOwnBundle_Success_200() throws Exception {
+
+        //String requestBody = objectMapper.writeValueAsString(deleteBundleDTO);
+
+        when(bundleService.getOwnBundles(anyString())).thenReturn(List.of(bundleDTO));
+
+        mockMvc.perform(get("/bundles/me")
+                    .header("Authorization", "Bearer vendorAccessToken123"))
+            .andExpect(status().isOk())
+            //ensure the response has the correct bundle id in
+            //need [] because the repose is a list this time
+            .andExpect(jsonPath("$[0].vendorId").value(testVendorId.toString()))
+            .andExpect(jsonPath("$[0].bundleId").value(testBundleId.toString()))
+            //ensure the name and price are correct
+            .andExpect(jsonPath("$[0].name").value("Sweet Treat Bundle"))
+            .andExpect(jsonPath("$[0].price").value(2.66));
+
+        verify(bundleService).getOwnBundles(anyString());
+
+    }
+
+
+    /**
+     * getOwn Bundles test 2
+     * unauthorised vendor
+     * 401
+     */
+
+    @Test
+    public void testGetOwnBundle_UnauthorisedVendor_400() throws Exception {
+
+
+        //String requestBody = objectMapper.writeValueAsString(deleteBundleDTO);
+
+        //when(bundleService.getOwnBundles(anyString())).thenReturn(List.of(bundleDTO));
+
+
+        when(bundleService.getOwnBundles(anyString()))
+                .thenThrow(new VendorAuthorizationException());
+
+
+        mockMvc.perform(get("/bundles/me")
+                        .header("Authorization", "Bearer vendorAccessToken123"))
+                .andExpect(status().isUnauthorized());
+//
+        verify(bundleService).getOwnBundles(anyString());
+
+
+
+    }
+
+
+
+    /**
+     * getOwn Bundles test 3
+     * internal/ database error
+     * 500
+     */
+
+    @Test
+    public void testUpdateBundle_DBerror_500() throws Exception {
+
+        //String requestBody = objectMapper.writeValueAsString(deleteBundleDTO);
+
+        //when(bundleService.getOwnBundles(anyString())).thenReturn(List.of(bundleDTO));
+
+        doThrow(new RuntimeException("database error"))
+                .when(bundleService)
+            .getOwnBundles(anyString());
+
+        mockMvc.perform(get("/bundles/me")
+                        .header("Authorization", "Bearer vendorAccessToken123"))
+                .andExpect(status().isInternalServerError());
+
+        verify(bundleService).getOwnBundles(anyString());
+
+
+    }
+//
+//    /**
+//     * getVendorBundles test 1
+//     * success
+//     * 200
+//     */
+//    @Test
+//    public void testGetVendorBundles_Success_200() throws Exception {
+//
+//        when(bundleService.getVendorBundles(any(UUID.class))).thenReturn(List.of());
+//
+//
+//        mockMvc.perform(get("/bundles/{vendorId}", testVendorId))
+//                .andExpect(status().isOk())
+//                //ensure the response has the correct bundle id in
+//                .andExpect(jsonPath("$[0].vendorId").value(testVendorId.toString()))
+//                .andExpect(jsonPath("$[0].bundleId").value(testBundleId.toString()))
+//                //ensure the name and price are correct
+//                .andExpect(jsonPath("$[0].name").value("Sweet Treat Bundle"))
+//                .andExpect(jsonPath("$[0].price").value(2.66));
+//
+//        verify(bundleService).getVendorBundles(eq(testVendorId));
+//    }
+
+    /**
+     * getVendorBundles test 2
+     * database/internal error
+     * 500
+     */
+    @Test
+    public void testGetVendorBundles_DBError_500() throws Exception {
+
+        when(bundleService.getVendorBundles(any(UUID.class)))
+                .thenThrow(new RuntimeException("database error"));
+
+        mockMvc.perform(get("/bundles/{vendorId}", testVendorId))
+
+                .andExpect(status().isInternalServerError());
+
+        verify(bundleService).getVendorBundles(eq(testVendorId));
+    }
+
+
+    /**
+     * loadSeededData test 1
+     * success
+     * 204
+     */
+
+    @Test
+    public void testLoadSeededData_Success_200() throws Exception {
+
+        String requestBody = objectMapper.writeValueAsString(List.of());
+
+//
+//
+        //
+        doNothing().when(bundleService).loadSeededData(anyString(), anyList());
+
+        mockMvc.perform(post("/bundles/internal")
+                .header("Authorization", "Bearer internalAccessToken123")
+                .content(requestBody)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNoContent());
+
+        verify(bundleService).loadSeededData(anyString(), anyList());
+
+    }
 
 
 
 
 
+    /**
+     * loadSeededData test 2
+     * unauthorised
+     * 401
+     */
+
+
+    @Test
+    public void testLoadSeededData_Unauthorised_400() throws Exception {
+
+
+        String requestBody = objectMapper.writeValueAsString(List.of());
+
+        doThrow(new AuthorizationException())
+                .when(bundleService)
+                .loadSeededData(anyString(), anyList());
+
+        mockMvc.perform(post("/bundles/internal")
+                .header("Authorization", "Bearer internalAccessToken123")
+                        .content(requestBody)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+
+        verify(bundleService).loadSeededData(anyString(), anyList());
+    }
+
+    /**
+     * loadSeededData test 3
+     * internal/database error
+     * 500
+     */
+
+    @Test
+    public void testLoadSeededData_DBError_500() throws Exception {
+
+//        when(bundleService.loadSeededData(anyString(), anyList()))
+//            .thenThrow(new RuntimeException("database error"));
+
+        String requestBody = objectMapper.writeValueAsString(List.of());
+
+        doThrow(new RuntimeException("database error"))
+                .when(bundleService)
+                .loadSeededData(anyString(), anyList());
+
+        mockMvc.perform(post("/bundles/internal")
+                .header("Authorization", "Bearer internalAccessToken123")
+                .content(requestBody)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isInternalServerError());
+
+        verify(bundleService).loadSeededData(anyString(), anyList());
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /**
+     * getAllBundlesAvailable test 1
+     * success
+     * 200
+     */
+    @Test
+    public void testGetAllBundlesAvailable_DefaultParams_200() throws Exception {
+
+        //returns max 50 bundles, offset means it starts from the first bundle, these are the defualt values
+        when(bundleService.getAllBundles(50, 0)).thenReturn(List.of());
+
+        mockMvc.perform(get("/bundles"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isArray());
+
+        verify(bundleService).getAllBundles(50, 0);
+    }
+
+
+
+
+    /**
+     * getAllBundlesAvailable test 2
+     * internal/ database error
+     * 500
+     */
+    @Test
+    public void testGetAllBundlesAvailable_DBError_500() throws Exception {
+
+        when(bundleService.getAllBundles(50, 0))
+                .thenThrow(new RuntimeException("database error"));
+
+        mockMvc.perform(get("/bundles"))
+                .andExpect(status().isInternalServerError());
+
+        verify(bundleService).getAllBundles(50, 0);
+    }
+
+
+
+    /**
+     * getDetailedBundle test 1
+     * success
+     * 200
+     */
+    @Test
+    public void testGetDetailedBundle_Success_200() throws Exception {
+
+        when(bundleService.getDetailedBundle(anyString(), eq(testBundleId)))
+                .thenReturn(bundleDTO);
+
+        mockMvc.perform(get("/bundles/detailed/{bundleId}", testBundleId)
+                        .header("Authorization", "Bearer userAccessToken123"))
+                .andExpect(status().isOk())
+                //match the dto from setUp
+                .andExpect(jsonPath("$.vendorId").value(testVendorId.toString()))
+                .andExpect(jsonPath("$.bundleId").value(testBundleId.toString()))
+                .andExpect(jsonPath("$.name").value("Sweet Treat Bundle"))
+                .andExpect(jsonPath("$.price").value(2.66));
+
+        verify(bundleService).getDetailedBundle(anyString(), eq(testBundleId));
+    }
+
+
+    /**
+     * getDetailedBundle test 2
+     * unauthorised (not a valid user token)
+     * 401
+     */
+    @Test
+    public void testGetDetailedBundle_Unauthorised_400() throws Exception {
+
+        when(bundleService.getDetailedBundle(anyString(), eq(testBundleId)))
+
+                .thenThrow(new AuthorizationException());
+
+        mockMvc.perform(get("/bundles/detailed/{bundleId}", testBundleId)
+                        .header("Authorization", "Bearer userAccessToken123"))
+                .andExpect(status().isUnauthorized());
+
+        verify(bundleService).getDetailedBundle(anyString(), eq(testBundleId));
+    }
+
+    /**
+     * getDetailedBundle test 3
+     * bundle not found
+     * 404
+     */
+    @Test
+    public void testGetDetailedBundle_NotFound_400() throws Exception {
+
+        when(bundleService.getDetailedBundle(anyString(), eq(testBundleId)))
+                .thenThrow(new BundleNotFoundException());
+
+        mockMvc.perform(get("/bundles/detailed/{bundleId}", testBundleId)
+                        .header("Authorization", "Bearer userAccessToken123"))
+                .andExpect(status().isNotFound());
+
+        verify(bundleService).getDetailedBundle(anyString(), eq(testBundleId));
+    }
+
+    /**
+     * getDetailedBundle test 4
+     * internal/database error
+     * 500
+     */
+    @Test
+    public void testGetDetailedBundle_DBError_500() throws Exception {
+
+        when(bundleService.getDetailedBundle(anyString(), eq(testBundleId)))
+                .thenThrow(new RuntimeException("database error"));
+
+        mockMvc.perform(get("/bundles/detailed/{bundleId}", testBundleId)
+
+                        .header("Authorization", "Bearer userAccessToken123"))
+                .andExpect(status().isInternalServerError());
+
+        verify(bundleService).getDetailedBundle(anyString(), eq(testBundleId));
+    }
+
+
+    /**
+     * getBundleMetrics test 1
+     * success
+     * 200
+     */
+    @Test
+    public void testGetBundleMetrics_Success_200() throws Exception {
+
+     //the period paramete 'week' says what time range to calc stats for
+        when(bundleService.getBundleMetrics(anyString(), eq("week")))
+                .thenReturn(bundleMetricDTO);
+
+        mockMvc.perform(get("/bundles/metrics")
+                        .header("Authorization", "Bearer vendorAccessToken123"))
+                .andExpect(status().isOk())
+                //these match the values from the setUp bundle metrics dto
+                .andExpect(jsonPath("$.numCollected").value(23))
+                .andExpect(jsonPath("$.numNoShows").value(3))
+                .andExpect(jsonPath("$.numExpired").value(6));
+
+        verify(bundleService).getBundleMetrics(anyString(), eq("week"));
+    }
+
+    /**
+     * getBundleMetrics test 2
+     * unauthorised
+     * 401
+     */
+    @Test
+    public void testGetBundleMetrics_Unauthorised_400() throws Exception {
+
+        //the period paramete 'week' says what time range to calc stats for
+        //this is stats for the week
+        when(bundleService.getBundleMetrics(anyString(), eq("week")))
+                .thenThrow(new AuthorizationException());
+
+        mockMvc.perform(get("/bundles/metrics")
+                        .header("Authorization", "Bearer vendorAccessToken123"))
+                .andExpect(status().isUnauthorized());
+
+        verify(bundleService).getBundleMetrics(anyString(), eq("week"));
+    }
+
+
+    /**
+     * getBundleMetrics test 3
+     * internal/database error
+     * 500
+     */
+    @Test
+    public void testGetBundleMetrics_DBError_500() throws Exception {
+
+        when(bundleService.getBundleMetrics(anyString(), eq("week")))
+                .thenThrow(new RuntimeException("database error"));
+
+        mockMvc.perform(get("/bundles/metrics")
+                        .header("Authorization", "Bearer vendorAccessToken123"))
+                .andExpect(status().isInternalServerError());
+
+        verify(bundleService).getBundleMetrics(anyString(), eq("week"));
+    }
+
+
+    /**
+     * getPastBundles test 1
+     * success
+     * 200
+     */
+    @Test
+    public void testGetPastBundles_Success_200() throws Exception {
+
+        when(bundleService.getPastBundles(anyString(), eq("week")))
+                .thenReturn(List.of());
+
+        mockMvc.perform(get("/bundles/analytics")
+                        .header("Authorization", "Bearer vendorAccessToken123"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());
+
+        verify(bundleService).getPastBundles(anyString(), eq("week"));
+    }
+
+
+    /**
+     * getPastBundles test 2
+     * unauthorised
+     * 401
+     */
+    @Test
+    public void testGetPastBundles_Unauthorised_400() throws Exception {
+
+        when(bundleService.getPastBundles(anyString(), eq("week")))
+                .thenThrow(new AuthorizationException());
+
+        mockMvc.perform(get("/bundles/analytics")
+                        .header("Authorization", "Bearer vendorAccessToken123"))
+                .andExpect(status().isUnauthorized());
+
+        verify(bundleService).getPastBundles(anyString(), eq("week"));
+    }
+
+    /**
+     * getPastBundles test 3
+     * internal/database error
+     * 500
+     */
+    @Test
+    public void testGetPastBundles_DBError_500() throws Exception {
+
+        when(bundleService.getPastBundles(anyString(), eq("week")))
+                .thenThrow(new RuntimeException("database error"));
+
+        mockMvc.perform(get("/bundles/analytics")
+                        .header("Authorization", "Bearer vendorAccessToken123"))
+                .andExpect(status().isInternalServerError());
+
+        verify(bundleService).getPastBundles(anyString(), eq("week"));
+    }
 }
