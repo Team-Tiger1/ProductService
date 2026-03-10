@@ -69,9 +69,4 @@ public class RedisConfig implements CachingConfigurer {
         };
     }
 
-    @Bean
-    public CommandLineRunner clearCache(RedisConnectionFactory connectionFactory) {
-        return args -> connectionFactory.getConnection().serverCommands().flushAll();
-    }
-
 }
