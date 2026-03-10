@@ -3,6 +3,7 @@ package com.teamtiger.productservice;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -43,4 +44,10 @@ public class RedisConfig {
                 .cacheDefaults(config)
                 .build();
     }
+
+    @Bean
+    public CommandLineRunner clearCache(RedisConnectionFactory connectionFactory) {
+        return args -> connectionFactory.getConnection().serverCommands().flushAll();
+    }
+
 }
