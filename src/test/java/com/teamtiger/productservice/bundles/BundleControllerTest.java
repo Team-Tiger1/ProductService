@@ -1,4 +1,4 @@
-package com.teamtiger.productservice.bundles.controllers;
+package com.teamtiger.productservice.bundles;
 
 import com.teamtiger.productservice.bundles.exceptions.BundleNotFoundException;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
