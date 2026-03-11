@@ -278,7 +278,7 @@ public class BundleController {
      * 400 if collection time is invalid
      * 500 if other error occurs
      */
-    @Operation(summary = "Allows a Vendor to Update a Bundle's detailed")
+    @Operation(summary = "Allows a vendor to update a bundle's details")
     @PatchMapping("/{bundleId}")
     public ResponseEntity<?> editBundle(@RequestHeader("Authorization") String authHeader,
                                         @PathVariable UUID bundleId,
