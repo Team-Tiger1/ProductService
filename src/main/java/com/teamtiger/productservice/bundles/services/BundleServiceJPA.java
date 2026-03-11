@@ -2,6 +2,7 @@ package com.teamtiger.productservice.bundles.services;
 
 import com.teamtiger.productservice.JwtTokenUtil;
 import com.teamtiger.productservice.bundles.entities.Bundle;
+import com.teamtiger.productservice.bundles.exceptions.BundleCollectionTimeException;
 import com.teamtiger.productservice.bundles.exceptions.BundleNotDiscountedException;
 import com.teamtiger.productservice.bundles.exceptions.BundleNotFoundException;
 import com.teamtiger.productservice.bundles.exceptions.VendorAuthorizationException;
@@ -454,6 +455,77 @@ public class BundleServiceJPA implements BundleService {
 
         Long numPostedBundles = bundleRepository.countPostedBundlesByVendor(vendorId);
         return numPostedBundles.intValue();
+    }
+
+
+    /**
+     * Updates each bundle value after validation
+     * @param accessToken Vendor Access Token
+     * @param bundleId Target Bundle UUID
+     * @param editBundleDTO New Bundle Details
+     */
+    @Override
+    public void updateBundle(String accessToken, UUID bundleId, EditBundleDTO editBundleDTO) {
+
+        //Check role
+        String role = jwtTokenUtil.getRoleFromToken(accessToken);
+        if(!role.equals("VENDOR")) {
+            throw new AuthorizationException();
+        }
+
+        UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
+
+        //Get Bundle Entity from Database
+        Bundle savedBundle = bundleRepository.findById(bundleId)
+                .orElseThrow(BundleNotFoundException::new);
+
+        //Check vendor owns the bundle
+        if(!savedBundle.getVendorId().equals(vendorId)) {
+            throw new AuthorizationException();
+        }
+
+        //Create Local Variables for Clarity
+        String name = editBundleDTO.getName();
+        String description = editBundleDTO.getDescription();
+        Double price = editBundleDTO.getPrice();
+        LocalDateTime collectionStart = editBundleDTO.getCollectionStart();
+        LocalDateTime collectionEnd = editBundleDTO.getCollectionEnd();
+
+        //Assign Name
+        if(name != null && !name.isEmpty()) {
+            savedBundle.setName(name);
+        }
+
+        //Assign Description
+        if(description != null && !description.isEmpty()) {
+            savedBundle.setDescription(description);
+        }
+
+        //Assign Price
+        if (price != null && price >= 0) {
+            savedBundle.setPrice(price);
+        }
+
+        //Assign Collection Time
+        if(collectionStart != null && collectionEnd != null) {
+
+            if(collectionEnd.isBefore(LocalDateTime.now())) {
+                //Is collection end set in the past
+                throw new BundleCollectionTimeException();
+            }
+
+            if(collectionEnd.isBefore(collectionStart)) {
+                //Is collection end before collection start
+                throw new BundleCollectionTimeException();
+            }
+
+            savedBundle.setCollectionStart(collectionStart);
+            savedBundle.setCollectionEnd(collectionEnd);
+
+        }
+
+        bundleRepository.save(savedBundle);
+
     }
 
     /**
