@@ -77,7 +77,7 @@ public class BundleServiceJPA implements BundleService {
         }
 
         //Bundle must be discounted
-        if(retailPrice > createBundleDTO.getPrice()) {
+        if(retailPrice < createBundleDTO.getPrice()) {
             throw new BundleNotDiscountedException();
         }
 
