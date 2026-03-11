@@ -524,6 +524,10 @@ public class BundleServiceJPA implements BundleService {
 
         }
 
+        //Add message to RabbitMQ to check bundle on expiry
+        long delay = Duration.between(LocalDateTime.now(), collectionEnd).toMillis();
+        reservationEventPublisher.publishNoShowEvent(bundleId, delay);
+
         bundleRepository.save(savedBundle);
 
     }

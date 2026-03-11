@@ -49,9 +49,9 @@ public class NoShowEventListener {
         if(reservation.getStatus() == CollectionStatus.RESERVED && bundle.getCollectionEnd().isBefore(LocalDateTime.now())) {
             //Collection Window has Expired and No one has picked uo
             reservation.setStatus(CollectionStatus.NO_SHOW);
+            reservationRepository.save(reservation);
         }
 
-        reservationRepository.save(reservation);
 
     }
 
