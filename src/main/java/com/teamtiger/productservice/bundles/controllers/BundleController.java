@@ -1,5 +1,6 @@
 package com.teamtiger.productservice.bundles.controllers;
 
+import com.teamtiger.productservice.bundles.exceptions.BundleCollectionTimeException;
 import com.teamtiger.productservice.bundles.exceptions.BundleNotFoundException;
 import com.teamtiger.productservice.bundles.exceptions.VendorAuthorizationException;
 import com.teamtiger.productservice.bundles.models.*;
@@ -259,6 +260,45 @@ public class BundleController {
 
         catch (AuthorizationException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    /**
+     * Processes a vendors request to update a bundle
+     * @param authHeader Authorization Header
+     * @param bundleId Target Bundle for Update
+     * @param editBundleDTO New Bundle Details
+     * @return 204 No Content,
+     * 404 if bundle not found
+     * 401 if vendor is not owner of bundle
+     * 400 if collection time is invalid
+     * 500 if other error occurs
+     */
+    @Operation(summary = "Allows a Vendor to Update a Bundle's detailed")
+    @PatchMapping("/{bundleId}")
+    public ResponseEntity<?> editBundle(@RequestHeader("Authorization") String authHeader,
+                                        @PathVariable UUID bundleId,
+                                        @RequestBody EditBundleDTO editBundleDTO) {
+        try {
+            String accessToken = authHeader.replace("Bearer ", "");
+            bundleService.updateBundle(accessToken, bundleId, editBundleDTO);
+            return ResponseEntity.noContent().build();
+        }
+
+        catch (AuthorizationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        catch (BundleNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+
+        catch (BundleCollectionTimeException e) {
+            return ResponseEntity.badRequest().build();
         }
 
         catch (Exception e) {
