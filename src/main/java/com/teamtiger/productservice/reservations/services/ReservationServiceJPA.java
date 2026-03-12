@@ -103,12 +103,7 @@ public class ReservationServiceJPA implements ReservationService {
 
         List<Reservation> reservations = reservationRepository.findAllByUserIdAndStatus(userId, status);
 
-        List<Reservation> pendingReservations = reservations.stream()
-                .filter(entity -> entity.getBundle().getCollectionEnd().isAfter(LocalDateTime.now()))
-                .toList();
-
-
-        return pendingReservations.stream()
+        return reservations.stream()
                 .map(ReservationMapper::toDTO)
                 .toList();
     }
