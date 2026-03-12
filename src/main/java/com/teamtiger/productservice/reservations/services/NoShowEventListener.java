@@ -30,18 +30,15 @@ public class NoShowEventListener {
 
         //Get bundle from database
         Optional<Bundle> bundleOptional = bundleRepository.findById(bundleId);
-        System.out.println("Found Bundle");
 
         if(bundleOptional.isEmpty()) {
             return; //Bundle not found
         }
 
         Bundle bundle = bundleOptional.get();
-        System.out.println("Got Bundle");
 
         //Get reservation from database
         Optional<Reservation> reservationOptional = reservationRepository.findByBundleId(bundleId);
-        System.out.println("Find Reservation");
 
         if(reservationOptional.isEmpty()) {
             return; //Reservation not found
@@ -53,7 +50,6 @@ public class NoShowEventListener {
 
         if(reservation.getStatus() == CollectionStatus.RESERVED && bundle.getCollectionEnd().isBefore(LocalDateTime.now())) {
             //Collection Window has Expired and No one has picked up
-            System.out.println("Set Reservation");
             reservation.setStatus(CollectionStatus.NO_SHOW);
             reservationRepository.save(reservation);
         }
