@@ -464,6 +464,11 @@ public class BundleServiceJPA implements BundleService {
      * @param bundleId Target Bundle UUID
      * @param editBundleDTO New Bundle Details
      */
+    @Caching( evict = {
+            @CacheEvict(value = "short_vendor_bundles", key = "@jwtTokenUtil.getUuidFromToken(#accessToken)"),
+            @CacheEvict(value = "vendor_bundles", key = "@jwtTokenUtil.getUuidFromToken(#accessToken)"),
+            @CacheEvict(value = "bundles", allEntries = true)
+    })
     @Override
     public void updateBundle(String accessToken, UUID bundleId, EditBundleDTO editBundleDTO) {
 
