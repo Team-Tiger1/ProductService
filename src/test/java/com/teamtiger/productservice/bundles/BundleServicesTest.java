@@ -386,4 +386,391 @@ public class BundleServicesTest {
     }
 
 
+
+
+    /**
+     * getAllBundles test 1
+     * success
+     * returns a list of all available bundles
+     */
+
+    @Test
+    public void testGetAllBundles_Success() {
+
+        when(bundleRepository.findAvailableBundles(any())).thenReturn(List.of(mockBundle));
+
+        List<ShortBundleDTO> result = bundleService.getAllBundles(50, 0);
+
+        assertThat(result).isNotNull();
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getBundleId()).isEqualTo(testBundleId);
+
+
+        verify(bundleRepository).findAvailableBundles(any());
+    }
+
+
+    /**
+     * getAllBundles test 2
+     * no bundles exist
+     * return empty list
+     */
+    @Test
+    public void testGetAllBundles_NoBundles() {
+
+        when(bundleRepository.findAvailableBundles(any())).thenReturn(List.of());
+
+        List<ShortBundleDTO> result = bundleService.getAllBundles(50, 0);
+
+
+        assertThat(result).isNotNull();
+        assertThat(result).isEmpty();
+    }
+
+
+
+    /**
+     * getDetailedBundle test 1
+     * success
+     * returns a BundleDTO with right fields
+     */
+
+    @Test
+    public void testGetDetailedBundle_Success() {
+
+        when(jwtTokenUtil.getRoleFromToken(anyString())).thenReturn("USER");
+        when(bundleRepository.findById(testBundleId)).thenReturn(Optional.of(mockBundle));
+
+        BundleDTO result = bundleService.getDetailedBundle("Bearer userAccessToken123", testBundleId);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getBundleId()).isEqualTo(testBundleId);
+        assertThat(result.getVendorId()).isEqualTo(testVendorId);
+        //make sure details align with the setUp
+        assertThat(result.getName()).isEqualTo("Sweet Treat Bundle");
+        assertThat(result.getPrice()).isEqualTo(4.71);
+
+        verify(bundleRepository).findById(testBundleId);
+    }
+
+
+    /**
+     * getDetailedBundle test 2
+     * a nonuser token tries to get bundle info
+     * AuthorizationException thrown
+     */
+    @Test
+    public void testGetDetailedBundle_NonUserRole() {
+
+        when(jwtTokenUtil.getRoleFromToken(anyString())).thenReturn("VENDOR");
+
+        assertThatThrownBy(() -> bundleService.getDetailedBundle("Bearer vendorAccessToken123", testBundleId))
+                .isInstanceOf(AuthorizationException.class);
+
+        //make sure it never querys for the bundle if the auth fails
+        verify(bundleRepository, never()).findById(any());
+
+    }
+
+
+    /**
+     * getDetailedBundle test 3
+     * bundle does not exist
+     * BundleNotFoundException thrown
+     */
+    @Test
+    public void testGetDetailedBundle_BundleNotFound() {
+
+        when(jwtTokenUtil.getRoleFromToken(anyString())).thenReturn("USER");
+
+        //bundle cant be found
+        when(bundleRepository.findById(testBundleId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> bundleService.getDetailedBundle("Bearer userAccessToken123", testBundleId))
+                .isInstanceOf(BundleNotFoundException.class);
+    }
+
+
+
+    /**
+     * getBundleMetrics test 1
+     * success
+     * returns BundleMetricDTO with the correct values
+     */
+    @Test
+    public void testGetBundleMetrics_Success() {
+
+        //mock repository returning 5 collected 2 no-shows
+        Object[] collectedGroup =new Object[]{"COLLECTED",5L};
+        Object[] noShowGroup= new Object[]{"NO_SHOW",2L};
+
+        when(jwtTokenUtil.getUuidFromToken(anyString())).thenReturn(testVendorId);
+        when(jwtTokenUtil.getRoleFromToken(anyString())).thenReturn("VENDOR");
+        when(bundleRepository.countBundlesByVendorId(eq(testVendorId), any(LocalDateTime.class)))
+                .thenReturn(List.of(collectedGroup, noShowGroup));
+
+        when(bundleRepository.countPreviousExpiredBundlesByVendor(eq(testVendorId), any(LocalDateTime.class)))
+                .thenReturn(3L);
+
+        BundleMetricDTO result = bundleService.getBundleMetrics("Bearer vendorAccessToken123", "week");
+
+        assertThat(result).isNotNull();
+        assertThat(result.getNumCollected()).isEqualTo(5);
+        assertThat(result.getNumNoShows()).isEqualTo(2);
+        assertThat(result.getNumExpired()).isEqualTo(3);
+    }
+
+
+    /**
+     * getBundleMetrics test 2
+     * nonvendor tries
+     * AuthorizationException thrown
+     */
+
+    @Test
+    public void testGetBundleMetrics_NonVendor() {
+
+        when(jwtTokenUtil.getUuidFromToken(anyString())).thenReturn(testVendorId);
+        when(jwtTokenUtil.getRoleFromToken(anyString())).thenReturn("USER");
+
+        //get metrics for week
+        assertThatThrownBy(() -> bundleService.getBundleMetrics("Bearer consumerToken123", "week"))
+                .isInstanceOf(AuthorizationException.class);
+
+
+        verify(bundleRepository, never()).countBundlesByVendorId(any(), any());
+    }
+
+
+    /**
+     * getBundleMetrics test 3
+     * 'day' is the time period
+     * ensures that period is calculated as 1 day
+     */
+    @Test
+    public void testGetBundleMetrics_DayPeriod() {
+
+        when(jwtTokenUtil.getUuidFromToken(anyString())).thenReturn(testVendorId);
+        when(jwtTokenUtil.getRoleFromToken(anyString())).thenReturn("VENDOR");
+        when(bundleRepository.countBundlesByVendorId(eq(testVendorId), any(LocalDateTime.class)))
+                .thenReturn(List.of());
+        when(bundleRepository.countPreviousExpiredBundlesByVendor(eq(testVendorId), any(LocalDateTime.class)))
+                .thenReturn(0L);
+
+        BundleMetricDTO result = bundleService.getBundleMetrics("Bearer vendorAccessToken123", "day");
+
+        //just confirm it returns without throwing and with 0 counts
+        assertThat(result).isNotNull();
+        assertThat(result.getNumCollected()).isEqualTo(0);
+        assertThat(result.getNumNoShows()).isEqualTo(0);
+        assertThat(result.getNumExpired()).isEqualTo(0);
+    }
+
+
+
+    /**
+     * getNumBundlePosted test 1
+     * success
+     */
+    @Test
+    public void testGetNumBundlePosted_Success() {
+
+        when(jwtTokenUtil.getUuidFromToken(anyString())).thenReturn(testVendorId);
+        when(jwtTokenUtil.getRoleFromToken(anyString())).thenReturn("VENDOR");
+        when(bundleRepository.countPostedBundlesByVendor(testVendorId)).thenReturn(7L);
+
+        Integer result = bundleService.getNumBundlePosted("Bearer vendorAccessToken123");
+
+        assertThat(result).isEqualTo(7);
+
+        verify(bundleRepository).countPostedBundlesByVendor(testVendorId);
+
+
+    }
+
+
+    /**
+     * getNumBundlePosted test 2
+     * nonvendor tries
+     * AuthorizationException thrown
+     */
+
+    @Test
+    public void testGetNumBundlePosted_NonVendor() {
+
+        when(jwtTokenUtil.getUuidFromToken(anyString())).thenReturn(testVendorId);
+        when(jwtTokenUtil.getRoleFromToken(anyString())).thenReturn("USER");
+
+        assertThatThrownBy(() ->bundleService.getNumBundlePosted("Bearer consumerToken123"))
+                .isInstanceOf(AuthorizationException.class);
+
+        verify(bundleRepository, never()).countPostedBundlesByVendor(any());
+    }
+
+
+
+    /**
+     * getPastBundles test 1
+     * success
+     * returns a list of PastBundleDTOs
+     */
+    @Test
+    public void testGetPastBundles_Success() {
+
+        //mock one collected bundle and one expired bundle
+        Object[] collectedEntry = new Object[]{CollectionStatus.COLLECTED, mockBundle};
+
+        when(jwtTokenUtil.getUuidFromToken(anyString())).thenReturn(testVendorId);
+        when(jwtTokenUtil.getRoleFromToken(anyString())).thenReturn("VENDOR");
+//        when(bundleRepository.findPastBundlesByVendor(eq(testVendorId), any(LocalDateTime.class)))
+//                .thenReturn(Set.of(collectedEntry));
+        when(bundleRepository.findExpiredBundlesByVendor(eq(testVendorId), any(LocalDateTime.class)))
+                .thenReturn(List.of(mockBundle));
+        List<Object[]> pastBundles = new ArrayList<>();
+        pastBundles.add(collectedEntry);
+        when(bundleRepository.findPastBundlesByVendor(eq(testVendorId), any(LocalDateTime.class)))
+                .thenReturn(pastBundles);
+
+        List<PastBundleDTO> result = bundleService.getPastBundles("Bearer vendorAccessToken123", "week");
+
+        assertThat(result).isNotNull();
+        //one COLLECTED + one EXPIRED = 2 entries
+        assertThat(result).hasSize(2);
+        assertThat(result.stream().map(PastBundleDTO::getStatus))
+                .containsExactlyInAnyOrder("COLLECTED", "EXPIRED");
+    }
+
+
+    /**
+     * getPastBundles test 2
+     * reserved bundles are filtered out/not included in the results
+     */
+    @Test
+    public void testGetPastBundles_ReservedBundles() {
+
+        //reserved bundles should be skipped
+        Object[] reservedEntry = new Object[]{CollectionStatus.RESERVED, mockBundle};
+
+        when(jwtTokenUtil.getUuidFromToken(anyString())).thenReturn(testVendorId);
+        when(jwtTokenUtil.getRoleFromToken(anyString())).thenReturn("VENDOR");
+//        when(bundleRepository.findPastBundlesByVendor(eq(testVendorId), any(LocalDateTime.class)))
+//                .thenReturn(List.of(reservedEntry));
+        when(bundleRepository.findExpiredBundlesByVendor(eq(testVendorId), any(LocalDateTime.class)))
+                .thenReturn(List.of());
+
+        List<Object[]> reservedBundles = new ArrayList<>();
+        reservedBundles.add(reservedEntry);
+        when(bundleRepository.findPastBundlesByVendor(eq(testVendorId), any(LocalDateTime.class)))
+                .thenReturn(reservedBundles);
+
+        List<PastBundleDTO> result = bundleService.getPastBundles("Bearer vendorAccessToken123", "week");
+
+        //reserved entries should be stripped, so the list should be empty
+        assertThat(result).isEmpty();
+    }
+
+
+    /**
+     * getPastBundles test 3
+     * a nonvendor tries
+     * AuthorizationException thrown
+     */
+    @Test
+    public void testGetPastBundles_NonVendor() {
+
+        when(jwtTokenUtil.getUuidFromToken(anyString())).thenReturn(testVendorId);
+        when(jwtTokenUtil.getRoleFromToken(anyString())).thenReturn("USER");
+
+        assertThatThrownBy(() -> bundleService.getPastBundles("Bearer consumerToken123", "week"))
+                .isInstanceOf(AuthorizationException.class);
+
+        verify(bundleRepository, never()).findPastBundlesByVendor(any(), any());
+    }
+
+
+    /**
+     * getPastBundles test 4
+     * vendor has no past bundles in the given period
+     * returns empty list
+     */
+    @Test
+    public void testGetPastBundles_NoBundles() {
+
+        when(jwtTokenUtil.getUuidFromToken(anyString())).thenReturn(testVendorId);
+        when(jwtTokenUtil.getRoleFromToken(anyString())).thenReturn("VENDOR");
+
+        when(bundleRepository.findPastBundlesByVendor(eq(testVendorId), any(LocalDateTime.class)))
+                .thenReturn(List.of());
+        when(bundleRepository.findExpiredBundlesByVendor(eq(testVendorId), any(LocalDateTime.class)))
+                .thenReturn(List.of());
+
+        List<PastBundleDTO> result = bundleService.getPastBundles("Bearer vendorAccessToken123", "week");
+
+        assertThat(result).isNotNull();
+        assertThat(result).isEmpty();
+    }
+
+
+
+    /**
+     * loadSeededData test 1
+     * success
+     * no exception thrown + save is called
+     */
+    @Test
+    public void testLoadSeededData_Success() {
+
+//        BundleSeedDTO seedDTO = BundleSeedDTO.builder()
+//                .name("Seeded Bundle")
+//                .description("seed desc")
+//                .price(1.99)
+//                .productIds(List.of(testProductId))
+//                .category(BundleCategory.SWEET_TREATS_DESSERTS)
+//                .vendorId(testVendorId)
+//                .collectionStart(LocalDateTime.now().plusHours(1))
+//                .collectionEnd(LocalDateTime.now().plusHours(3))
+//                .build();
+
+        BundleSeedDTO seedDTO = new BundleSeedDTO(
+                testBundleId,
+                List.of(testProductId),
+                Set.of(),
+                testVendorId,
+                "Seeded bundle",
+                BundleCategory.SWEET_TREATS_DESSERTS,
+                LocalDateTime.now().plusHours(1),
+                LocalDateTime.now().plusHours(3),
+                LocalDateTime.now(),
+                "seed desc",
+                1.99
+        );
+
+        when(jwtTokenUtil.getRoleFromToken(anyString())).thenReturn("INTERNAL");
+        when(productRepository.findAllById(any())).thenReturn(List.of(mockProduct));
+        when(bundleRepository.saveAll(anyList())).thenReturn(List.of(mockBundle));
+
+        //no exception should be thrown
+        bundleService.loadSeededData("Bearer internalToken123", List.of(seedDTO));
+
+        verify(bundleRepository).saveAll(anyList());
+    }
+
+
+    /**
+     * loadSeededData test 2
+     * a non-internal token tries to load seeded data
+     * AuthorizationException thrown
+     */
+    @Test
+    public void testLoadSeededData_NonInternalRole() {
+
+        when(jwtTokenUtil.getRoleFromToken(anyString())).thenReturn("VENDOR");
+
+        assertThatThrownBy(() -> bundleService.loadSeededData("Bearer vendorToken123", List.of()))
+                .isInstanceOf(AuthorizationException.class);
+
+        verify(bundleRepository, never()).saveAll(anyList());
+    }
 }
+
+
