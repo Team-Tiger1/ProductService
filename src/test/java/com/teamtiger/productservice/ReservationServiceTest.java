@@ -156,7 +156,7 @@ public class ReservationServiceTest {
         assertThatThrownBy(() -> reservationService.createReservation(testBundleId, "Bearer vendorAccessToken123"))
                 .isInstanceOf(AuthorizationException.class);
 
-        //make sure we never touch the database if auth fails
+        //make sure we never use the database if auth fails
         verify(reservationRepository, never()).save(any(Reservation.class));
 
     }
@@ -306,11 +306,13 @@ public class ReservationServiceTest {
     }
 
 
+
     /**
      * getReservations test 4
      * user has no active reservations
      * returns empty list
      */
+
     @Test
     public void testGetReservations_NoReservations() {
 
@@ -325,6 +327,79 @@ public class ReservationServiceTest {
         assertThat(result).isNotNull();
 
         assertThat(result).isEmpty();
+    }
+
+
+
+
+
+    /**
+     * deleteReservation test 1
+     * success
+     * deleteById is called
+     */
+    @Test
+    public void testDeleteReservation_Success() {
+
+        when(jwtTokenUtil.getUuidFromToken(anyString())).thenReturn(testUserId);
+        when(jwtTokenUtil.getRoleFromToken(anyString())).thenReturn("USER");
+        when(reservationRepository.findById(testReservationId)).thenReturn(Optional.of(mockReservation));
+        doNothing().when(reservationRepository).deleteById(testReservationId);
+
+
+        reservationService.deleteReservation(testReservationId, "Bearer userAccessToken123");
+
+        verify(reservationRepository).deleteById(testReservationId);
+    }
+
+
+    /**
+     * deleteReservation test 2
+     * reservation doesnt exist in the database
+     * ReservationNotFoundException thrown
+     */
+    @Test
+    public void testDeleteReservation_ReservationNotFound() {
+
+        when(jwtTokenUtil.getUuidFromToken(anyString())).thenReturn(testUserId);
+        when(jwtTokenUtil.getRoleFromToken(anyString())).thenReturn("USER");
+
+        //reservation cant be found
+        when(reservationRepository.findById(testReservationId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> reservationService.deleteReservation(testReservationId, "Bearer userAccessToken123"))
+                .isInstanceOf(ReservationNotFoundException.class);
+
+        //ensure never call delete if reservation doesn't exist
+        verify(reservationRepository, never()).deleteById(any());
+    }
+
+
+
+    /**
+     * deleteReservation test 3
+     * a user tries to delete another user's reservation
+     * AuthorizationException thrown
+     */
+    @Test
+    public void testDeleteReservation_WrongUser() {
+
+        //different user to the one who owns the reservation
+        UUID differentUserId = UUID.randomUUID();
+
+        when(jwtTokenUtil.getUuidFromToken(anyString())).thenReturn(differentUserId);
+        when(jwtTokenUtil.getRoleFromToken(anyString())).thenReturn("USER");
+
+        //reservation belongs to testUserId not differentUserId
+        when(reservationRepository.findById(testReservationId)).thenReturn(Optional.of(mockReservation));
+
+
+        assertThatThrownBy(() -> reservationService.deleteReservation(testReservationId, "Bearer wrongUserToken123"))
+                .isInstanceOf(AuthorizationException.class);
+
+        verify(reservationRepository, never()).deleteById(any());
+
+
     }
 
 
