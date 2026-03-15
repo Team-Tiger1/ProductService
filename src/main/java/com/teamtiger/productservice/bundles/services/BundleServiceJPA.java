@@ -56,6 +56,7 @@ public class BundleServiceJPA implements BundleService {
             @CacheEvict(value = "vendor_bundles", key = "@jwtTokenUtil.getUuidFromToken(#accessToken)"),
             @CacheEvict(value = "bundles", allEntries = true)
     })
+    @Transactional
     @Override
     public BundleDTO createBundle(CreateBundleDTO createBundleDTO, String accessToken) {
 
@@ -133,6 +134,7 @@ public class BundleServiceJPA implements BundleService {
             @CacheEvict(value = "vendor_bundles", key = "@jwtTokenUtil.getUuidFromToken(#accessToken)"),
             @CacheEvict(value = "bundles", allEntries = true)
     })
+    @Transactional
     @Override
     public void deleteBundle(UUID bundleId, String accessToken) {
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
@@ -470,6 +472,7 @@ public class BundleServiceJPA implements BundleService {
             @CacheEvict(value = "vendor_bundles", key = "@jwtTokenUtil.getUuidFromToken(#accessToken)"),
             @CacheEvict(value = "bundles", allEntries = true)
     })
+    @Transactional
     @Override
     public void updateBundle(String accessToken, UUID bundleId, EditBundleDTO editBundleDTO) {
 

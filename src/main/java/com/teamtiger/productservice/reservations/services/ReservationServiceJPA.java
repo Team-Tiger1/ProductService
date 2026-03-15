@@ -17,6 +17,7 @@ import com.teamtiger.productservice.reservations.repositories.ClaimCodeRepositor
 import com.teamtiger.productservice.reservations.repositories.ReservationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -41,6 +42,7 @@ public class ReservationServiceJPA implements ReservationService {
      * @return a ReservationDTO
      */
     @Override
+    @Transactional
     public ReservationDTO createReservation(UUID bundleId, String accessToken) {
         UUID userId = jwtTokenUtil.getUuidFromToken(accessToken);
         String role = jwtTokenUtil.getRoleFromToken(accessToken);
@@ -140,6 +142,7 @@ public class ReservationServiceJPA implements ReservationService {
      * @return ClaimCodeDTO
      */
     @Override
+    @Transactional
     public ClaimCodeDTO getClaimCode(UUID reservationId, String accessToken) {
 
         String role = jwtTokenUtil.getRoleFromToken(accessToken);
@@ -179,6 +182,7 @@ public class ReservationServiceJPA implements ReservationService {
      * @return a reservationVendorDTO describing reservation that was just collected
      */
     @Override
+    @Transactional
     public ReservationVendorDTO checkClaimCode(ClaimCodeDTO claimCode, String accessToken) {
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
         String role = jwtTokenUtil.getRoleFromToken(accessToken);
@@ -221,6 +225,7 @@ public class ReservationServiceJPA implements ReservationService {
      * @param reservations list of ReservationSeedDTO
      */
     @Override
+    @Transactional
     public void loadSeededData(String accessToken, List<ReservationSeedDTO> reservations) {
         String role = jwtTokenUtil.getRoleFromToken(accessToken);
 

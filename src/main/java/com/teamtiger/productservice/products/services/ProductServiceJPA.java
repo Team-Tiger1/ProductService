@@ -40,6 +40,7 @@ public class ProductServiceJPA implements ProductService{
      * @return a GetProductDTO
      */
     @Override
+    @Transactional
     @CacheEvict(value = "vendor_products", key = "@jwtTokenUtil.getUuidFromToken(#accessToken)")
     public GetProductDTO createProduct(String accessToken, ProductDTO dto) {
 
@@ -97,6 +98,7 @@ public class ProductServiceJPA implements ProductService{
      * @param productId of the product to be deleted
      */
     @Override
+    @Transactional
     @CacheEvict(value = "vendor_products", key = "@jwtTokenUtil.getUuidFromToken(#accessToken)")
     public void deleteProduct(String accessToken, UUID productId) {
 
@@ -123,6 +125,7 @@ public class ProductServiceJPA implements ProductService{
      * @return GetProductDTO of the update product
      */
     @Override
+    @Transactional
     @CacheEvict(value = "vendor_products", key = "@jwtTokenUtil.getUuidFromToken(#accessToken)")
     public GetProductDTO updateProduct(String accessToken, UUID productId, UpdateProductDTO dto) {
         UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
