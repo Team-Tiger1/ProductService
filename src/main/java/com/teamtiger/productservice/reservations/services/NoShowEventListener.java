@@ -9,6 +9,7 @@ import com.teamtiger.productservice.reservations.repositories.ReservationReposit
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -26,6 +27,7 @@ public class NoShowEventListener {
      * @param bundleId The ID of the bundle on the database
      */
     @RabbitListener(queues = RabbitMQConfig.DELAY_QUEUE)
+    @Transactional
     public void handleNoShow(UUID bundleId) {
 
         //Get bundle from database
