@@ -1,6 +1,7 @@
 package com.teamtiger.productservice.reservations.services;
 
 import com.teamtiger.productservice.reservations.models.*;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.UUID;

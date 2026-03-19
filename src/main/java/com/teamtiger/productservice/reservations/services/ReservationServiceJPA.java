@@ -21,7 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -105,8 +107,33 @@ public class ReservationServiceJPA implements ReservationService {
 
         List<Reservation> reservations = reservationRepository.findAllByUserIdAndStatus(userId, status);
 
+        //Get reservation ids and get corresponding vendor info
+        List<UUID> reservationIds = reservations.stream().map(Reservation::getId).toList();
+        List<Object[]> vendorInfo = reservationRepository.getAllVendorInfo(reservationIds, userId);
+
+        //Map reservation ID to query data
+        Map<UUID, Object[]> resultMap = vendorInfo.stream()
+                .collect(Collectors.toMap(
+                        row -> (UUID) row[0],
+                        row -> row
+                ));
+
         return reservations.stream()
-                .map(ReservationMapper::toDTO)
+                .map(entity -> {
+                    ReservationDTO reservationDTO = ReservationMapper.toDTO(entity);
+
+                    Object[] info = resultMap.get(entity.getId());
+
+                    //Add vendor info to reservation dto
+                    if (info != null) {
+                        reservationDTO.setVendorName((String) info[1]);
+                        reservationDTO.setStreetAddress((String) info[2]);
+                        reservationDTO.setPostcode((String) info[3]);
+                    }
+
+                    return reservationDTO;
+
+                })
                 .toList();
     }
 
