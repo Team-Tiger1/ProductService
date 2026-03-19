@@ -401,7 +401,6 @@ public class BundleServiceJPA implements BundleService {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime period = switch (timePeriod) {
             case "day" -> now.minusDays(1);
-            case "week" -> now.minusWeeks(1);
             case "month" -> now.minusMonths(1);
             case "year" -> now.minusYears(1);
             default -> now.minusWeeks(1);
@@ -413,15 +412,21 @@ public class BundleServiceJPA implements BundleService {
 
         List<PastBundleDTO> pastBundleList = new ArrayList<>();
 
+        List<UUID> allBundleIds = new ArrayList<>();
+
+
         for(Object[] group : bundles) {
             Bundle savedBundle = (Bundle) group[1];
             CollectionStatus status = (CollectionStatus) group[0];
+
+            allBundleIds.add(savedBundle.getId());
 
             if(status.equals(CollectionStatus.RESERVED)) {
                 continue;
             }
 
             PastBundleDTO pastBundleDTO = PastBundleDTO.builder()
+                    .bundleId(savedBundle.getId())
                     .bundleName(savedBundle.getName())
                     .date(savedBundle.getPostingTime())
                     .amountDue(savedBundle.getPrice())
@@ -430,14 +435,32 @@ public class BundleServiceJPA implements BundleService {
             pastBundleList.add(pastBundleDTO);
         }
 
-        pastBundleList.addAll(expiredBundles.stream()
-                .map(entity -> PastBundleDTO.builder()
-                        .bundleName(entity.getName())
-                        .date(entity.getPostingTime())
-                        .amountDue(entity.getPrice())
-                        .status("EXPIRED")
-                        .build())
-                .toList());
+        for (Bundle entity : expiredBundles) {
+            allBundleIds.add(entity.getId());
+
+            pastBundleList.add(PastBundleDTO.builder()
+                    .bundleId(entity.getId())
+                    .bundleName(entity.getName())
+                    .date(entity.getPostingTime())
+                    .amountDue(entity.getPrice())
+                    .status("EXPIRED")
+                    .build());
+        }
+
+        //Get weight
+        List<Object[]> bundleWeights = bundleRepository.getWeightForAllBundles(allBundleIds);
+
+        // Create the lookup map we discussed
+        Map<UUID, Double> weightMap = bundleWeights.stream()
+                .collect(Collectors.toMap(
+                        row -> (UUID) row[0],
+                        row -> ((Number) row[1]).doubleValue()
+                ));
+
+        // 4. Map weights back to your DTOs
+        pastBundleList.forEach(dto -> {
+            dto.setWeight(weightMap.getOrDefault(dto.getBundleId(), 0.0));
+        });
 
         return pastBundleList;
     }

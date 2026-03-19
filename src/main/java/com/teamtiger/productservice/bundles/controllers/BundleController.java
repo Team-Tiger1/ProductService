@@ -244,7 +244,7 @@ public class BundleController {
      * Retrieves bundle metrics for a past bundle for the authenticated vendor
      * @param period Time("day","week","month")
      * @param authHeader containing JWT token
-     * @return BundleDto containing information about the bundle
+     * @return BundleDTO containing information about the bundle
      *      401 if unauthorized
      *      500 if an unexpected error occurs
      */
