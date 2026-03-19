@@ -52,4 +52,12 @@ public interface BundleRepository extends JpaRepository<Bundle, UUID> {
     List<Bundle> findExpiredBundlesByVendor(UUID vendorId, LocalDateTime period);
 
 
+    @Query(value = "SELECT b.bundle_id, SUM(p.weight * bp.quantity) FROM bundles AS b " +
+            "JOIN bundle_products bp ON bp.bundle_id = b.bundle_id " +
+            "JOIN products p ON p.product_id = bp.product_id " +
+            "WHERE b.bundle_id IN :bundleIds " +
+            "GROUP BY b.bundle_id ", nativeQuery = true)
+    List<Object[]> getWeightForAllBundles(List<UUID> bundleIds);
+
+
 }
