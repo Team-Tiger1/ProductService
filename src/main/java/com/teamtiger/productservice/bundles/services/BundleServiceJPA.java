@@ -318,7 +318,6 @@ public class BundleServiceJPA implements BundleService {
      * @param bundleId unique identifier of the bundle
      * @return  A bundleDTO containing all information about bundle
      */
-    @Cacheable(value = "bundle_details", key="#bundleId")
     @Override
     public BundleDTO getDetailedBundle(String accessToken, UUID bundleId) {
         String role = jwtTokenUtil.getRoleFromToken(accessToken);
