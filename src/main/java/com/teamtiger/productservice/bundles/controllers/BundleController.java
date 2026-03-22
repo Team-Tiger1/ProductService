@@ -307,4 +307,28 @@ public class BundleController {
         }
     }
 
+    /**
+     * Processes a vendors request to get collection rates of different discount rates
+     * @param authHeader The authorization header
+     * @return A list of discount rates
+     */
+    @Operation(summary = "Gets collection rates through different discount rates")
+    @GetMapping("/analytics/discount")
+    public ResponseEntity<?> getDiscountRates(@RequestHeader("Authorization") String authHeader) {
+        try {
+            String accessToken = authHeader.replace("Bearer ", "");
+            List<DiscountDTO> discountDTOS = bundleService.getDiscountSellThroughRate(accessToken);
+            return ResponseEntity.ok(discountDTOS);
+
+        }
+
+        catch (AuthorizationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
 }

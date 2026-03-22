@@ -31,4 +31,7 @@ public interface BundleService {
     List<PastBundleDTO> getPastBundles(String accessToken, String period);
 
     void updateBundle(String accessToken, UUID bundleId, EditBundleDTO editBundleDTO);
+
+    List<DiscountDTO> getDiscountSellThroughRate(String accessToken);
+
 }
