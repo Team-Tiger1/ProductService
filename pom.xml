@@ -136,6 +136,20 @@
             </plugin>
 
             <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <version>12.2.0</version> <executions>
+                <execution>
+                    <goals>
+                        <goal>check</goal>
+                    </goals>
+                </execution>
+            </executions>
+                <configuration>
+                </configuration>
+            </plugin>
+
+            <plugin>
 
                 <groupId>com.github.spotbugs</groupId>
 
