@@ -8,10 +8,7 @@ import com.teamtiger.productservice.bundles.repositories.BundleRepository;
 import com.teamtiger.productservice.reservations.ClaimCodeGenerator;
 import com.teamtiger.productservice.reservations.entities.ClaimCode;
 import com.teamtiger.productservice.reservations.entities.Reservation;
-import com.teamtiger.productservice.reservations.exceptions.AuthorizationException;
-import com.teamtiger.productservice.reservations.exceptions.BundleAlreadyReservedException;
-import com.teamtiger.productservice.reservations.exceptions.BundleExpiredException;
-import com.teamtiger.productservice.reservations.exceptions.ReservationNotFoundException;
+import com.teamtiger.productservice.reservations.exceptions.*;
 import com.teamtiger.productservice.reservations.models.*;
 import com.teamtiger.productservice.reservations.repositories.ClaimCodeRepository;
 import com.teamtiger.productservice.reservations.repositories.ReservationRepository;
@@ -19,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -223,6 +221,11 @@ public class ReservationServiceJPA implements ReservationService {
 
         Reservation reservation = savedClaimCode.getReservation();
         Bundle bundle = reservation.getBundle();
+
+        LocalDateTime now = LocalDateTime.now();
+        if(bundle.getCollectionStart().isAfter(now) || bundle.getCollectionEnd().isBefore(now)) {
+            throw new MissedCollectionWindowException();
+        }
 
         ReservationVendorDTO reservationVendorDTO = ReservationVendorDTO.builder()
                 .reservationId(reservation.getId())
