@@ -159,5 +159,6 @@ The Image below highlights where in the architecture this service operates.
 - Set up the connection to the PostgreSQL database, and RabbitMQ
 - - **Added SpotBugs Dependancy to perform SAST**
 - - **Added Liveliness checks to workflow for zero downtime Deployment**
+- **Helped Review PR's**
 
 
