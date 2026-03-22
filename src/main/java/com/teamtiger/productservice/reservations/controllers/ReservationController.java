@@ -1,10 +1,7 @@
 package com.teamtiger.productservice.reservations.controllers;
 
 import com.teamtiger.productservice.bundles.exceptions.BundleNotFoundException;
-import com.teamtiger.productservice.reservations.exceptions.AuthorizationException;
-import com.teamtiger.productservice.reservations.exceptions.BundleAlreadyReservedException;
-import com.teamtiger.productservice.reservations.exceptions.BundleExpiredException;
-import com.teamtiger.productservice.reservations.exceptions.ReservationNotFoundException;
+import com.teamtiger.productservice.reservations.exceptions.*;
 import com.teamtiger.productservice.reservations.models.*;
 import com.teamtiger.productservice.reservations.services.ReservationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -186,6 +183,7 @@ public class ReservationController {
      * @param authHeader A bearer access token
      * @return A ResponseEntity that returns 204 if successful
      *        404 if bundle is not found
+     *        403 if missed collection window
      *        401 if unauthorized
      *        500 for other errors
      */
@@ -200,6 +198,10 @@ public class ReservationController {
 
         catch (AuthorizationException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        catch (MissedCollectionWindowException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         catch (BundleNotFoundException e) {
