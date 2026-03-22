@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -58,6 +59,13 @@ public interface BundleRepository extends JpaRepository<Bundle, UUID> {
             "WHERE b.bundle_id IN :bundleIds " +
             "GROUP BY b.bundle_id ", nativeQuery = true)
     List<Object[]> getWeightForAllBundles(List<UUID> bundleIds);
+
+    @Query("SELECT r.bundle.id FROM Reservation r " +
+            "JOIN Bundle b ON b = r.bundle " +
+            "WHERE b.vendorId = :vendorId AND r.status = 'COLLECTED'")
+    Set<UUID> findReservedBundleIdsByVendorId(UUID vendorId);
+
+
 
 
 }

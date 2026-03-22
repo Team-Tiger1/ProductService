@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -560,8 +561,78 @@ public class BundleServiceJPA implements BundleService {
         reservationEventPublisher.publishNoShowEvent(bundleId, delay);
 
         bundleRepository.save(savedBundle);
-
     }
+
+
+    /**
+     * Calculate the collection rate in different discount rates
+     * @param accessToken The vendors access Token
+     * @return A list of DisputeDTO's
+     */
+    @Override
+    public List<DiscountDTO> getDiscountSellThroughRate(String accessToken) {
+
+        //Check role
+        String role = jwtTokenUtil.getRoleFromToken(accessToken);
+        if(!role.equals("VENDOR")) {
+            throw new AuthorizationException();
+        }
+
+        UUID vendorId = jwtTokenUtil.getUuidFromToken(accessToken);
+
+        //Get all bundles and bundles that are reserved
+        List<Bundle> bundles = bundleRepository.findAllByVendorId(vendorId);
+        Set<UUID> reservedBundleSet = bundleRepository.findReservedBundleIdsByVendorId(vendorId);
+
+        //Method that groups bundles by discount
+        Function<Bundle, String> calculateDiscountBucket = (b) -> {
+            if (b.getRetailPrice() <= 0) return "0-10";
+
+            double discount = (1 - (b.getPrice() / b.getRetailPrice())) * 100;
+
+            if (discount <= 10) return "0-10";
+            if (discount <= 20) return "11-20";
+            if (discount <= 30) return "21-30";
+            if(discount <= 40) return "31-40";
+            if(discount <= 50) return "41-50";
+            if(discount <= 60) return "51-60";
+            if(discount <= 70) return "61-70";
+            if(discount <= 80) return "71-80";
+            if(discount <= 90) return "81-90";
+            return "91-100";
+        };
+
+        Map<String, List<Bundle>> grouped = bundles.stream()
+                .collect(Collectors.groupingBy(calculateDiscountBucket));
+
+        return grouped.entrySet().stream()
+                .map(entry -> {
+                    String range = entry.getKey();
+                    List<Bundle> bundleList = entry.getValue();
+
+                    long totalCount = bundleList.size();
+
+                    //Check if bundle has been reserved
+                    long reservedCount = bundleList.stream()
+                            .filter(b -> reservedBundleSet.contains(b.getId()))
+                            .count();
+
+                    String[] splitRange = range.split("-");
+
+
+                    return DiscountDTO.builder()
+                            .startDiscount(Integer.parseInt(splitRange[0]))
+                            .endDiscount(Integer.parseInt(splitRange[1]))
+                            .collectionRate((double) reservedCount / totalCount)
+                            .build();
+
+
+                })
+                .collect(Collectors.toList());
+    }
+
+
+
 
     /**
      * Maps Bundle Entities to DTOs
