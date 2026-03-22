@@ -133,6 +133,7 @@ The Image below highlights where in the architecture this service operates.
     - Defined Bundle and BundleProducts (joining table) database tables using Spring Boot JPA
     - Wrote business logic in Bundle Service Layer that accesses the database
     - Defined Custom Exceptions to improve visibility in the logs
+    - Created endpoints so the vendors can edit/delete bundles
 - Setup Reservation Components:
     - Created Reservation Endpoints and specified the data required in the request
     - Validated incoming request data at the DTO layer
@@ -140,9 +141,12 @@ The Image below highlights where in the architecture this service operates.
     - Defined RabbitMQ configuration and published messages to the queue
     - Defined Custom Exceptions to improve visibility in the logs
     - Wrote business logic in the Reservation Service Layer that accesses the database
+    - Setup a delayed queue (RabbitMQ) to automatically handle No-Shows
 - Added OpenAPI documentation to improve visibility of the backend for the front-end developers
 - Enforced Controller-Service-Repository model to improve consistency across services for developers
 - Used Maven Licensing Plugin to check permissions of dependency licenses (Software Inventory)
+- Used Maven Dependency Security Plugin to Audit Dependencies for Security Vunerabilities
+- Setup Redis Cache Configuration and Cached Popular Endpoints
 - Created README file to show details about the repository
 
 <br>
