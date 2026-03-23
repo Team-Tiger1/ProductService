@@ -161,4 +161,13 @@ The Image below highlights where in the architecture this service operates.
 - - **Added Liveliness checks to workflow for zero downtime Deployment**
 - **Helped Review PR's**
 
+<br>
 
+**Author: Ivy Figari**
+
+ - Bundle Testing:
+Implemented unit and controller tests for bundle creation, deletion, retrieval, metrics, and vendor-specific access control. Covered success paths, validation, authorisation failures, not-found cases, and internal errors.
+ - Product Testing:
+Wrote tests for product creation, retrieval, and deletion, including vendor-only access, successful persistence, and missing-product scenarios.
+ - Reservation Testing:
+Developed service tests for reservation creation, deletion, claim code generation, vendor/user authorisation, and reservation state handling such as expired or already-reserved bundles.
