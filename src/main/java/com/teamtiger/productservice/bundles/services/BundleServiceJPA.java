@@ -295,12 +295,22 @@ public class BundleServiceJPA implements BundleService {
 
         Pageable pageable = PageRequest.of(offset, limit);
         List<Bundle> bundles = bundleRepository.findAvailableBundles(pageable);
+        List<Object[]> vendorData = bundleRepository.findAllVendorInfo();
+
+        //Map UUID to Postcode
+        Map<UUID, String> postcodeMap = vendorData.stream()
+                .collect(Collectors.toMap(
+                        data -> (UUID) data[0],
+                        data -> (String) data[1]
+                ));
+
 
         return bundles.stream()
                 .map(entity -> ShortBundleDTO.builder()
                         .bundleName(entity.getName())
                         .category(entity.getCategory())
                         .bundleId(entity.getId())
+                        .postcode(postcodeMap.get(entity.getVendorId()))
                         .price(entity.getPrice())
                         .vendorId(entity.getVendorId())
                         .allergens(entity.getAllergies().stream()

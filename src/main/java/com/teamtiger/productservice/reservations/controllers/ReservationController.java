@@ -18,7 +18,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/reservations")
 @RequiredArgsConstructor
-//REST controller managing reservation operations
 public class ReservationController {
 
     private final ReservationService reservationService;
@@ -28,7 +27,6 @@ public class ReservationController {
      * @param bundleId of th bundle being Reserved
      * @param authHeader A bearer access token
      * @return A ResponseEntity that returns 200 if successful
-     *
      */
     @Operation(summary = "Create a reservation given a bundle")
     @PostMapping("/{bundleId}")
