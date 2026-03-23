@@ -23,6 +23,7 @@ public class ShortBundleDTO {
     private UUID bundleId;
     private UUID vendorId;
     private String bundleName;
+    private String postcode;
     private double price;
     private BundleCategory category;
     private Set<AllergyType> allergens;

@@ -66,6 +66,9 @@ public interface BundleRepository extends JpaRepository<Bundle, UUID> {
     Set<UUID> findReservedBundleIdsByVendorId(UUID vendorId);
 
 
+    @Query(value = "SELECT vendor_id, postcode FROM vendor", nativeQuery = true)
+    List<Object[]> findAllVendorInfo();
+
 
 
 }
