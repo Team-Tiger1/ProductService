@@ -119,7 +119,8 @@ The Image below highlights where in the architecture this service operates.
    - Wrote business logic in Product Service Layer that accesses the database
    - Developed ProductMapper to convert entities into DTOs 
    - Created repository interfaces for Product and Allergy database operations
-- Commented Product Service    
+- Commented Product Service
+- Added API Documentation to increase visibility of Endpoints on Swagger    
 
 <br>
 
