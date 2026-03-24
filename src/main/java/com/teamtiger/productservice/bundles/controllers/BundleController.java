@@ -12,6 +12,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import java.util.List;
 import java.util.UUID;
@@ -35,6 +40,21 @@ public class BundleController {
      * 500 Exception returned if an error occurs
      */
     @Operation(summary = "Allows a Vendor to create a new Bundle")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Bundle created successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = BundleDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content
+            )
+    })
     @PostMapping
     public ResponseEntity<?> createBundle(@Valid @RequestBody CreateBundleDTO createBundleDTO,
                                           @RequestHeader("Authorization") String authHeader) {
@@ -56,9 +76,31 @@ public class BundleController {
      * @return 204 if bundle is successfully deleted
      *          404 if the bundle to be deleted is not found
      *          401 if the vendor attempting to delete the bundle is not authorized to
-     *          500 i unexpected error occurs
+     *          500 if unexpected error occurs
      */
     @Operation(summary = "Allows a Vendor to delete a bundle")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Bundle deleted successfully",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Bundle not found",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content
+            )
+    })
     @DeleteMapping("/{bundleId}")
     public ResponseEntity<?> deleteBundle(@RequestHeader("Authorization") String authHeader,
                                           @PathVariable UUID bundleId) {
@@ -91,6 +133,26 @@ public class BundleController {
      *          500 if an unexpected error occurs
      */
     @Operation(summary = "Allows a vendor to access all their bundles for sale")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Bundles retrieved successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = BundleDTO.class))
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content
+            )
+    })
     @GetMapping("/me")
     public ResponseEntity<?> getOwnBundles(@RequestHeader("Authorization") String authHeader) {
         try {
@@ -117,6 +179,21 @@ public class BundleController {
      *
      */
     @Operation(summary = "Get all bundles from a vendor given a vendorId")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Vendor bundles retrieved successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = ShortBundleDTO.class))
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content
+            )
+    })
     @GetMapping("/{vendorId}")
     public ResponseEntity<?> getVendorBundles(@PathVariable UUID vendorId) {
         try {
@@ -138,6 +215,23 @@ public class BundleController {
      *        500 exception if a different error occurs
      */
     @Operation(summary = "Allows bulk transfer of seeded data")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Seeded bundle data loaded successfully",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content
+            )
+    })
     @PostMapping("/internal")
     public ResponseEntity<?> loadSeededData(@RequestHeader("Authorization") String authHeader, @Valid @RequestBody List<BundleSeedDTO> bundles) {
         try {
@@ -165,6 +259,21 @@ public class BundleController {
      *         500 exception if an error occurs
      */
     @Operation(summary = "Get all available bundles")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Available bundles returned successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = ShortBundleDTO.class))
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content
+            )
+    })
     @GetMapping
     public ResponseEntity<?> getAllBundlesAvailable(@RequestParam(name = "limit", defaultValue = "50", required = false) int limit,
                                                     @RequestParam(name = "offset", defaultValue = "0", required = false) int offset) {
@@ -190,6 +299,31 @@ public class BundleController {
      *        500 if an unexpected error occurs
      */
     @Operation(summary = "Get detailed information about a bundle")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Bundle returned successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = BundleDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Bundle not found",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content
+            )
+    })
     @GetMapping("/detailed/{bundleId}")
     public ResponseEntity<?> getDetailedBundle(@PathVariable UUID bundleId, @RequestHeader("Authorization") String authHeader) {
         try {
@@ -221,6 +355,26 @@ public class BundleController {
      * @return Number of Collected, No Show and Expired Bundles
      */
     @Operation(summary = "Get number of bundles in a time period")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Bundle metrics retrieved successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = BundleMetricDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content
+            )
+    })
     @GetMapping("/metrics")
     public ResponseEntity<?> getBundleMetrics(@RequestParam(name = "period", defaultValue = "week", required = false) String period,
                                                  @RequestHeader("Authorization") String authHeader) {
@@ -250,6 +404,26 @@ public class BundleController {
      *      500 if an unexpected error occurs
      */
     @Operation(summary = "Get bundle information in a time period")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Past bundles retrieved successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = PastBundleDTO.class))
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content
+            )
+    })
     @GetMapping("/analytics")
     public ResponseEntity<?> getPastBundles(@RequestParam(name = "period", defaultValue = "week", required = false) String period,
                                               @RequestHeader("Authorization") String authHeader) {
@@ -280,6 +454,33 @@ public class BundleController {
      * 500 if other error occurs
      */
     @Operation(summary = "Allows a vendor to update a bundle's details")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Bundle updated successfully",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Bundle not found",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Not a valid collection time",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content
+            )
+    })
     @PatchMapping("/{bundleId}")
     public ResponseEntity<?> editBundle(@RequestHeader("Authorization") String authHeader,
                                         @PathVariable UUID bundleId,
@@ -313,6 +514,26 @@ public class BundleController {
      * @return A list of discount rates
      */
     @Operation(summary = "Gets collection rates through different discount rates")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Discount rates retrieved successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = DiscountDTO.class))
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content
+            )
+    })
     @GetMapping("/analytics/discount")
     public ResponseEntity<?> getDiscountRates(@RequestHeader("Authorization") String authHeader) {
         try {
